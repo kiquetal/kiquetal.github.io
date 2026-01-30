@@ -20,6 +20,7 @@ const posts = {
       en: 'Building Cloud Native Architectures',
       es: 'Construyendo Arquitecturas Nativas en la Nube'
     },
+    liveUrl: 'https://shop-microservices.kiquetal.dev',
     content: {
       en: `
         <p>Cloud native architecture is more than just running applications in the cloud. It's about how applications are created and deployed.</p>
@@ -46,6 +47,7 @@ const posts = {
       en: 'Kubernetes Security Best Practices',
       es: 'Mejores Prácticas de Seguridad en Kubernetes'
     },
+    liveUrl: null,
     content: {
       en: `
         <p>Security in Kubernetes is a vast topic. Here are some essential practices to get started.</p>
@@ -72,6 +74,7 @@ const posts = {
       en: 'Building a Serverless Data Pipeline',
       es: 'Construyendo un Pipeline de Datos Serverless'
     },
+    liveUrl: 'https://data-pipeline.kiquetal.dev',
     content: {
       en: `
         <p>This post explores how to build a scalable data pipeline using AWS Lambda, Kinesis, and DynamoDB.</p>
@@ -88,6 +91,7 @@ const posts = {
       en: 'Infrastructure as Code with Terraform',
       es: 'Infraestructura como Código con Terraform'
     },
+    liveUrl: 'https://github.com/kiquetal/terraform-aws-vpc',
     content: {
       en: `
         <p>Learn how to manage your cloud infrastructure efficiently using Terraform modules.</p>
@@ -104,6 +108,7 @@ const posts = {
       en: 'Integrating Security into DevOps Dashboards',
       es: 'Integrando Seguridad en Dashboards DevOps'
     },
+    liveUrl: 'https://security-dashboard.kiquetal.dev',
     content: {
       en: `
         <p>A guide to visualizing security metrics from SonarQube and Trivy in a unified dashboard.</p>
@@ -134,6 +139,14 @@ const post = posts[slug];
 		<article>
 			<h1 class="lang-en">{post.title.en}</h1>
 			<h1 class="lang-es hidden">{post.title.es}</h1>
+
+			{post.liveUrl && (
+				<div class="live-demo-banner">
+					<span class="lang-en">Check out the live demo:</span>
+					<span class="lang-es hidden">Ver la demo en vivo:</span>
+					<a href={post.liveUrl} target="_blank" class="demo-link">{post.liveUrl} ↗</a>
+				</div>
+			)}
 			
 			<div class="content lang-en" set:html={post.content.en} />
 			<div class="content lang-es hidden" set:html={post.content.es} />
@@ -233,6 +246,28 @@ const post = posts[slug];
 		font-weight: 800;
 		margin-bottom: 2rem;
 		line-height: 1.2;
+	}
+
+	.live-demo-banner {
+		background: rgba(56, 189, 248, 0.1);
+		border: 1px solid rgba(56, 189, 248, 0.2);
+		padding: 1rem;
+		border-radius: 8px;
+		margin-bottom: 2rem;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		flex-wrap: wrap;
+	}
+
+	.demo-link {
+		color: rgb(var(--accent));
+		font-weight: 600;
+		text-decoration: none;
+	}
+
+	.demo-link:hover {
+		text-decoration: underline;
 	}
 
 	.content :global(h3) {

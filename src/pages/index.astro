@@ -48,6 +48,33 @@ const translations = {
   }
 };
 
+const demos = [
+  {
+    id: 'demo1',
+    icon: '🛍️',
+    liveUrl: 'https://shop-microservices.kiquetal.dev',
+    blogUrl: '/blog/cloud-native-architecture'
+  },
+  {
+    id: 'demo2',
+    icon: '⚡',
+    liveUrl: 'https://data-pipeline.kiquetal.dev',
+    blogUrl: '/blog/serverless-data-pipeline'
+  },
+  {
+    id: 'demo3',
+    icon: '🏗️',
+    liveUrl: 'https://github.com/kiquetal/terraform-aws-vpc',
+    blogUrl: '/blog/infrastructure-as-code-terraform'
+  },
+  {
+    id: 'demo4',
+    icon: '🛡️',
+    liveUrl: 'https://security-dashboard.kiquetal.dev',
+    blogUrl: '/blog/devsecops-dashboard-integration'
+  }
+];
+
 const currentLang = 'en'; 
 const t = translations[currentLang];
 ---
@@ -78,58 +105,21 @@ const t = translations[currentLang];
 		<section id="demos" class="demos">
 			<h2 id="demos-title-text">{t.demosTitle}</h2>
 			<div class="demos-grid">
-				<div class="demo-card">
-					<div class="demo-icon">🛍️</div>
-					<h3 id="demo1-title-text">{t.demo1Title}</h3>
-					<p id="demo1-desc-text">{t.demo1Desc}</p>
-					<div class="demo-links">
-						<a href="https://demo-ecommerce.example.com" target="_blank" class="demo-link">
-							<span class="demo-label">{t.demoLabel}</span> ↗
-						</a>
-						<a href="/blog/cloud-native-architecture" class="blog-link">
-							<span class="blog-label">{t.blogLabel}</span> →
-						</a>
+				{demos.map(demo => (
+					<div class="demo-card">
+						<div class="demo-icon">{demo.icon}</div>
+						<h3 id={`${demo.id}-title-text`}>{t[`${demo.id}Title`]}</h3>
+						<p id={`${demo.id}-desc-text`}>{t[`${demo.id}Desc`]}</p>
+						<div class="demo-links">
+							<a href={demo.liveUrl} target="_blank" class="demo-link">
+								<span class="demo-label">{t.demoLabel}</span> ↗
+							</a>
+							<a href={demo.blogUrl} class="blog-link">
+								<span class="blog-label">{t.blogLabel}</span> →
+							</a>
+						</div>
 					</div>
-				</div>
-				<div class="demo-card">
-					<div class="demo-icon">⚡</div>
-					<h3 id="demo2-title-text">{t.demo2Title}</h3>
-					<p id="demo2-desc-text">{t.demo2Desc}</p>
-					<div class="demo-links">
-						<a href="https://demo-serverless.example.com" target="_blank" class="demo-link">
-							<span class="demo-label">{t.demoLabel}</span> ↗
-						</a>
-						<a href="/blog/serverless-data-pipeline" class="blog-link">
-							<span class="blog-label">{t.blogLabel}</span> →
-						</a>
-					</div>
-				</div>
-				<div class="demo-card">
-					<div class="demo-icon">🏗️</div>
-					<h3 id="demo3-title-text">{t.demo3Title}</h3>
-					<p id="demo3-desc-text">{t.demo3Desc}</p>
-					<div class="demo-links">
-						<a href="https://github.com/kiquetal/terraform-modules" target="_blank" class="demo-link">
-							<span class="demo-label">{t.demoLabel}</span> ↗
-						</a>
-						<a href="/blog/infrastructure-as-code-terraform" class="blog-link">
-							<span class="blog-label">{t.blogLabel}</span> →
-						</a>
-					</div>
-				</div>
-				<div class="demo-card">
-					<div class="demo-icon">🛡️</div>
-					<h3 id="demo4-title-text">{t.demo4Title}</h3>
-					<p id="demo4-desc-text">{t.demo4Desc}</p>
-					<div class="demo-links">
-						<a href="https://demo-dashboard.example.com" target="_blank" class="demo-link">
-							<span class="demo-label">{t.demoLabel}</span> ↗
-						</a>
-						<a href="/blog/devsecops-dashboard-integration" class="blog-link">
-							<span class="blog-label">{t.blogLabel}</span> →
-						</a>
-					</div>
-				</div>
+				))}
 			</div>
 		</section>
 
@@ -153,7 +143,7 @@ const t = translations[currentLang];
 	</main>
 </Layout>
 
-<script define:vars={{ translations }}>
+<script define:vars={{ translations, demos }}>
 	const btnEn = document.getElementById('lang-en');
 	const btnEs = document.getElementById('lang-es');
 
@@ -167,14 +157,12 @@ const t = translations[currentLang];
 		document.getElementById('cta-text').textContent = t.cta;
 		
 		document.getElementById('demos-title-text').textContent = t.demosTitle;
-		document.getElementById('demo1-title-text').textContent = t.demo1Title;
-		document.getElementById('demo1-desc-text').textContent = t.demo1Desc;
-		document.getElementById('demo2-title-text').textContent = t.demo2Title;
-		document.getElementById('demo2-desc-text').textContent = t.demo2Desc;
-		document.getElementById('demo3-title-text').textContent = t.demo3Title;
-		document.getElementById('demo3-desc-text').textContent = t.demo3Desc;
-		document.getElementById('demo4-title-text').textContent = t.demo4Title;
-		document.getElementById('demo4-desc-text').textContent = t.demo4Desc;
+		
+		// Dynamic update for demos
+		demos.forEach(demo => {
+			document.getElementById(`${demo.id}-title-text`).textContent = t[`${demo.id}Title`];
+			document.getElementById(`${demo.id}-desc-text`).textContent = t[`${demo.id}Desc`];
+		});
 
 		document.querySelectorAll('.demo-label').forEach(el => el.textContent = t.demoLabel);
 		document.querySelectorAll('.blog-label').forEach(el => el.textContent = t.blogLabel);
