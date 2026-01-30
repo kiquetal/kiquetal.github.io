@@ -25,6 +25,7 @@ const { title } = Astro.props;
 				<a href="/" class="nav-logo">System Engineer</a>
 				<div class="nav-links">
 					<a href="/blog">Blog</a>
+					<a href="/contact" class="contact-btn">Contact</a>
 				</div>
 			</div>
 		</nav>
@@ -92,6 +93,12 @@ const { title } = Astro.props;
 		font-size: 1.2rem;
 	}
 
+	.nav-links {
+		display: flex;
+		align-items: center;
+		gap: 2rem;
+	}
+
 	.nav-links a {
 		color: #94a3b8;
 		text-decoration: none;
@@ -101,6 +108,19 @@ const { title } = Astro.props;
 
 	.nav-links a:hover {
 		color: white;
+	}
+
+	.contact-btn {
+		background: rgb(var(--accent));
+		color: white !important;
+		padding: 0.5rem 1rem;
+		border-radius: 6px;
+		transition: all 0.2s ease !important;
+	}
+
+	.contact-btn:hover {
+		background: rgb(var(--accent-dark));
+		transform: translateY(-1px);
 	}
 
 	/* Adjust main content to account for fixed header */
