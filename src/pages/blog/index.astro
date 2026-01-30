@@ -1,68 +1,10 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
 
-const posts = [
-  {
-    slug: 'cloud-native-architecture',
-    title: {
-      en: 'Building Cloud Native Architectures',
-      es: 'Construyendo Arquitecturas Nativas en la Nube'
-    },
-    excerpt: {
-      en: 'A deep dive into modern cloud patterns and practices.',
-      es: 'Una inmersión profunda en patrones y prácticas modernas de la nube.'
-    },
-    date: '2023-10-15'
-  },
-  {
-    slug: 'kubernetes-security-best-practices',
-    title: {
-      en: 'Kubernetes Security Best Practices',
-      es: 'Mejores Prácticas de Seguridad en Kubernetes'
-    },
-    excerpt: {
-      en: 'Securing your clusters from the ground up.',
-      es: 'Asegurando tus clústeres desde cero.'
-    },
-    date: '2023-11-02'
-  },
-  {
-    slug: 'serverless-data-pipeline',
-    title: {
-      en: 'Building a Serverless Data Pipeline',
-      es: 'Construyendo un Pipeline de Datos Serverless'
-    },
-    excerpt: {
-      en: 'Scalable data processing with AWS Lambda and Kinesis.',
-      es: 'Procesamiento de datos escalable con AWS Lambda y Kinesis.'
-    },
-    date: '2023-12-10'
-  },
-  {
-    slug: 'infrastructure-as-code-terraform',
-    title: {
-      en: 'Infrastructure as Code with Terraform',
-      es: 'Infraestructura como Código con Terraform'
-    },
-    excerpt: {
-      en: 'Managing multi-region AWS infrastructure efficiently.',
-      es: 'Gestionando infraestructura AWS multirregión eficientemente.'
-    },
-    date: '2024-01-05'
-  },
-  {
-    slug: 'devsecops-dashboard-integration',
-    title: {
-      en: 'Integrating Security into DevOps Dashboards',
-      es: 'Integrando Seguridad en Dashboards DevOps'
-    },
-    excerpt: {
-      en: 'Visualizing security metrics from SonarQube and Trivy.',
-      es: 'Visualizando métricas de seguridad de SonarQube y Trivy.'
-    },
-    date: '2024-02-20'
-  }
-].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+const posts = (await getCollection('blog')).sort(
+	(a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+);
 ---
 
 <Layout title="Blog - System Engineer">
@@ -79,12 +21,12 @@ const posts = [
 		<div class="posts-grid">
 			{posts.map(post => (
 				<article class="post-card">
-					<span class="post-date">{new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
-					<h2 class="lang-en">{post.title.en}</h2>
-					<h2 class="lang-es hidden">{post.title.es}</h2>
+					<span class="post-date">{post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+					<h2 class="lang-en">{post.data.title.en}</h2>
+					<h2 class="lang-es hidden">{post.data.title.es}</h2>
 					
-					<p class="lang-en">{post.excerpt.en}</p>
-					<p class="lang-es hidden">{post.excerpt.es}</p>
+					<p class="lang-en">{post.data.excerpt.en}</p>
+					<p class="lang-es hidden">{post.data.excerpt.es}</p>
 					
 					<a href={`/blog/${post.slug}`} class="read-more">
 						<span class="lang-en">Read more →</span>

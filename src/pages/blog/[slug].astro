@@ -1,131 +1,20 @@
 ---
+import { getCollection } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
 
-export function getStaticPaths() {
-  return [
-    {params: {slug: 'cloud-native-architecture'}},
-    {params: {slug: 'kubernetes-security-best-practices'}},
-    {params: {slug: 'serverless-data-pipeline'}},
-    {params: {slug: 'infrastructure-as-code-terraform'}},
-    {params: {slug: 'devsecops-dashboard-integration'}},
-  ];
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts.map(post => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
 }
 
-const { slug } = Astro.params;
-
-// In a real app, you might fetch this from a CMS or Markdown files
-const posts = {
-  'cloud-native-architecture': {
-    title: {
-      en: 'Building Cloud Native Architectures',
-      es: 'Construyendo Arquitecturas Nativas en la Nube'
-    },
-    liveUrl: 'https://shop-microservices.kiquetal.dev',
-    content: {
-      en: `
-        <p>Cloud native architecture is more than just running applications in the cloud. It's about how applications are created and deployed.</p>
-        <h3>Key Principles</h3>
-        <ul>
-          <li>Microservices</li>
-          <li>Containers</li>
-          <li>DevOps Automation</li>
-        </ul>
-      `,
-      es: `
-        <p>La arquitectura nativa en la nube es más que simplemente ejecutar aplicaciones en la nube. Se trata de cómo se crean y despliegan las aplicaciones.</p>
-        <h3>Principios Clave</h3>
-        <ul>
-          <li>Microservicios</li>
-          <li>Contenedores</li>
-          <li>Automatización DevOps</li>
-        </ul>
-      `
-    }
-  },
-  'kubernetes-security-best-practices': {
-    title: {
-      en: 'Kubernetes Security Best Practices',
-      es: 'Mejores Prácticas de Seguridad en Kubernetes'
-    },
-    liveUrl: null,
-    content: {
-      en: `
-        <p>Security in Kubernetes is a vast topic. Here are some essential practices to get started.</p>
-        <h3>Essentials</h3>
-        <ul>
-          <li>RBAC Configuration</li>
-          <li>Network Policies</li>
-          <li>Pod Security Standards</li>
-        </ul>
-      `,
-      es: `
-        <p>La seguridad en Kubernetes es un tema vasto. Aquí hay algunas prácticas esenciales para comenzar.</p>
-        <h3>Esenciales</h3>
-        <ul>
-          <li>Configuración RBAC</li>
-          <li>Políticas de Red</li>
-          <li>Estándares de Seguridad de Pods</li>
-        </ul>
-      `
-    }
-  },
-  'serverless-data-pipeline': {
-    title: {
-      en: 'Building a Serverless Data Pipeline',
-      es: 'Construyendo un Pipeline de Datos Serverless'
-    },
-    liveUrl: 'https://data-pipeline.kiquetal.dev',
-    content: {
-      en: `
-        <p>This post explores how to build a scalable data pipeline using AWS Lambda, Kinesis, and DynamoDB.</p>
-        <p><em>Content coming soon...</em></p>
-      `,
-      es: `
-        <p>Este artículo explora cómo construir un pipeline de datos escalable usando AWS Lambda, Kinesis y DynamoDB.</p>
-        <p><em>Contenido próximamente...</em></p>
-      `
-    }
-  },
-  'infrastructure-as-code-terraform': {
-    title: {
-      en: 'Infrastructure as Code with Terraform',
-      es: 'Infraestructura como Código con Terraform'
-    },
-    liveUrl: 'https://github.com/kiquetal/terraform-aws-vpc',
-    content: {
-      en: `
-        <p>Learn how to manage your cloud infrastructure efficiently using Terraform modules.</p>
-        <p><em>Content coming soon...</em></p>
-      `,
-      es: `
-        <p>Aprende a gestionar tu infraestructura en la nube de manera eficiente usando módulos de Terraform.</p>
-        <p><em>Contenido próximamente...</em></p>
-      `
-    }
-  },
-  'devsecops-dashboard-integration': {
-    title: {
-      en: 'Integrating Security into DevOps Dashboards',
-      es: 'Integrando Seguridad en Dashboards DevOps'
-    },
-    liveUrl: 'https://security-dashboard.kiquetal.dev',
-    content: {
-      en: `
-        <p>A guide to visualizing security metrics from SonarQube and Trivy in a unified dashboard.</p>
-        <p><em>Content coming soon...</em></p>
-      `,
-      es: `
-        <p>Una guía para visualizar métricas de seguridad de SonarQube y Trivy en un panel unificado.</p>
-        <p><em>Contenido próximamente...</em></p>
-      `
-    }
-  }
-};
-
-const post = posts[slug];
+const { post } = Astro.props;
+const { Content } = await post.render();
 ---
 
-<Layout title={post.title.en}>
+<Layout title={post.data.title.en}>
 	<main>
 		<div class="header-row">
 			<a href="/blog" class="back-link">← <span class="lang-en">Back</span><span class="lang-es hidden">Volver</span></a>
@@ -137,19 +26,20 @@ const post = posts[slug];
 		</div>
 
 		<article>
-			<h1 class="lang-en">{post.title.en}</h1>
-			<h1 class="lang-es hidden">{post.title.es}</h1>
+			<h1 class="lang-en">{post.data.title.en}</h1>
+			<h1 class="lang-es hidden">{post.data.title.es}</h1>
 
-			{post.liveUrl && (
+			{post.data.liveUrl && (
 				<div class="live-demo-banner">
 					<span class="lang-en">Check out the live demo:</span>
 					<span class="lang-es hidden">Ver la demo en vivo:</span>
-					<a href={post.liveUrl} target="_blank" class="demo-link">{post.liveUrl} ↗</a>
+					<a href={post.data.liveUrl} target="_blank" class="demo-link">{post.data.liveUrl} ↗</a>
 				</div>
 			)}
 			
-			<div class="content lang-en" set:html={post.content.en} />
-			<div class="content lang-es hidden" set:html={post.content.es} />
+			<div class="content">
+				<Content />
+			</div>
 		</article>
 	</main>
 </Layout>
