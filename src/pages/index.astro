@@ -100,10 +100,17 @@ const t = translations[currentLang];
 			btnEs.classList.add('active');
 			btnEn.classList.remove('active');
 		}
+		localStorage.setItem('preferred-lang', lang);
 	}
 
 	btnEn.addEventListener('click', () => setLanguage('en'));
 	btnEs.addEventListener('click', () => setLanguage('es'));
+
+	// Check for saved preference
+	const savedLang = localStorage.getItem('preferred-lang');
+	if (savedLang) {
+		setLanguage(savedLang);
+	}
 </script>
 
 <style>
