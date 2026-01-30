@@ -140,9 +140,12 @@ const translations = {
 				statusDiv.classList.add('success');
 				form.reset();
 			} else {
-				throw new Error('Network response was not ok');
+				const errorData = await response.json();
+				console.error('Submission Error:', errorData);
+				throw new Error(errorData.error || errorData.message || 'Network response was not ok');
 			}
 		} catch (error) {
+			console.error('Form Error:', error);
 			statusDiv.textContent = t.error;
 			statusDiv.classList.add('error');
 		} finally {
