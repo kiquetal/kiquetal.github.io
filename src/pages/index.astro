@@ -1,18 +1,53 @@
 ---
 import Layout from '../layouts/Layout.astro';
+
+const translations = {
+  en: {
+    title: "System Engineer Portfolio",
+    role: "System Engineer",
+    roleSuffix: "& Cloud Architect",
+    description: "Architecting scalable, secure, and high-performance solutions. I bridge the gap between complex business requirements and robust technical implementations.",
+    cta: "View Credentials",
+    certificationsTitle: "Professional Certifications",
+    cert1: "AWS Solutions Architect Professional",
+    cert2: "Certified Kubernetes Application Developer",
+    cert3: "Oracle Certified Professional: Java"
+  },
+  es: {
+    title: "Portafolio de Ingeniero de Sistemas",
+    role: "Ingeniero de Sistemas",
+    roleSuffix: "y Arquitecto Cloud",
+    description: "Arquitecto soluciones escalables, seguras y de alto rendimiento. Conecto los requisitos de negocio complejos con implementaciones técnicas robustas.",
+    cta: "Ver Credenciales",
+    certificationsTitle: "Certificaciones Profesionales",
+    cert1: "AWS Solutions Architect Professional",
+    cert2: "Certified Kubernetes Application Developer",
+    cert3: "Oracle Certified Professional: Java"
+  }
+};
+
+// Default to English, but you can change this variable to 'es' to switch languages
+// or implement a more dynamic language switcher if needed.
+const currentLang = 'en'; 
+const t = translations[currentLang];
 ---
 
-<Layout title="System Engineer Portfolio">
+<Layout title={t.title}>
 	<main>
+		<div class="lang-switch">
+			<button id="lang-en" class={currentLang === 'en' ? 'active' : ''}>EN</button>
+			<span class="separator">/</span>
+			<button id="lang-es" class={currentLang === 'es' ? 'active' : ''}>ES</button>
+		</div>
+
 		<section class="hero">
 			<div class="hero-content">
-				<h1><span class="text-gradient">System Engineer</span> <br/>& Cloud Architect</h1>
-				<p class="career-description">
-					Architecting scalable, secure, and high-performance solutions. 
-					I bridge the gap between complex business requirements and robust technical implementations.
+				<h1><span class="text-gradient" id="role-text">{t.role}</span> <br/><span id="role-suffix-text">{t.roleSuffix}</span></h1>
+				<p class="career-description" id="description-text">
+					{t.description}
 				</p>
 				<div class="cta-container">
-					<a href="#certifications" class="cta-link">View Credentials</a>
+					<a href="#certifications" class="cta-link" id="cta-text">{t.cta}</a>
 				</div>
 			</div>
 			<div class="hero-image">
@@ -21,24 +56,55 @@ import Layout from '../layouts/Layout.astro';
 		</section>
 
 		<section id="certifications" class="certifications">
-			<h2>Professional Certifications</h2>
+			<h2 id="cert-title-text">{t.certificationsTitle}</h2>
 			<div class="logo-row">
 				<div class="logo-item">
 					<img src="https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg" alt="AWS Solutions Architect Professional" />
-					<span class="tooltip">AWS Solutions Architect Professional</span>
+					<span class="tooltip" id="cert1-text">{t.cert1}</span>
 				</div>
 				<div class="logo-item">
 					<img src="https://upload.wikimedia.org/wikipedia/commons/3/39/Kubernetes_logo_without_workmark.svg" alt="CKAD" />
-					<span class="tooltip">Certified Kubernetes Application Developer</span>
+					<span class="tooltip" id="cert2-text">{t.cert2}</span>
 				</div>
 				<div class="logo-item">
 					<img src="https://upload.wikimedia.org/wikipedia/en/3/30/Java_programming_language_logo.svg" alt="Java OCP" />
-					<span class="tooltip">Oracle Certified Professional: Java</span>
+					<span class="tooltip" id="cert3-text">{t.cert3}</span>
 				</div>
 			</div>
 		</section>
 	</main>
 </Layout>
+
+<script define:vars={{ translations }}>
+	const btnEn = document.getElementById('lang-en');
+	const btnEs = document.getElementById('lang-es');
+
+	function setLanguage(lang) {
+		const t = translations[lang];
+		
+		// Update text content
+		document.getElementById('role-text').textContent = t.role;
+		document.getElementById('role-suffix-text').textContent = t.roleSuffix;
+		document.getElementById('description-text').textContent = t.description;
+		document.getElementById('cta-text').textContent = t.cta;
+		document.getElementById('cert-title-text').textContent = t.certificationsTitle;
+		document.getElementById('cert1-text').textContent = t.cert1;
+		document.getElementById('cert2-text').textContent = t.cert2;
+		document.getElementById('cert3-text').textContent = t.cert3;
+
+		// Update active state
+		if (lang === 'en') {
+			btnEn.classList.add('active');
+			btnEs.classList.remove('active');
+		} else {
+			btnEs.classList.add('active');
+			btnEn.classList.remove('active');
+		}
+	}
+
+	btnEn.addEventListener('click', () => setLanguage('en'));
+	btnEs.addEventListener('click', () => setLanguage('es'));
+</script>
 
 <style>
 	main {
@@ -49,6 +115,40 @@ import Layout from '../layouts/Layout.astro';
 		color: #e2e8f0;
 		font-size: 18px;
 		line-height: 1.8;
+		position: relative;
+	}
+
+	.lang-switch {
+		position: absolute;
+		top: 2rem;
+		right: 2rem;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-weight: 600;
+		z-index: 10;
+	}
+
+	.lang-switch button {
+		background: none;
+		border: none;
+		color: #64748b;
+		cursor: pointer;
+		font-size: 1rem;
+		padding: 0.25rem;
+		transition: color 0.2s;
+	}
+
+	.lang-switch button:hover {
+		color: #94a3b8;
+	}
+
+	.lang-switch button.active {
+		color: rgb(var(--accent));
+	}
+
+	.separator {
+		color: #475569;
 	}
 	
 	.hero {
