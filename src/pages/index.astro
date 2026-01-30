@@ -20,7 +20,9 @@ const translations = {
     demo3Title: "Infrastructure as Code",
     demo3Desc: "Complete Terraform modules for provisioning a secure, multi-region AWS VPC.",
     demo4Title: "DevSecOps Dashboard",
-    demo4Desc: "Custom dashboard integrating SonarQube, Trivy, and Jenkins for security metrics."
+    demo4Desc: "Custom dashboard integrating SonarQube, Trivy, and Jenkins for security metrics.",
+    demoLabel: "Live Demo",
+    blogLabel: "Read Article"
   },
   es: {
     title: "Portafolio de Ingeniero de Sistemas",
@@ -40,12 +42,12 @@ const translations = {
     demo3Title: "Infraestructura como Código",
     demo3Desc: "Módulos completos de Terraform para aprovisionar una VPC de AWS segura y multirregión.",
     demo4Title: "Dashboard DevSecOps",
-    demo4Desc: "Panel personalizado que integra SonarQube, Trivy y Jenkins para métricas de seguridad."
+    demo4Desc: "Panel personalizado que integra SonarQube, Trivy y Jenkins para métricas de seguridad.",
+    demoLabel: "Ver Demo",
+    blogLabel: "Leer Artículo"
   }
 };
 
-// Default to English, but you can change this variable to 'es' to switch languages
-// or implement a more dynamic language switcher if needed.
 const currentLang = 'en'; 
 const t = translations[currentLang];
 ---
@@ -76,26 +78,52 @@ const t = translations[currentLang];
 		<section id="demos" class="demos">
 			<h2 id="demos-title-text">{t.demosTitle}</h2>
 			<div class="demos-grid">
-				<a href="#" class="demo-card">
+				<div class="demo-card">
 					<div class="demo-icon">🛍️</div>
 					<h3 id="demo1-title-text">{t.demo1Title}</h3>
 					<p id="demo1-desc-text">{t.demo1Desc}</p>
-				</a>
-				<a href="#" class="demo-card">
+					<div class="demo-links">
+						<a href="https://demo-ecommerce.example.com" target="_blank" class="demo-link">
+							<span class="demo-label">{t.demoLabel}</span> ↗
+						</a>
+						<a href="/blog/cloud-native-architecture" class="blog-link">
+							<span class="blog-label">{t.blogLabel}</span> →
+						</a>
+					</div>
+				</div>
+				<div class="demo-card">
 					<div class="demo-icon">⚡</div>
 					<h3 id="demo2-title-text">{t.demo2Title}</h3>
 					<p id="demo2-desc-text">{t.demo2Desc}</p>
-				</a>
-				<a href="#" class="demo-card">
+					<div class="demo-links">
+						<a href="https://demo-serverless.example.com" target="_blank" class="demo-link">
+							<span class="demo-label">{t.demoLabel}</span> ↗
+						</a>
+					</div>
+				</div>
+				<div class="demo-card">
 					<div class="demo-icon">🏗️</div>
 					<h3 id="demo3-title-text">{t.demo3Title}</h3>
 					<p id="demo3-desc-text">{t.demo3Desc}</p>
-				</a>
-				<a href="#" class="demo-card">
+					<div class="demo-links">
+						<a href="https://github.com/kiquetal/terraform-modules" target="_blank" class="demo-link">
+							<span class="demo-label">{t.demoLabel}</span> ↗
+						</a>
+					</div>
+				</div>
+				<div class="demo-card">
 					<div class="demo-icon">🛡️</div>
 					<h3 id="demo4-title-text">{t.demo4Title}</h3>
 					<p id="demo4-desc-text">{t.demo4Desc}</p>
-				</a>
+					<div class="demo-links">
+						<a href="https://demo-dashboard.example.com" target="_blank" class="demo-link">
+							<span class="demo-label">{t.demoLabel}</span> ↗
+						</a>
+						<a href="/blog/kubernetes-security-best-practices" class="blog-link">
+							<span class="blog-label">{t.blogLabel}</span> →
+						</a>
+					</div>
+				</div>
 			</div>
 		</section>
 
@@ -142,6 +170,9 @@ const t = translations[currentLang];
 		document.getElementById('demo4-title-text').textContent = t.demo4Title;
 		document.getElementById('demo4-desc-text').textContent = t.demo4Desc;
 
+		document.querySelectorAll('.demo-label').forEach(el => el.textContent = t.demoLabel);
+		document.querySelectorAll('.blog-label').forEach(el => el.textContent = t.blogLabel);
+
 		document.getElementById('cert-title-text').textContent = t.certificationsTitle;
 		document.getElementById('cert1-text').textContent = t.cert1;
 		document.getElementById('cert2-text').textContent = t.cert2;
@@ -182,13 +213,13 @@ const t = translations[currentLang];
 
 	.lang-switch {
 		position: absolute;
-		top: 2rem;
+		top: 6rem;
 		right: 2rem;
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
 		font-weight: 600;
-		z-index: 10;
+		z-index: 101;
 	}
 
 	.lang-switch button {
@@ -304,7 +335,7 @@ const t = translations[currentLang];
 
 	.demos-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+		grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 		gap: 2rem;
 	}
 
@@ -313,11 +344,11 @@ const t = translations[currentLang];
 		border: 1px solid rgba(255, 255, 255, 0.1);
 		padding: 2rem;
 		border-radius: 16px;
-		text-decoration: none;
 		transition: all 0.3s ease;
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
+		height: 100%;
 	}
 
 	.demo-card:hover {
@@ -341,8 +372,38 @@ const t = translations[currentLang];
 	.demo-card p {
 		color: #94a3b8;
 		font-size: 1rem;
-		margin: 0;
+		margin: 0 0 1.5rem 0;
 		line-height: 1.5;
+		flex-grow: 1;
+	}
+
+	.demo-links {
+		display: flex;
+		gap: 1rem;
+		flex-wrap: wrap;
+	}
+
+	.demo-link, .blog-link {
+		font-size: 0.9rem;
+		font-weight: 600;
+		text-decoration: none;
+		transition: color 0.2s;
+	}
+
+	.demo-link {
+		color: rgb(var(--accent));
+	}
+
+	.demo-link:hover {
+		color: rgb(var(--accent-light));
+	}
+
+	.blog-link {
+		color: #94a3b8;
+	}
+
+	.blog-link:hover {
+		color: white;
 	}
 
 	.certifications {
