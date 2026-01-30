@@ -1,0 +1,6 @@
+name = "kiquetal-email-worker"
+main = "cloudflare-worker.js"
+compatibility_date = "2024-01-30"
+
+# [vars]
+# RESEND_API_KEY = "your-api-key-here" # Do not commit real keys. Use `wrangler secret put RESEND_API_KEY`
