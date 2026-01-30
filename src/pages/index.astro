@@ -3,64 +3,112 @@ import Layout from '../layouts/Layout.astro';
 import Card from '../components/Card.astro';
 ---
 
-<Layout title="Welcome to my Portfolio">
+<Layout title="Cloud Architect Portfolio">
 	<main>
-		<h1>Welcome to <span class="text-gradient">My Portfolio</span></h1>
-		<p class="instructions">
-			This is a sample page built with Astro. <br />
-			<strong>Code Challenge:</strong> Tweak the "Welcome to Astro" message above.
-		</p>
-		<ul role="list" class="link-card-grid">
-			<Card
-				href="https://docs.astro.build/"
-				title="Documentation"
-				body="Learn how Astro works and explore the official API docs."
-			/>
-			<Card
-				href="https://astro.build/integrations/"
-				title="Integrations"
-				body="Supercharge your project with new frameworks and libraries."
-			/>
-			<Card
-				href="https://astro.build/themes/"
-				title="Themes"
-				body="Explore a galaxy of community-built starter themes."
-			/>
-			<Card
-				href="https://astro.build/chat/"
-				title="Community"
-				body="Come say hi to our amazing Discord community. ❤️"
-			/>
-		</ul>
+		<section class="hero">
+			<div class="hero-image">
+				<img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop" alt="Cloud Architecture Landscape" />
+			</div>
+			<div class="hero-content">
+				<h1><span class="text-gradient">Cloud Architect</span> & Developer</h1>
+				<p class="career-description">
+					Specializing in designing scalable, secure, and high-performance solutions on AWS. 
+					With a deep understanding of cloud infrastructure and modern application development, 
+					I bridge the gap between complex business requirements and robust technical implementations.
+				</p>
+			</div>
+		</section>
+
+		<section class="certifications">
+			<h2>Certifications</h2>
+			<ul role="list" class="link-card-grid">
+				<Card
+					href="#"
+					title="AWS Solutions Architect"
+					body="Associate Level"
+				/>
+				<Card
+					href="#"
+					title="AWS Solutions Architect"
+					body="Professional Level"
+				/>
+				<Card
+					href="#"
+					title="AWS Developer"
+					body="Associate Level"
+				/>
+				<Card
+					href="#"
+					title="AWS Security"
+					body="Specialty"
+				/>
+				<Card
+					href="#"
+					title="CKAD"
+					body="Certified Kubernetes Application Developer"
+				/>
+				<Card
+					href="#"
+					title="Java Programmer"
+					body="Oracle Certified Professional"
+				/>
+			</ul>
+		</section>
 	</main>
 </Layout>
 
 <style>
 	main {
 		margin: auto;
-		padding: 1rem;
-		width: 800px;
+		padding: 2rem;
+		width: 1200px;
 		max-width: calc(100% - 2rem);
 		color: white;
 		font-size: 20px;
 		line-height: 1.6;
 	}
-	.astro-a {
-		position: absolute;
-		top: -32px;
-		left: 50%;
-		transform: translatex(-50%);
-		width: 220px;
+	
+	.hero {
+		display: flex;
+		flex-direction: column;
+		gap: 2rem;
+		margin-bottom: 4rem;
+		align-items: center;
+	}
+
+	@media (min-width: 900px) {
+		.hero {
+			flex-direction: row;
+			align-items: center;
+		}
+		.hero-image {
+			flex: 1;
+		}
+		.hero-content {
+			flex: 1;
+			padding-left: 2rem;
+		}
+	}
+
+	.hero-image img {
+		width: 100%;
 		height: auto;
-		z-index: -1;
+		border-radius: 16px;
+		box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+		transition: transform 0.3s ease;
 	}
+
+	.hero-image img:hover {
+		transform: scale(1.02);
+	}
+
 	h1 {
-		font-size: 4rem;
-		font-weight: 700;
-		line-height: 1;
-		text-align: center;
-		margin-bottom: 1em;
+		font-size: 3.5rem;
+		font-weight: 800;
+		line-height: 1.1;
+		margin-bottom: 1.5rem;
 	}
+
 	.text-gradient {
 		background-image: var(--accent-gradient);
 		-webkit-background-clip: text;
@@ -68,28 +116,28 @@ import Card from '../components/Card.astro';
 		background-size: 400%;
 		background-position: 0%;
 	}
-	.instructions {
+
+	.career-description {
+		font-size: 1.25rem;
+		color: #d1d5db;
 		margin-bottom: 2rem;
-		border: 1px solid rgba(var(--accent-light), 25%);
-		background: linear-gradient(rgba(var(--accent-dark), 66%), rgba(var(--accent-dark), 33%));
-		padding: 1.5rem;
-		border-radius: 8px;
 	}
-	.instructions code {
-		font-size: 0.8em;
-		font-weight: bold;
-		background: rgba(var(--accent-light), 12%);
-		color: rgb(var(--accent-light));
-		border-radius: 4px;
-		padding: 0.3em 0.4em;
+
+	.certifications {
+		margin-top: 4rem;
 	}
-	.instructions strong {
+
+	.certifications h2 {
+		text-align: center;
+		font-size: 2.5rem;
+		margin-bottom: 2rem;
 		color: rgb(var(--accent-light));
 	}
+
 	.link-card-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(24ch, 1fr));
-		gap: 2rem;
+		grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+		gap: 1.5rem;
 		padding: 0;
 	}
 </style>
