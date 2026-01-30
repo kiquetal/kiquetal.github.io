@@ -47,20 +47,25 @@ const { Content } = await post.render();
 <script>
 	const btnEn = document.getElementById('lang-en');
 	const btnEs = document.getElementById('lang-es');
-	const enElements = document.querySelectorAll('.lang-en');
-	const esElements = document.querySelectorAll('.lang-es');
+	// Select elements from both the static template and the rendered markdown content
+	const getLangElements = () => ({
+		en: document.querySelectorAll('.lang-en'),
+		es: document.querySelectorAll('.lang-es')
+	});
 
 	function setLanguage(lang) {
+		const { en, es } = getLangElements();
+		
 		if (lang === 'en') {
 			btnEn.classList.add('active');
 			btnEs.classList.remove('active');
-			enElements.forEach(el => el.classList.remove('hidden'));
-			esElements.forEach(el => el.classList.add('hidden'));
+			en.forEach(el => el.classList.remove('hidden'));
+			es.forEach(el => el.classList.add('hidden'));
 		} else {
 			btnEs.classList.add('active');
 			btnEn.classList.remove('active');
-			esElements.forEach(el => el.classList.remove('hidden'));
-			enElements.forEach(el => el.classList.add('hidden'));
+			es.forEach(el => el.classList.remove('hidden'));
+			en.forEach(el => el.classList.add('hidden'));
 		}
 		localStorage.setItem('preferred-lang', lang);
 	}
@@ -68,11 +73,11 @@ const { Content } = await post.render();
 	btnEn.addEventListener('click', () => setLanguage('en'));
 	btnEs.addEventListener('click', () => setLanguage('es'));
 
-	// Check for saved preference
-	const savedLang = localStorage.getItem('preferred-lang');
-	if (savedLang) {
-		setLanguage(savedLang);
-	}
+	// Check for saved preference, default to English if none
+	const savedLang = localStorage.getItem('preferred-lang') || 'en';
+	
+	// Apply language immediately to prevent flash of wrong content
+	setLanguage(savedLang);
 </script>
 
 <style>
@@ -160,6 +165,13 @@ const { Content } = await post.render();
 		text-decoration: underline;
 	}
 
+	.content :global(h2) {
+		color: #f8fafc;
+		font-size: 1.8rem;
+		margin-top: 2.5rem;
+		margin-bottom: 1.5rem;
+	}
+
 	.content :global(h3) {
 		color: #f8fafc;
 		font-size: 1.5rem;
@@ -185,7 +197,17 @@ const { Content } = await post.render();
 		margin-bottom: 0.5rem;
 	}
 
-	.hidden {
-		display: none;
+	.content :global(pre) {
+		background: #1e293b;
+		padding: 1.5rem;
+		border-radius: 8px;
+		margin-bottom: 1.5rem;
+		overflow-x: auto;
+		border: 1px solid rgba(255, 255, 255, 0.1);
+	}
+
+	.content :global(code) {
+		font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+		font-size: 0.9em;
 	}
 </style>
