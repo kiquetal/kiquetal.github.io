@@ -20,6 +20,14 @@ const { title } = Astro.props;
 		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 	</head>
 	<body>
+		<nav class="main-nav">
+			<div class="nav-content">
+				<a href="/" class="nav-logo">System Engineer</a>
+				<div class="nav-links">
+					<a href="/blog">Blog</a>
+				</div>
+			</div>
+		</nav>
 		<slot />
 	</body>
 </html>
@@ -55,5 +63,48 @@ const { title } = Astro.props;
 			Bitstream Vera Sans Mono,
 			Courier New,
 			monospace;
+	}
+
+	.main-nav {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		background: rgba(15, 23, 42, 0.9);
+		backdrop-filter: blur(10px);
+		z-index: 100;
+		border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+	}
+
+	.nav-content {
+		max-width: 1200px;
+		margin: 0 auto;
+		padding: 1rem 2rem;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	.nav-logo {
+		font-weight: 800;
+		color: white;
+		text-decoration: none;
+		font-size: 1.2rem;
+	}
+
+	.nav-links a {
+		color: #94a3b8;
+		text-decoration: none;
+		font-weight: 600;
+		transition: color 0.2s;
+	}
+
+	.nav-links a:hover {
+		color: white;
+	}
+
+	/* Adjust main content to account for fixed header */
+	main {
+		padding-top: 80px !important;
 	}
 </style>
