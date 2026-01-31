@@ -408,23 +408,25 @@ const t = translations[currentLang];
 	.demos h2 {
 		text-align: center;
 		font-size: 2rem;
-		margin-bottom: 3rem;
+		margin-bottom: 4rem;
 		color: #f8fafc;
 		font-weight: 600;
 	}
 
 	.demos-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-		gap: 2rem;
+		grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+		gap: 3.5rem;
+		justify-content: center;
 	}
 
 	.demo-card {
-		background: rgba(255, 255, 255, 0.03);
+		background: linear-gradient(145deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
 		border: 1px solid rgba(255, 255, 255, 0.1);
-		padding: 2rem;
-		border-radius: 16px;
-		transition: all 0.3s ease;
+		backdrop-filter: blur(10px);
+		padding: 2.5rem;
+		border-radius: 20px;
+		transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
@@ -432,9 +434,10 @@ const t = translations[currentLang];
 	}
 
 	.demo-card:hover {
-		transform: translateY(-5px);
-		background: rgba(255, 255, 255, 0.05);
-		border-color: rgba(var(--accent), 0.3);
+		transform: translateY(-10px);
+		background: rgba(255, 255, 255, 0.06);
+		border-color: rgba(var(--accent), 0.4);
+		box-shadow: 0 20px 40px -15px rgba(0,0,0,0.5), 0 0 20px rgba(var(--accent), 0.1);
 	}
 
 	.demo-icon {
@@ -445,7 +448,7 @@ const t = translations[currentLang];
 	.demo-card h3 {
 		color: #f8fafc;
 		font-size: 1.25rem;
-		margin: 0 0 0.5rem 0;
+		margin: 0 0 1rem 0;
 		font-weight: 600;
 	}
 
@@ -459,7 +462,7 @@ const t = translations[currentLang];
 
 	.demo-links {
 		display: flex;
-		gap: 1rem;
+		gap: 1.5rem;
 		flex-wrap: wrap;
 	}
 
