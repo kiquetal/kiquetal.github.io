@@ -136,8 +136,10 @@ const t = translations[currentLang];
 			<div class="demos-grid">
 				{demos.map(demo => (
 					<div class="demo-card">
-						<div class="demo-icon">{demo.icon}</div>
-						<h3 id={`${demo.id}-title-text`}>{t[`${demo.id}Title`]}</h3>
+						<div class="demo-header">
+							<div class="demo-icon">{demo.icon}</div>
+							<h3 id={`${demo.id}-title-text`}>{t[`${demo.id}Title`]}</h3>
+						</div>
 						<p id={`${demo.id}-desc-text`}>{t[`${demo.id}Desc`]}</p>
 						<div class="demo-links">
 							<a href={demo.liveUrl} target="_blank" class="demo-link">
@@ -403,71 +405,78 @@ const t = translations[currentLang];
 
 	.demos {
 		margin-bottom: 8rem;
+		padding: 4rem 2rem;
+		background: radial-gradient(circle at center, rgba(var(--accent), 0.05) 0%, transparent 70%);
+		border-radius: 48px;
+		margin-left: -2rem;
+		margin-right: -2rem;
 	}
 
 	.demos h2 {
 		text-align: center;
-		font-size: 2rem;
+		font-size: 2.5rem;
 		margin-bottom: 4rem;
 		color: #f8fafc;
-		font-weight: 600;
+		font-weight: 700;
+		letter-spacing: -0.02em;
 	}
 
 	.demos-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-		gap: 3.5rem;
-		justify-content: center;
+		grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+		column-gap: 3rem;
+		row-gap: 6rem;
+		max-width: 900px;
+		margin: 3rem auto 0;
 	}
 
 	.demo-card {
-		background: linear-gradient(145deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
+		background: rgba(255, 255, 255, 0.03);
 		border: 1px solid rgba(255, 255, 255, 0.1);
-		backdrop-filter: blur(10px);
-		padding: 2.5rem;
-		border-radius: 20px;
-		transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+		padding: 1.5rem;
+		border-radius: 12px;
+		transition: all 0.3s ease;
 		display: flex;
 		flex-direction: column;
-		align-items: flex-start;
 		height: 100%;
 	}
 
-	.demo-card:hover {
-		transform: translateY(-10px);
-		background: rgba(255, 255, 255, 0.06);
-		border-color: rgba(var(--accent), 0.4);
-		box-shadow: 0 20px 40px -15px rgba(0,0,0,0.5), 0 0 20px rgba(var(--accent), 0.1);
+	.demo-header {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		margin-bottom: 0.75rem;
 	}
 
 	.demo-icon {
-		font-size: 2.5rem;
-		margin-bottom: 1rem;
+		font-size: 1.5rem;
+		line-height: 1;
 	}
 
 	.demo-card h3 {
 		color: #f8fafc;
-		font-size: 1.25rem;
-		margin: 0 0 1rem 0;
-		font-weight: 600;
+		font-size: 1.1rem;
+		margin: 0;
+		font-weight: 700;
 	}
 
 	.demo-card p {
 		color: #94a3b8;
-		font-size: 1rem;
-		margin: 0 0 1.5rem 0;
+		font-size: 0.9rem;
+		margin-bottom: 1.25rem;
 		line-height: 1.5;
 		flex-grow: 1;
 	}
 
 	.demo-links {
 		display: flex;
-		gap: 1.5rem;
+		gap: 1.25rem;
 		flex-wrap: wrap;
+		width: 100%;
 	}
 
 	.demo-link, .blog-link {
-		font-size: 0.9rem;
+		font-size: 0.8rem;
 		font-weight: 600;
 		text-decoration: none;
 		transition: color 0.2s;
