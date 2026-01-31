@@ -36,7 +36,7 @@ const { Content } = await post.render();
 			{post.data.tags && (
 				<div class="tags">
 					{post.data.tags.map(tag => (
-						<span class="tag">#{tag}</span>
+						<a href={`/blog?tag=${tag}`} class="tag">#{tag}</a>
 					))}
 				</div>
 			)}
@@ -178,6 +178,12 @@ const { Content } = await post.render();
 		font-size: 0.875rem;
 		color: #e2e8f0;
 		font-weight: 500;
+		text-decoration: none;
+		transition: background 0.2s;
+	}
+
+	.tag:hover {
+		background: rgba(255, 255, 255, 0.2);
 	}
 
 	.live-demo-banner {

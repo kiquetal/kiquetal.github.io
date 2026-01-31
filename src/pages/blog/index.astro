@@ -18,9 +18,14 @@ const posts = (await getCollection('blog')).sort(
 			</div>
 		</div>
 
+		<div id="filter-status" class="filter-status hidden">
+			<span class="lang-en">Filtering by tag: <span id="current-tag" class="highlight"></span> <a href="/blog" class="clear-filter">Clear</a></span>
+			<span class="lang-es hidden">Filtrando por etiqueta: <span id="current-tag-es" class="highlight"></span> <a href="/blog" class="clear-filter">Borrar</a></span>
+		</div>
+
 		<div class="posts-grid">
 			{posts.map(post => (
-				<article class="post-card">
+				<article class="post-card" data-tags={post.data.tags?.join(',') || ''}>
 					<span class="post-date lang-en">{post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}</span>
 					<span class="post-date lang-es hidden">{post.data.date.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}</span>
 					<h2 class="lang-en">{post.data.title.en}</h2>
@@ -32,7 +37,7 @@ const posts = (await getCollection('blog')).sort(
 					{post.data.tags && (
 						<div class="tags">
 							{post.data.tags.map(tag => (
-								<span class="tag">#{tag}</span>
+								<a href={`/blog?tag=${tag}`} class="tag">#{tag}</a>
 							))}
 						</div>
 					)}
@@ -52,6 +57,28 @@ const posts = (await getCollection('blog')).sort(
 	const btnEs = document.getElementById('lang-es');
 	const enElements = document.querySelectorAll('.lang-en');
 	const esElements = document.querySelectorAll('.lang-es');
+
+	// Handle Tag Filtering
+	const urlParams = new URLSearchParams(window.location.search);
+	const tag = urlParams.get('tag');
+	const filterStatus = document.getElementById('filter-status');
+	const currentTagSpan = document.getElementById('current-tag');
+	const currentTagSpanEs = document.getElementById('current-tag-es');
+	const posts = document.querySelectorAll('.post-card');
+
+	if (tag) {
+		filterStatus.classList.remove('hidden');
+		if (currentTagSpan) currentTagSpan.textContent = '#' + tag;
+		if (currentTagSpanEs) currentTagSpanEs.textContent = '#' + tag;
+
+		posts.forEach(post => {
+			const postTags = (post.getAttribute('data-tags') || '').split(',');
+			if (!postTags.includes(tag)) {
+				// Use setAttribute to ensure it persists or just style
+				post.style.display = 'none';
+			}
+		});
+	}
 
 	function setLanguage(lang) {
 		if (lang === 'en') {
@@ -192,6 +219,36 @@ const posts = (await getCollection('blog')).sort(
 		font-size: 0.875rem;
 		color: #e2e8f0;
 		font-weight: 500;
+		text-decoration: none;
+		transition: background 0.2s;
+	}
+
+	.tag:hover {
+		background: rgba(255, 255, 255, 0.2);
+	}
+
+	.filter-status {
+		margin-bottom: 2rem;
+		padding: 1rem;
+		background: rgba(var(--accent), 0.1);
+		border: 1px solid rgba(var(--accent), 0.2);
+		border-radius: 8px;
+		color: #e2e8f0;
+	}
+
+	.highlight {
+		font-weight: bold;
+		color: rgb(var(--accent));
+	}
+
+	.clear-filter {
+		margin-left: 1rem;
+		color: #94a3b8;
+		font-size: 0.9em;
+	}
+
+	.clear-filter:hover {
+		color: #e2e8f0;
 	}
 
 	.hidden {
