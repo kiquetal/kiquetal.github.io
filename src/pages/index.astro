@@ -50,8 +50,6 @@ const translations = {
     demo2Desc: "Pipeline de procesamiento de datos en tiempo real usando AWS Lambda, Kinesis y DynamoDB.",
     demo3Title: "Infraestructura como Código",
     demo3Desc: "Módulos completos de Terraform para aprovisionar una VPC de AWS segura y multirregión.",
-    demo4Title: "Dashboard DevSecOps",
-    demo4Desc: "Panel personalizado que integra SonarQube, Trivy y Jenkins para métricas de seguridad.",
     demoLabel: "Ver Demo",
     blogLabel: "Leer Artículo"
   }
@@ -75,16 +73,10 @@ const demos = [
     icon: '🏗️',
     liveUrl: 'https://github.com/kiquetal/terraform-aws-vpc',
     blogUrl: '/blog/infrastructure-as-code-terraform'
-  },
-  {
-    id: 'demo4',
-    icon: '🛡️',
-    liveUrl: 'https://security-dashboard.kiquetal.dev',
-    blogUrl: '/blog/devsecops-dashboard-integration'
   }
 ];
 
-const currentLang = 'en'; 
+const currentLang = 'en';
 const t = translations[currentLang];
 ---
 
@@ -117,8 +109,8 @@ const t = translations[currentLang];
 					<div class="latest-update-container">
 						<span class="update-badge" id="latest-update-label">{t.latestUpdate}</span>
 						<a href={`/blog/${latestPost.slug}`} class="latest-update-link">
-							<span id="latest-post-title" 
-								  data-title-en={latestPost.data.title.en} 
+							<span id="latest-post-title"
+								  data-title-en={latestPost.data.title.en}
 								  data-title-es={latestPost.data.title.es}>
 								{latestPost.data.title[currentLang]}
 							</span>
@@ -180,14 +172,14 @@ const t = translations[currentLang];
 
 	function setLanguage(lang) {
 		const t = translations[lang];
-		
+
 		// Update text content
 		document.getElementById('role-text').textContent = t.role;
 		document.getElementById('role-suffix-text').textContent = t.roleSuffix;
 		document.getElementById('description-text').textContent = t.description;
 		document.getElementById('cta-text').textContent = t.cta;
 		document.getElementById('contact-text').textContent = t.contact;
-		
+
 		const latestUpdateLabel = document.getElementById('latest-update-label');
 		if (latestUpdateLabel) latestUpdateLabel.textContent = t.latestUpdate;
 
@@ -197,7 +189,7 @@ const t = translations[currentLang];
 		}
 
 		document.getElementById('demos-title-text').textContent = t.demosTitle;
-		
+
 		// Dynamic update for demos
 		demos.forEach(demo => {
 			document.getElementById(`${demo.id}-title-text`).textContent = t[`${demo.id}Title`];
@@ -277,12 +269,12 @@ const t = translations[currentLang];
 	.separator {
 		color: #475569;
 	}
-	
+
 	.hero {
 		display: flex;
 		flex-direction: column-reverse;
 		gap: 4rem;
-		margin-bottom: 8rem;
+		margin-bottom: 4rem;
 		align-items: center;
 		min-height: 60vh;
 		justify-content: center;
@@ -405,7 +397,7 @@ const t = translations[currentLang];
 
 	.demos {
 		margin-bottom: 8rem;
-		padding: 4rem 2rem;
+		padding: 2rem 2rem 4rem;
 		background: radial-gradient(circle at center, rgba(var(--accent), 0.05) 0%, transparent 70%);
 		border-radius: 48px;
 		margin-left: -2rem;
