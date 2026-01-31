@@ -14,6 +14,7 @@ const translations = {
     roleSuffix: "& Cloud Architect",
     description: "Architecting scalable, secure, and high-performance solutions. I bridge the gap between complex business requirements and robust technical implementations.",
     cta: "View Credentials",
+    contact: "Contact Me",
     certificationsTitle: "Professional Certifications",
     cert1: "AWS Solutions Architect Professional",
     cert2: "Certified Kubernetes Application Developer",
@@ -37,6 +38,7 @@ const translations = {
     roleSuffix: "y Arquitecto Cloud",
     description: "Arquitecto soluciones escalables, seguras y de alto rendimiento. Conecto los requisitos de negocio complejos con implementaciones técnicas robustas.",
     cta: "Ver Credenciales",
+    contact: "Contáctame",
     certificationsTitle: "Certificaciones Profesionales",
     cert1: "AWS Solutions Architect Professional",
     cert2: "Certified Kubernetes Application Developer",
@@ -101,7 +103,14 @@ const t = translations[currentLang];
 					{t.description}
 				</p>
 				<div class="cta-container">
-					<a href="#certifications" class="cta-link" id="cta-text">{t.cta}</a>
+					<a href="#certifications" class="cta-link">
+						<span class="btn-icon">📜</span>
+						<span id="cta-text">{t.cta}</span>
+					</a>
+					<a href="/contact" class="cta-link" id="contact-btn">
+						<span class="btn-icon">✉️</span>
+						<span id="contact-text">{t.contact}</span>
+					</a>
 				</div>
 
 				{latestPost && (
@@ -175,6 +184,7 @@ const t = translations[currentLang];
 		document.getElementById('role-suffix-text').textContent = t.roleSuffix;
 		document.getElementById('description-text').textContent = t.description;
 		document.getElementById('cta-text').textContent = t.cta;
+		document.getElementById('contact-text').textContent = t.contact;
 		
 		const latestUpdateLabel = document.getElementById('latest-update-label');
 		if (latestUpdateLabel) latestUpdateLabel.textContent = t.latestUpdate;
@@ -313,8 +323,16 @@ const t = translations[currentLang];
 		max-width: 600px;
 	}
 
+	.cta-container {
+		display: flex;
+		gap: 1rem;
+		flex-wrap: wrap;
+	}
+
 	.cta-link {
-		display: inline-block;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
 		padding: 0.8rem 1.6rem;
 		background: rgb(var(--accent));
 		color: white;
@@ -329,6 +347,11 @@ const t = translations[currentLang];
 		background: rgb(var(--accent-dark));
 		transform: translateY(-2px);
 		box-shadow: 0 6px 20px rgba(var(--accent), 0.23);
+	}
+
+	.btn-icon {
+		font-size: 1.2rem;
+		line-height: 1;
 	}
 
 	.latest-update-container {
