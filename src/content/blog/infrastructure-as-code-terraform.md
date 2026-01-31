@@ -7,6 +7,7 @@ excerpt:
   es: 'Gestionando infraestructura AWS multirregión eficientemente.'
 date: 2024-01-05
 liveUrl: 'https://github.com/kiquetal/terraform-aws-vpc'
+tags: ['iac', 'terraform', 'aws']
 ---
 
 <div class="lang-en">

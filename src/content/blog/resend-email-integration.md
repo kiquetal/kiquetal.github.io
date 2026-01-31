@@ -7,6 +7,7 @@ excerpt:
   es: 'Una guía paso a paso para enviar correos usando la API de Resend en una aplicación Node.js.'
 date: 2024-03-25
 liveUrl: 'https://resend.com/docs/introduction'
+tags: ['email', 'resend', 'nodejs']
 ---
 
 <div class="lang-en">

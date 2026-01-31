@@ -7,6 +7,7 @@ excerpt:
   es: 'Visualizando métricas de seguridad de SonarQube y Trivy.'
 date: 2024-02-20
 liveUrl: 'https://security-dashboard.kiquetal.dev'
+tags: ['devsecops', 'dashboard', 'security']
 ---
 
 <div class="lang-en">

@@ -29,6 +29,14 @@ const posts = (await getCollection('blog')).sort(
 					<p class="lang-en">{post.data.excerpt.en}</p>
 					<p class="lang-es hidden">{post.data.excerpt.es}</p>
 					
+					{post.data.tags && (
+						<div class="tags">
+							{post.data.tags.map(tag => (
+								<span class="tag">#{tag}</span>
+							))}
+						</div>
+					)}
+
 					<a href={`/blog/${post.slug}`} class="read-more">
 						<span class="lang-en">Read more →</span>
 						<span class="lang-es hidden">Leer más →</span>
@@ -168,6 +176,22 @@ const posts = (await getCollection('blog')).sort(
 
 	.read-more:hover {
 		text-decoration: underline;
+	}
+
+	.tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		margin-bottom: 1.5rem;
+	}
+
+	.tag {
+		background: rgba(255, 255, 255, 0.1);
+		padding: 0.25rem 0.75rem;
+		border-radius: 9999px;
+		font-size: 0.875rem;
+		color: #e2e8f0;
+		font-weight: 500;
 	}
 
 	.hidden {

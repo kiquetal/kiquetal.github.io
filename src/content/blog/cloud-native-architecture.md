@@ -7,6 +7,7 @@ excerpt:
   es: 'Una inmersión profunda en patrones modernos de nube, microservicios e infraestructura como código.'
 date: 2023-10-15
 liveUrl: 'https://shop-microservices.kiquetal.dev'
+tags: ['cloud-native', 'microservices', 'architecture']
 ---
 
 <div class="lang-en">

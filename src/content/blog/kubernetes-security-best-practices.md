@@ -6,6 +6,7 @@ excerpt:
   en: 'Securing your clusters from the ground up.'
   es: 'Asegurando tus clústeres desde cero.'
 date: 2023-11-02
+tags: ['kubernetes', 'security', 'best-practices']
 ---
 
 <div class="lang-en">

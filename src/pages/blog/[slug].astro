@@ -33,6 +33,14 @@ const { Content } = await post.render();
 			<h1 class="lang-en">{post.data.title.en}</h1>
 			<h1 class="lang-es hidden">{post.data.title.es}</h1>
 
+			{post.data.tags && (
+				<div class="tags">
+					{post.data.tags.map(tag => (
+						<span class="tag">#{tag}</span>
+					))}
+				</div>
+			)}
+
 			{post.data.liveUrl && (
 				<div class="live-demo-banner">
 					<span class="lang-en">Check out the live demo:</span>
@@ -154,6 +162,22 @@ const { Content } = await post.render();
 	.post-date {
 		font-size: 1rem;
 		color: #64748b;
+	}
+
+	.tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		margin-bottom: 2rem;
+	}
+
+	.tag {
+		background: rgba(255, 255, 255, 0.1);
+		padding: 0.25rem 0.75rem;
+		border-radius: 9999px;
+		font-size: 0.875rem;
+		color: #e2e8f0;
+		font-weight: 500;
 	}
 
 	.live-demo-banner {

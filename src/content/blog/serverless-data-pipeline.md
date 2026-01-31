@@ -7,6 +7,7 @@ excerpt:
   es: 'Procesamiento de datos escalable con AWS Lambda y Kinesis.'
 date: 2023-12-10
 liveUrl: 'https://data-pipeline.kiquetal.dev'
+tags: ['serverless', 'aws', 'data-engineering']
 ---
 
 <div class="lang-en">

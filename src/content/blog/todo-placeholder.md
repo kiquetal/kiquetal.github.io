@@ -6,6 +6,7 @@ excerpt:
   en: 'TODO Excerpt'
   es: 'Resumen TODO'
 date: 2026-01-31
+tags: ['todo']
 ---
 
 <div class="lang-en">
