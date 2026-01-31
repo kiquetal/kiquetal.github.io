@@ -26,6 +26,10 @@ const { Content } = await post.render();
 		</div>
 
 		<article>
+			<div class="post-meta">
+				<span class="post-date lang-en">{post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}</span>
+				<span class="post-date lang-es hidden">{post.data.date.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}</span>
+			</div>
 			<h1 class="lang-en">{post.data.title.en}</h1>
 			<h1 class="lang-es hidden">{post.data.title.es}</h1>
 
@@ -141,6 +145,15 @@ const { Content } = await post.render();
 		font-weight: 800;
 		margin-bottom: 2rem;
 		line-height: 1.2;
+	}
+
+	.post-meta {
+		margin-bottom: 1rem;
+	}
+
+	.post-date {
+		font-size: 1rem;
+		color: #64748b;
 	}
 
 	.live-demo-banner {

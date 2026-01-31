@@ -12,10 +12,12 @@ date: 2026-01-31
 
 TODO
 
+![Gemini Demo Image](/images/gemini-demo.svg)
+
 </div>
 
 <div class="lang-es hidden">
-
+TODO
 
 
 </div>
