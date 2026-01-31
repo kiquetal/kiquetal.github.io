@@ -1,8 +1,14 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+const posts = await getCollection('blog');
+const sortedPosts = posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const latestPost = sortedPosts.length > 0 ? sortedPosts[0] : null;
 
 const translations = {
   en: {
+    latestUpdate: "Newest Blog Post",
     title: "System Engineer Portfolio",
     role: "System Engineer",
     roleSuffix: "& Cloud Architect",
@@ -26,6 +32,7 @@ const translations = {
   },
   es: {
     title: "Portafolio de Ingeniero de Sistemas",
+    latestUpdate: "Nuevo Blog",
     role: "Ingeniero de Sistemas",
     roleSuffix: "y Arquitecto Cloud",
     description: "Arquitecto soluciones escalables, seguras y de alto rendimiento. Conecto los requisitos de negocio complejos con implementaciones técnicas robustas.",
@@ -96,6 +103,19 @@ const t = translations[currentLang];
 				<div class="cta-container">
 					<a href="#certifications" class="cta-link" id="cta-text">{t.cta}</a>
 				</div>
+
+				{latestPost && (
+					<div class="latest-update-container">
+						<span class="update-badge" id="latest-update-label">{t.latestUpdate}</span>
+						<a href={`/blog/${latestPost.slug}`} class="latest-update-link">
+							<span id="latest-post-title" 
+								  data-title-en={latestPost.data.title.en} 
+								  data-title-es={latestPost.data.title.es}>
+								{latestPost.data.title[currentLang]}
+							</span>
+						</a>
+					</div>
+				)}
 			</div>
 			<div class="hero-image">
 				<img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop" alt="Cloud Architecture Landscape" />
@@ -156,6 +176,14 @@ const t = translations[currentLang];
 		document.getElementById('description-text').textContent = t.description;
 		document.getElementById('cta-text').textContent = t.cta;
 		
+		const latestUpdateLabel = document.getElementById('latest-update-label');
+		if (latestUpdateLabel) latestUpdateLabel.textContent = t.latestUpdate;
+
+		const latestPostTitle = document.getElementById('latest-post-title');
+		if (latestPostTitle) {
+			latestPostTitle.textContent = lang === 'en' ? latestPostTitle.dataset.titleEn : latestPostTitle.dataset.titleEs;
+		}
+
 		document.getElementById('demos-title-text').textContent = t.demosTitle;
 		
 		// Dynamic update for demos
@@ -301,6 +329,41 @@ const t = translations[currentLang];
 		background: rgb(var(--accent-dark));
 		transform: translateY(-2px);
 		box-shadow: 0 6px 20px rgba(var(--accent), 0.23);
+	}
+
+	.latest-update-container {
+		margin-top: 2rem;
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+		font-size: 0.9rem;
+		background: rgba(255, 255, 255, 0.05);
+		padding: 0.5rem 1rem;
+		border-radius: 99px;
+		width: fit-content;
+		border: 1px solid rgba(255, 255, 255, 0.1);
+	}
+
+	.update-badge {
+		background: #00ab41;
+		color: white;
+		padding: 0.2rem 0.6rem;
+		border-radius: 99px;
+		font-size: 0.75rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	.latest-update-link {
+		color: #e2e8f0;
+		text-decoration: none;
+		font-weight: 500;
+		transition: color 0.2s;
+	}
+
+	.latest-update-link:hover {
+		color: rgb(var(--accent));
 	}
 
 	.hero-image img {
