@@ -13,13 +13,13 @@ tags: ['quarkus', 'encryption']
 
 TODO
 
-![E2S Encryption Hero](/blog/2026-02-13-e2s-encryption-with-quarkus/hero.png)
+![E2S Encryption Hero](/blog/2026-02-13-e2s-encryption-with-quarkus/hero-en.png)
 
 </div>
 
 <div class="lang-es hidden">
 TODO
 
-![E2S Encryption Hero](/blog/2026-02-13-e2s-encryption-with-quarkus/hero.png)
+![E2S Encryption Hero](/blog/2026-02-13-e2s-encryption-with-quarkus/hero-es.png)
 
 </div>
