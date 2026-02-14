@@ -96,10 +96,13 @@ const t = translations[currentLang];
 
 <Layout title={t.title}>
 	<main>
-		<div class="lang-switch">
-			<button id="lang-en" class={currentLang === 'en' ? 'active' : ''}>EN</button>
-			<span class="separator">/</span>
-			<button id="lang-es" class={currentLang === 'es' ? 'active' : ''}>ES</button>
+		<div class="header-row">
+			<div></div>
+			<div class="lang-switch">
+				<button id="lang-en" class={currentLang === 'en' ? 'active' : ''}>EN</button>
+				<span class="separator">/</span>
+				<button id="lang-es" class={currentLang === 'es' ? 'active' : ''}>ES</button>
+			</div>
 		</div>
 
 		<section class="hero">
@@ -276,15 +279,18 @@ const t = translations[currentLang];
 		position: relative;
 	}
 
+	.header-row {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 2rem;
+	}
+
 	.lang-switch {
-		position: absolute;
-		top: 6rem;
-		right: 2rem;
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
 		font-weight: 600;
-		z-index: 101;
 	}
 
 	.lang-switch button {
