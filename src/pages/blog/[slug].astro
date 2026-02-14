@@ -253,4 +253,32 @@ const { Content } = await post.render();
 		font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
 		font-size: 0.9em;
 	}
+
+	.content :global(.demo-box) {
+		background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.15));
+		border: 1px solid rgba(139, 92, 246, 0.3);
+		padding: 1.25rem;
+		border-radius: 12px;
+		margin: 2rem 0;
+	}
+
+	.content :global(.demo-label) {
+		font-weight: 600;
+		color: #c4b5fd;
+		margin-bottom: 0.75rem;
+		font-size: 1.1rem;
+	}
+
+	.content :global(.demo-url) {
+		display: block;
+		color: #94a3b8;
+		text-decoration: none;
+		font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+		font-size: 0.95rem;
+		transition: color 0.2s;
+	}
+
+	.content :global(.demo-url:hover) {
+		color: #c4b5fd;
+	}
 </style>
