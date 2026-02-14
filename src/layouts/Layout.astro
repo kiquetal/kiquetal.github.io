@@ -34,12 +34,46 @@ const { title } = Astro.props;
 						</a>
 					</div>
 					<a href="/contact" class="contact-btn">Contact</a>
+					<div class="lang-switch-header">
+						<button id="lang-en-header" class="active">🇬🇧 EN</button>
+						<span class="separator">/</span>
+						<button id="lang-es-header">🇵🇾 ES</button>
+					</div>
 				</div>
 			</div>
 		</nav>
 		<slot />
 	</body>
 </html>
+
+<script>
+	const btnEnHeader = document.getElementById('lang-en-header');
+	const btnEsHeader = document.getElementById('lang-es-header');
+
+	function setLanguage(lang) {
+		if (btnEnHeader && btnEsHeader) {
+			if (lang === 'en') {
+				btnEnHeader.classList.add('active');
+				btnEsHeader.classList.remove('active');
+			} else {
+				btnEsHeader.classList.add('active');
+				btnEnHeader.classList.remove('active');
+			}
+		}
+		localStorage.setItem('preferred-lang', lang);
+		
+		// Trigger custom event for page-specific handlers
+		window.dispatchEvent(new CustomEvent('languageChange', { detail: { lang } }));
+	}
+
+	if (btnEnHeader) btnEnHeader.addEventListener('click', () => setLanguage('en'));
+	if (btnEsHeader) btnEsHeader.addEventListener('click', () => setLanguage('es'));
+
+	// Set initial state
+	const savedLang = localStorage.getItem('preferred-lang') || 'en';
+	setLanguage(savedLang);
+</script>
+
 <style is:global>
 	:root {
 		--accent: 56, 189, 248;
@@ -146,6 +180,35 @@ const { title } = Astro.props;
 	.contact-btn:hover {
 		background: rgb(var(--accent-dark));
 		transform: translateY(-1px);
+	}
+
+	.lang-switch-header {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-weight: 600;
+	}
+
+	.lang-switch-header button {
+		background: none;
+		border: none;
+		color: #64748b;
+		cursor: pointer;
+		font-size: 1rem;
+		padding: 0.25rem;
+		transition: color 0.2s;
+	}
+
+	.lang-switch-header button:hover {
+		color: #94a3b8;
+	}
+
+	.lang-switch-header button.active {
+		color: rgb(var(--accent));
+	}
+
+	.lang-switch-header .separator {
+		color: #475569;
 	}
 
 	/* Adjust main content to account for fixed header */

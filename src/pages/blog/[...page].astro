@@ -15,14 +15,7 @@ const posts = page.data;
 
 <Layout title="Blog - System Engineer">
 	<main>
-		<div class="header-row">
-			<h1>Blog</h1>
-			<div class="lang-switch">
-				<button id="lang-en" class="active">EN</button>
-				<span class="separator">/</span>
-				<button id="lang-es">ES</button>
-			</div>
-		</div>
+		<h1>Blog</h1>
 
 		<div id="filter-status" class="filter-status hidden">
 			<span class="lang-en">Filtering by tag: <span id="current-tag" class="highlight"></span> <a href="/blog" class="clear-filter">Clear</a></span>
@@ -155,35 +148,6 @@ const posts = page.data;
 		background-image: var(--accent-gradient);
 		-webkit-background-clip: text;
 		-webkit-text-fill-color: transparent;
-	}
-
-	.lang-switch {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		font-weight: 600;
-	}
-
-	.lang-switch button {
-		background: none;
-		border: none;
-		color: #64748b;
-		cursor: pointer;
-		font-size: 1rem;
-		padding: 0.25rem;
-		transition: color 0.2s;
-	}
-
-	.lang-switch button:hover {
-		color: #94a3b8;
-	}
-
-	.lang-switch button.active {
-		color: rgb(var(--accent));
-	}
-
-	.separator {
-		color: #475569;
 	}
 
 	.posts-grid {

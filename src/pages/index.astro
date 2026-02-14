@@ -96,15 +96,6 @@ const t = translations[currentLang];
 
 <Layout title={t.title}>
 	<main>
-		<div class="header-row">
-			<div></div>
-			<div class="lang-switch">
-				<button id="lang-en" class={currentLang === 'en' ? 'active' : ''}>EN</button>
-				<span class="separator">/</span>
-				<button id="lang-es" class={currentLang === 'es' ? 'active' : ''}>ES</button>
-			</div>
-		</div>
-
 		<section class="hero">
 			<div class="hero-content">
 				<h1><span class="text-gradient" id="role-text">{t.role}</span> <br/><span id="role-suffix-text">{t.roleSuffix}</span></h1>
@@ -206,9 +197,6 @@ const t = translations[currentLang];
 </Layout>
 
 <script define:vars={{ translations, demos }}>
-	const btnEn = document.getElementById('lang-en');
-	const btnEs = document.getElementById('lang-es');
-
 	function setLanguage(lang) {
 		const t = translations[lang];
 
@@ -245,20 +233,12 @@ const t = translations[currentLang];
 		document.getElementById('cert3-text').textContent = t.cert3;
 		const certCredly = document.getElementById('cert-credly-text');
 		if (certCredly) certCredly.textContent = t.certCredly;
-
-		// Update active state
-		if (lang === 'en') {
-			btnEn.classList.add('active');
-			btnEs.classList.remove('active');
-		} else {
-			btnEs.classList.add('active');
-			btnEn.classList.remove('active');
-		}
-		localStorage.setItem('preferred-lang', lang);
 	}
 
-	btnEn.addEventListener('click', () => setLanguage('en'));
-	btnEs.addEventListener('click', () => setLanguage('es'));
+	// Listen to header language change
+	window.addEventListener('languageChange', (e) => {
+		setLanguage(e.detail.lang);
+	});
 
 	// Check for saved preference
 	const savedLang = localStorage.getItem('preferred-lang');
@@ -277,42 +257,6 @@ const t = translations[currentLang];
 		font-size: 18px;
 		line-height: 1.8;
 		position: relative;
-	}
-
-	.header-row {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin-bottom: 2rem;
-	}
-
-	.lang-switch {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		font-weight: 600;
-	}
-
-	.lang-switch button {
-		background: none;
-		border: none;
-		color: #64748b;
-		cursor: pointer;
-		font-size: 1rem;
-		padding: 0.25rem;
-		transition: color 0.2s;
-	}
-
-	.lang-switch button:hover {
-		color: #94a3b8;
-	}
-
-	.lang-switch button.active {
-		color: rgb(var(--accent));
-	}
-
-	.separator {
-		color: #475569;
 	}
 
 	.hero {
