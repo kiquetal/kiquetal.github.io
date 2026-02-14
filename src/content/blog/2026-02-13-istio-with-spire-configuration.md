@@ -6,7 +6,7 @@ excerpt:
   en: 'TODO'
   es: 'TODO'
 date: 2026-02-13T12:00:00Z
-tags: ['istio', 'spire']
+tags: ['istio', 'spire','k8s']
 ---
 
 <div class="lang-en">
