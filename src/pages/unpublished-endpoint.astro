@@ -6,30 +6,118 @@ const blogUrl = Astro.url.searchParams.get('blog') || '/blog';
 
 <Layout title="Unpublished Endpoint">
 	<main>
+		<div class="header-row">
+			<a href="/" class="back-link">← <span class="lang-en">Home</span><span class="lang-es hidden">Inicio</span></a>
+			<div class="lang-switch">
+				<button id="lang-en" class="active">EN</button>
+				<span class="separator">/</span>
+				<button id="lang-es">ES</button>
+			</div>
+		</div>
+
 		<div class="secret-container">
-			<h1>🔒 Secret Endpoint</h1>
-			<p class="message">This demo is currently under development and not publicly accessible.</p>
+			<h1>🔒 <span class="lang-en">Secret Endpoint</span><span class="lang-es hidden">Endpoint Secreto</span></h1>
+			<p class="message lang-en">This demo is currently under development and not publicly accessible.</p>
+			<p class="message lang-es hidden">Esta demo está actualmente en desarrollo y no es públicamente accesible.</p>
 			<div class="image-placeholder">
 				<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
 					<rect width="200" height="200" rx="10" fill="rgba(139, 92, 246, 0.1)"/>
 					<path d="M100 60C88.954 60 80 68.954 80 80V90H75C71.686 90 69 92.686 69 96V130C69 133.314 71.686 136 75 136H125C128.314 136 131 133.314 131 130V96C131 92.686 128.314 90 125 90H120V80C120 68.954 111.046 60 100 60ZM100 70C105.523 70 110 74.477 110 80V90H90V80C90 74.477 94.477 70 100 70Z" fill="#8b5cf6"/>
 				</svg>
 			</div>
-			<a href={blogUrl} class="read-more">Read about the technology →</a>
+			<a href={blogUrl} class="read-more lang-en">Read about the technology →</a>
+			<a href={blogUrl} class="read-more lang-es hidden">Leer sobre la tecnología →</a>
 		</div>
 	</main>
 </Layout>
+
+<script>
+	const btnEn = document.getElementById('lang-en');
+	const btnEs = document.getElementById('lang-es');
+
+	function setLanguage(lang) {
+		const en = document.querySelectorAll('.lang-en');
+		const es = document.querySelectorAll('.lang-es');
+		
+		if (lang === 'en') {
+			btnEn.classList.add('active');
+			btnEs.classList.remove('active');
+			en.forEach(el => el.classList.remove('hidden'));
+			es.forEach(el => el.classList.add('hidden'));
+		} else {
+			btnEs.classList.add('active');
+			btnEn.classList.remove('active');
+			es.forEach(el => el.classList.remove('hidden'));
+			en.forEach(el => el.classList.add('hidden'));
+		}
+		localStorage.setItem('preferred-lang', lang);
+	}
+
+	btnEn.addEventListener('click', () => setLanguage('en'));
+	btnEs.addEventListener('click', () => setLanguage('es'));
+
+	const savedLang = localStorage.getItem('preferred-lang') || 'en';
+	setLanguage(savedLang);
+</script>
 
 <style>
 	main {
 		margin: auto;
 		padding: 4rem 2rem;
 		width: 100%;
-		max-width: 600px;
-		min-height: 80vh;
+		max-width: 800px;
+		color: #e2e8f0;
+	}
+
+	.header-row {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 3rem;
+	}
+
+	.back-link {
+		color: #94a3b8;
+		text-decoration: none;
+		font-weight: 600;
+		transition: color 0.2s;
+	}
+
+	.back-link:hover {
+		color: white;
+	}
+
+	.lang-switch {
 		display: flex;
 		align-items: center;
-		justify-content: center;
+		gap: 0.5rem;
+		font-weight: 600;
+	}
+
+	.lang-switch button {
+		background: none;
+		border: none;
+		color: #64748b;
+		cursor: pointer;
+		font-size: 1rem;
+		padding: 0.25rem;
+		transition: color 0.2s;
+	}
+
+	.lang-switch button:hover {
+		color: #94a3b8;
+	}
+
+	.lang-switch button.active {
+		color: rgb(var(--accent));
+	}
+
+	.separator {
+		color: #475569;
+	}
+
+	.hidden {
+		display: none;
 	}
 
 	.secret-container {
@@ -38,6 +126,7 @@ const blogUrl = Astro.url.searchParams.get('blog') || '/blog';
 		background: rgba(30, 41, 59, 0.5);
 		border: 1px solid rgba(139, 92, 246, 0.3);
 		border-radius: 16px;
+		margin-top: 2rem;
 	}
 
 	h1 {
