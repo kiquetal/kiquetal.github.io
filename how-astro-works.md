@@ -1,18 +1,47 @@
 # How Astro Works: The "Magic" of Dynamic Routing
 
-Astro is a static site generator that leverages **File-based Routing** and **Content Collections** to create high-performance websites. Here is a breakdown of how the "magic" happens.
+Astro is a static site generator that leverages **File-based Routing** and **Content Collections** to create high-performance websites. Here is a breakdown of how the project is structured and how the "magic" happens.
 
 ## 1. The Visual Flow
 
 ```mermaid
 graph TD
-    A[Markdown Files /src/content/blog/*.md] --> B[Collection Schema /src/content/config.ts]
-    B --> C[Dynamic Route /src/pages/blog/[slug].astro]
-    C -->|getStaticPaths| D[Build Engine]
-    D --> E[Final Static HTML Files /dist/blog/post-1/index.html]
+    subgraph Source [src Folder]
+        A[content/ - Markdown & Data] --> B[config.ts - Schema]
+        C[components/ - UI Reusable Units] --> E[pages/ - Routes & Assembly]
+        D[layouts/ - Page Shells] --> E
+        B --> E
+    end
+    E -->|Build Engine| F[dist/ - Static Site]
+    
+    subgraph Dynamic_Routing [Dynamic Blog Flow]
+        B --> G[pages/blog/[slug].astro]
+        G -->|getStaticPaths| F
+    end
 ```
 
-## 2. The Process
+## 2. Folder Structure & Responsibilities
+
+The `src/` directory is where most of the development happens. Each folder has a specific role:
+
+### `src/components/`
+Contains reusable UI components. These are `.astro` files (or React/Vue/etc.) that represent pieces of the interface, like cards, buttons, or navigation bars. They are imported and used within pages or layouts to maintain consistency.
+
+### `src/content/`
+This is the "database" of the project. It uses **Astro Content Collections** to manage Markdown files.
+- `blog/`: Contains the actual posts as `.md` files.
+- `config.ts`: Defines the schema (using Zod) to validate the frontmatter of your Markdown files, ensuring type safety across the site.
+
+### `src/layouts/`
+Layouts are special Astro components that provide a common page shell. They typically contain the `<html>`, `<head>`, and `<body>` tags, along with global styles and navigation. Other pages wrap their content in a Layout to inherit the structure.
+
+### `src/pages/`
+Astro uses **File-based Routing**. Any file in this directory automatically becomes a URL on your website.
+- `index.astro` → `/`
+- `contact.astro` → `/contact`
+- `blog/` → Contains the blog listing and individual post templates.
+
+## 3. The Dynamic Process
 
 ### A. Defining the Data (Content Collections)
 First, Astro needs to know what your data looks like. This is defined in `src/content/config.ts`.
@@ -23,12 +52,12 @@ First, Astro needs to know what your data looks like. This is defined in `src/co
 The file name `[slug].astro` tells Astro that this page is dynamic. The `[slug]` part is a parameter that will be replaced by the actual URL.
 
 ### C. The Magic: `getStaticPaths()`
-This is the most important function. It runs **only at build time**.
+This is the most important function for dynamic routes. It runs **only at build time**.
 1. It fetches all entries from a collection.
 2. It returns an array of objects.
 3. Each object contains `params` (the URL part) and `props` (the data for that page).
 
-## 3. Creating a New Dynamic Path (Example)
+## 4. Creating a New Dynamic Path (Example)
 
 Suppose you want to add a "Projects" section at `/projects/[id]`.
 
