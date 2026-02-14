@@ -33,21 +33,18 @@ const blogUrl = Astro.url.searchParams.get('blog') || '/blog';
 		const es = document.querySelectorAll('.lang-es');
 		
 		if (lang === 'en') {
-			btnEn.classList.add('active');
-			btnEs.classList.remove('active');
 			en.forEach(el => el.classList.remove('hidden'));
 			es.forEach(el => el.classList.add('hidden'));
 		} else {
-			btnEs.classList.add('active');
-			btnEn.classList.remove('active');
 			es.forEach(el => el.classList.remove('hidden'));
 			en.forEach(el => el.classList.add('hidden'));
 		}
-		localStorage.setItem('preferred-lang', lang);
 	}
 
-	btnEn.addEventListener('click', () => setLanguage('en'));
-	btnEs.addEventListener('click', () => setLanguage('es'));
+	// Listen to header language change
+	window.addEventListener('languageChange', (e) => {
+		setLanguage(e.detail.lang);
+	});
 
 	const savedLang = localStorage.getItem('preferred-lang') || 'en';
 	setLanguage(savedLang);
