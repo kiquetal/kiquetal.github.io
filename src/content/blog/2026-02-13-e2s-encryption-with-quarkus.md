@@ -13,7 +13,7 @@ tags: ['quarkus', 'encryption']
 
 <div class="demo-box">
   <div class="demo-label">🔐 Live Demo</div>
-  <a href="https://e2equarks.kiquetal.dev/whisper/passphrase" target="_blank" class="demo-url">https://e2equarks.kiquetal.dev/whisper/passphrase</a>
+  <a href="https://e2equarks.kiquetal.dev/whisper" target="_blank" class="demo-url">https://e2equarks.kiquetal.dev/whisper</a>
 </div>
 
 TODO
@@ -26,7 +26,7 @@ TODO
 
 <div class="demo-box">
   <div class="demo-label">🔐 Demo en Vivo</div>
-  <a href="https://e2equarks.kiquetal.dev/whisper/passphrase" target="_blank" class="demo-url">https://e2equarks.kiquetal.dev/whisper/passphrase</a>
+  <a href="https://e2equarks.kiquetal.dev/whisper" target="_blank" class="demo-url">https://e2equarks.kiquetal.dev/whisper</a>
 </div>
 
 TODO

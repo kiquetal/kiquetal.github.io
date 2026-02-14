@@ -1,0 +1,79 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const blogUrl = Astro.url.searchParams.get('blog') || '/blog';
+---
+
+<Layout title="Unpublished Endpoint">
+	<main>
+		<div class="secret-container">
+			<h1>🔒 Secret Endpoint</h1>
+			<p class="message">This demo is currently under development and not publicly accessible.</p>
+			<div class="image-placeholder">
+				<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<rect width="200" height="200" rx="10" fill="rgba(139, 92, 246, 0.1)"/>
+					<path d="M100 60C88.954 60 80 68.954 80 80V90H75C71.686 90 69 92.686 69 96V130C69 133.314 71.686 136 75 136H125C128.314 136 131 133.314 131 130V96C131 92.686 128.314 90 125 90H120V80C120 68.954 111.046 60 100 60ZM100 70C105.523 70 110 74.477 110 80V90H90V80C90 74.477 94.477 70 100 70Z" fill="#8b5cf6"/>
+				</svg>
+			</div>
+			<a href={blogUrl} class="read-more">Read about the technology →</a>
+		</div>
+	</main>
+</Layout>
+
+<style>
+	main {
+		margin: auto;
+		padding: 4rem 2rem;
+		width: 100%;
+		max-width: 600px;
+		min-height: 80vh;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.secret-container {
+		text-align: center;
+		padding: 3rem;
+		background: rgba(30, 41, 59, 0.5);
+		border: 1px solid rgba(139, 92, 246, 0.3);
+		border-radius: 16px;
+	}
+
+	h1 {
+		font-size: 2.5rem;
+		margin-bottom: 1rem;
+		color: #e2e8f0;
+	}
+
+	.message {
+		color: #94a3b8;
+		font-size: 1.1rem;
+		margin-bottom: 2rem;
+		line-height: 1.6;
+	}
+
+	.image-placeholder {
+		margin: 2rem 0;
+		display: flex;
+		justify-content: center;
+	}
+
+	.read-more {
+		display: inline-block;
+		margin-top: 2rem;
+		padding: 0.75rem 1.5rem;
+		background: rgba(139, 92, 246, 0.2);
+		color: #c4b5fd;
+		text-decoration: none;
+		border-radius: 8px;
+		border: 1px solid rgba(139, 92, 246, 0.4);
+		font-weight: 600;
+		transition: all 0.2s;
+	}
+
+	.read-more:hover {
+		background: rgba(139, 92, 246, 0.3);
+		transform: translateY(-2px);
+	}
+</style>

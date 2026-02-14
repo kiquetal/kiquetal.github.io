@@ -30,6 +30,8 @@ const translations = {
     demo3Desc: "Complete Terraform modules for provisioning a secure, multi-region AWS VPC.",
     demo4Title: "DevSecOps Dashboard",
     demo4Desc: "Custom dashboard integrating SonarQube, Trivy, and Jenkins for security metrics.",
+    demo5Title: "Speech-to-Text with Whisper and F#",
+    demo5Desc: "Converting speech to text using OpenAI Whisper model implemented in F#.",
     demoLabel: "Live Demo",
     blogLabel: "Read Article"
   },
@@ -54,6 +56,8 @@ const translations = {
     demo2Desc: "Pipeline de procesamiento de datos en tiempo real usando AWS Lambda, Kinesis y DynamoDB.",
     demo3Title: "Infraestructura como Código",
     demo3Desc: "Módulos completos de Terraform para aprovisionar una VPC de AWS segura y multirregión.",
+    demo5Title: "Speech-to-Text con Whisper y F#",
+    demo5Desc: "Conversión de voz a texto usando el modelo Whisper de OpenAI implementado en F#.",
     demoLabel: "Ver Demo",
     blogLabel: "Leer Artículo"
   }
@@ -63,7 +67,7 @@ const demos = [
   {
     id: 'demo1',
     icon: '🔐',
-    liveUrl: 'https://e2equarks.kiquetal.dev/whisper/passphrase',
+    liveUrl: 'https://e2equarks.kiquetal.dev/whisper',
     blogUrl: '/blog/2026-02-13-e2s-encryption-with-quarkus'
   },
   {
@@ -77,6 +81,12 @@ const demos = [
     icon: '🏗️',
     liveUrl: 'https://github.com/kiquetal/terraform-aws-vpc',
     blogUrl: '/blog/infrastructure-as-code-terraform'
+  },
+  {
+    id: 'demo5',
+    icon: '🎤',
+    liveUrl: '/unpublished-endpoint?blog=/blog/speech-to-text-whisper-fsharp',
+    blogUrl: '/blog/speech-to-text-whisper-fsharp'
   }
 ];
 
