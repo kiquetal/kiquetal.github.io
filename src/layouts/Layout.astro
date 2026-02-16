@@ -89,6 +89,12 @@ const { title } = Astro.props;
 	html {
 		font-family: 'Inter', system-ui, sans-serif;
 		background: #0f172a;
+		background-image: 
+			radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.15) 0px, transparent 50%),
+			radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
+			radial-gradient(at 100% 100%, rgba(56, 189, 248, 0.1) 0px, transparent 50%),
+			radial-gradient(at 0% 100%, rgba(139, 92, 246, 0.1) 0px, transparent 50%);
+		background-attachment: fixed;
 		scroll-behavior: smooth;
 	}
 	body {
