@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infographic Compact</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            width: 800px;
+            height: 600px;
+            background: linear-gradient(135deg, #f5e6d3 0%, #e8d5c4 50%, #d4c4a8 100%);
+            overflow: hidden;
+        }
+        .vintage-texture {
+            background-image: 
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(139, 115, 85, 0.03) 2px, rgba(139, 115, 85, 0.03) 4px),
+                repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(139, 115, 85, 0.03) 2px, rgba(139, 115, 85, 0.03) 4px);
+        }
+        .ribbon {
+            position: relative;
+            background: linear-gradient(135deg, #8b7355 0%, #6b5744 100%);
+            color: #faf7f2;
+            padding: 4px 24px;
+            font-size: 11px;
+            font-style: italic;
+            display: inline-block;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .ribbon:before,
+        .ribbon:after {
+            content: '';
+            position: absolute;
+            top: 0;
+            width: 0;
+            height: 0;
+            border-style: solid;
+        }
+        .ribbon:before {
+            left: -12px;
+            border-width: 14px 12px 14px 0;
+            border-color: transparent #6b5744 transparent transparent;
+        }
+        .ribbon:after {
+            right: -12px;
+            border-width: 14px 0 14px 12px;
+            border-color: transparent transparent transparent #6b5744;
+        }
+    </style>
+</head>
+<body>
+    <div class="w-full h-full p-8 flex flex-col">
+        <div class="bg-[#fdfbf7] vintage-texture rounded-xl shadow-2xl p-6 border-2 border-[#d4c4a8] flex-1 flex flex-col">
+            <h1 class="text-[#3d2f1f] text-3xl font-bold mb-6 text-center border-b border-[#d4c4a8] pb-3">Annual Growth Report</h1>
+            
+            <div class="grid grid-cols-2 gap-6 flex-1">
+                <!-- Column 1 -->
+                <div class="flex flex-col justify-between">
+                    <div class="text-center p-4 bg-[#f5f0e8] rounded-lg border border-[#d4c4a8]">
+                        <div class="w-12 h-12 bg-[#8b7355] rounded-full mx-auto mb-2"></div>
+                        <h2 class="text-[#3d2f1f] text-xl font-bold mb-2">Revenue Growth</h2>
+                        <div class="text-[#8b7355] text-4xl font-bold mb-2">+42%</div>
+                        <p class="text-[#5c4a3a] text-sm">Strategic market expansion driving growth.</p>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-3 bg-[#f5f0e8] p-2 rounded border border-[#d4c4a8]">
+                            <div class="w-10 h-10 bg-[#c9b896] rounded"></div>
+                            <div class="flex-1">
+                                <div class="text-[#3d2f1f] font-bold text-sm">Q1</div>
+                                <div class="text-[#8b7355]">$2.4M</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 bg-[#f5f0e8] p-2 rounded border border-[#d4c4a8]">
+                            <div class="w-10 h-10 bg-[#a89378] rounded"></div>
+                            <div class="flex-1">
+                                <div class="text-[#3d2f1f] font-bold text-sm">Q2</div>
+                                <div class="text-[#8b7355]">$3.1M</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 bg-[#f5f0e8] p-2 rounded border border-[#d4c4a8]">
+                            <div class="w-10 h-10 bg-[#8b7355] rounded"></div>
+                            <div class="flex-1">
+                                <div class="text-[#3d2f1f] font-bold text-sm">Q3</div>
+                                <div class="text-[#8b7355]">$3.8M</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Column 2 -->
+                <div class="flex flex-col justify-between">
+                    <div class="text-center p-4 bg-[#f5f0e8] rounded-lg border border-[#d4c4a8]">
+                        <div class="w-12 h-12 bg-[#a89378] rounded-full mx-auto mb-2"></div>
+                        <h2 class="text-[#3d2f1f] text-xl font-bold mb-2">Satisfaction</h2>
+                        <div class="text-[#8b7355] text-4xl font-bold mb-2">94%</div>
+                        <p class="text-[#5c4a3a] text-sm">Exceptional quality service excellence.</p>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-3 bg-[#f5f0e8] p-2 rounded border border-[#d4c4a8]">
+                            <div class="w-10 h-10 bg-[#c9b896] rounded"></div>
+                            <div class="flex-1">
+                                <div class="text-[#3d2f1f] font-bold text-sm">Response</div>
+                                <div class="text-[#8b7355]">< 2h</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 bg-[#f5f0e8] p-2 rounded border border-[#d4c4a8]">
+                            <div class="w-10 h-10 bg-[#a89378] rounded"></div>
+                            <div class="flex-1">
+                                <div class="text-[#3d2f1f] font-bold text-sm">Resolution</div>
+                                <div class="text-[#8b7355]">98%</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 bg-[#f5f0e8] p-2 rounded border border-[#d4c4a8]">
+                            <div class="w-10 h-10 bg-[#8b7355] rounded"></div>
+                            <div class="flex-1">
+                                <div class="text-[#3d2f1f] font-bold text-sm">Retention</div>
+                                <div class="text-[#8b7355]">91%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-4">
+                <div class="ribbon">co-designed by kiquetal</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
