@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { Icon } from 'astro-icon/components';
 import { getCollection } from 'astro:content';
 
 const posts = await getCollection('blog');
@@ -56,13 +57,13 @@ const translations = {
 const demos = [
   {
     id: 'demo1',
-    icon: '🔐',
+    icon: 'ph:lock-key-bold',
     liveUrl: 'https://e2equarks.kiquetal.dev/whisper',
     blogUrl: '/blog/2026-02-13-e2s-encryption-with-quarkus'
   },
   {
     id: 'demo5',
-    icon: '🎤',
+    icon: 'ph:microphone-bold',
     liveUrl: '/unpublished-endpoint?blog=/blog/speech-to-text-whisper-fsharp',
     blogUrl: '/blog/speech-to-text-whisper-fsharp'
   }
@@ -82,11 +83,11 @@ const t = translations[currentLang];
 				</p>
 				<div class="cta-container">
 					<a href="#certifications" class="cta-link">
-						<span class="btn-icon">📜</span>
+						<span class="btn-icon"><Icon name="ph:certificate-bold" size={20} /></span>
 						<span id="cta-text">{t.cta}</span>
 					</a>
 					<a href="/contact" class="cta-link" id="contact-btn">
-						<span class="btn-icon">✉️</span>
+						<span class="btn-icon"><Icon name="ph:envelope-bold" size={20} /></span>
 						<span id="contact-text">{t.contact}</span>
 					</a>
 				</div>
@@ -115,7 +116,7 @@ const t = translations[currentLang];
 				{demos.map(demo => (
 					<div class="demo-card">
 						<div class="demo-header">
-							<div class="demo-icon">{demo.icon}</div>
+							<div class="demo-icon"><Icon name={demo.icon} size={28} /></div>
 							<h3 id={`${demo.id}-title-text`}>{t[`${demo.id}Title`]}</h3>
 						</div>
 						<p id={`${demo.id}-desc-text`}>{t[`${demo.id}Desc`]}</p>
@@ -460,6 +461,7 @@ const t = translations[currentLang];
 	.demo-icon {
 		font-size: 1.5rem;
 		line-height: 1;
+		color: rgb(var(--accent));
 	}
 
 	.demo-card h3 {
