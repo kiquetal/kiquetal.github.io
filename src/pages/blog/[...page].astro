@@ -73,8 +73,6 @@ const posts = page.data;
 </Layout>
 
 <script>
-	const btnEn = document.getElementById('lang-en');
-	const btnEs = document.getElementById('lang-es');
 	const enElements = document.querySelectorAll('.lang-en');
 	const esElements = document.querySelectorAll('.lang-es');
 
@@ -94,7 +92,6 @@ const posts = page.data;
 		posts.forEach(post => {
 			const postTags = (post.getAttribute('data-tags') || '').split(',');
 			if (!postTags.includes(tag)) {
-				// Use setAttribute to ensure it persists or just style
 				(post as HTMLElement).style.display = 'none';
 			}
 		});
@@ -102,36 +99,29 @@ const posts = page.data;
 
 	function setLanguage(lang) {
 		if (lang === 'en') {
-			btnEn.classList.add('active');
-			btnEs.classList.remove('active');
 			enElements.forEach(el => el.classList.remove('hidden'));
 			esElements.forEach(el => el.classList.add('hidden'));
 		} else {
-			btnEs.classList.add('active');
-			btnEn.classList.remove('active');
 			esElements.forEach(el => el.classList.remove('hidden'));
 			enElements.forEach(el => el.classList.add('hidden'));
 		}
-		localStorage.setItem('preferred-lang', lang);
 	}
 
-	btnEn.addEventListener('click', () => setLanguage('en'));
-	btnEs.addEventListener('click', () => setLanguage('es'));
+	window.addEventListener('languageChange', (e) => {
+		setLanguage(e.detail.lang);
+	});
 
-	// Check for saved preference
-	const savedLang = localStorage.getItem('preferred-lang');
-	if (savedLang) {
-		setLanguage(savedLang);
-	}
+	const savedLang = localStorage.getItem('preferred-lang') || 'en';
+	setLanguage(savedLang);
 </script>
 
 <style>
 	main {
 		margin: auto;
-		padding: 4rem 2rem;
+		padding: 6rem 2rem 4rem;
 		width: 100%;
 		max-width: 800px;
-		color: #e2e8f0;
+		color: var(--text-secondary);
 	}
 
 	.header-row {
@@ -143,7 +133,7 @@ const posts = page.data;
 
 	h1 {
 		font-size: 3rem;
-		font-weight: 800;
+		font-weight: 700;
 		margin: 0;
 		background-image: var(--accent-gradient);
 		-webkit-background-clip: text;
@@ -156,31 +146,39 @@ const posts = page.data;
 	}
 
 	.post-card {
-		background: rgba(255, 255, 255, 0.03);
-		border: 1px solid rgba(255, 255, 255, 0.1);
+		background: var(--surface-1);
+		border: 1px solid var(--border-default);
+		border-left: 3px solid transparent;
 		padding: 2rem;
-		border-radius: 16px;
-		transition: transform 0.2s ease;
+		border-radius: var(--radius-lg);
+		transition: all var(--transition-base);
+		animation: fadeSlideUp 0.5s ease both;
 	}
+
+	.post-card:nth-child(1) { animation-delay: 0s; }
+	.post-card:nth-child(2) { animation-delay: 0.1s; }
+	.post-card:nth-child(3) { animation-delay: 0.2s; }
 
 	.post-card:hover {
 		transform: translateY(-2px);
-		background: rgba(255, 255, 255, 0.05);
+		background: var(--surface-hover);
+		border-left-color: rgb(var(--accent));
+		box-shadow: var(--shadow-glow);
 	}
 
 	.post-date {
 		font-size: 0.875rem;
-		color: #64748b;
+		color: var(--text-faint);
 	}
 
 	h2 {
 		margin: 0.5rem 0 1rem;
 		font-size: 1.5rem;
-		color: #f8fafc;
+		color: var(--text-primary);
 	}
 
 	p {
-		color: #94a3b8;
+		color: var(--text-muted);
 		line-height: 1.6;
 		margin-bottom: 1.5rem;
 	}
@@ -190,10 +188,11 @@ const posts = page.data;
 		text-decoration: none;
 		font-weight: 600;
 		display: inline-block;
+		transition: color var(--transition-fast);
 	}
 
 	.read-more:hover {
-		text-decoration: underline;
+		color: rgb(var(--accent-light));
 	}
 
 	.tags {
@@ -204,18 +203,18 @@ const posts = page.data;
 	}
 
 	.tag {
-		background: rgba(255, 255, 255, 0.1);
+		background: rgba(var(--accent), 0.1);
 		padding: 0.25rem 0.75rem;
-		border-radius: 9999px;
+		border-radius: var(--radius-full);
 		font-size: 0.875rem;
-		color: #e2e8f0;
+		color: rgb(var(--accent-light));
 		font-weight: 500;
 		text-decoration: none;
-		transition: background 0.2s;
+		transition: background var(--transition-fast);
 	}
 
 	.tag:hover {
-		background: rgba(255, 255, 255, 0.2);
+		background: rgba(var(--accent), 0.2);
 	}
 
 	.filter-status {
@@ -223,8 +222,8 @@ const posts = page.data;
 		padding: 1rem;
 		background: rgba(var(--accent), 0.1);
 		border: 1px solid rgba(var(--accent), 0.2);
-		border-radius: 8px;
-		color: #e2e8f0;
+		border-radius: var(--radius-md);
+		color: var(--text-secondary);
 	}
 
 	.highlight {
@@ -234,12 +233,12 @@ const posts = page.data;
 
 	.clear-filter {
 		margin-left: 1rem;
-		color: #94a3b8;
+		color: var(--text-muted);
 		font-size: 0.9em;
 	}
 
 	.clear-filter:hover {
-		color: #e2e8f0;
+		color: var(--text-secondary);
 	}
 
 	.pagination {
@@ -248,21 +247,27 @@ const posts = page.data;
 		align-items: center;
 		margin-top: 4rem;
 		padding-top: 2rem;
-		border-top: 1px solid rgba(255, 255, 255, 0.1);
+		border-top: 1px solid var(--border-subtle);
 	}
 
 	.pagination a {
 		color: rgb(var(--accent));
 		text-decoration: none;
 		font-weight: 600;
+		background: var(--surface-1);
+		padding: 0.5rem 1.25rem;
+		border-radius: var(--radius-full);
+		border: 1px solid var(--border-default);
+		transition: all var(--transition-fast);
 	}
 
 	.pagination a:hover {
-		text-decoration: underline;
+		background: var(--surface-hover);
+		border-color: rgba(var(--accent), 0.3);
 	}
 
 	.page-info {
-		color: #94a3b8;
+		color: var(--text-muted);
 		font-size: 0.875rem;
 	}
 

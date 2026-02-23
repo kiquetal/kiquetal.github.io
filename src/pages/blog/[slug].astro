@@ -51,9 +51,6 @@ const { Content } = await post.render();
 </Layout>
 
 <script>
-	const btnEn = document.getElementById('lang-en');
-	const btnEs = document.getElementById('lang-es');
-	// Select elements from both the static template and the rendered markdown content
 	const getLangElements = () => ({
 		en: document.querySelectorAll('.lang-en'),
 		es: document.querySelectorAll('.lang-es')
@@ -63,54 +60,48 @@ const { Content } = await post.render();
 		const { en, es } = getLangElements();
 		
 		if (lang === 'en') {
-			btnEn.classList.add('active');
-			btnEs.classList.remove('active');
 			en.forEach(el => el.classList.remove('hidden'));
 			es.forEach(el => el.classList.add('hidden'));
 		} else {
-			btnEs.classList.add('active');
-			btnEn.classList.remove('active');
 			es.forEach(el => el.classList.remove('hidden'));
 			en.forEach(el => el.classList.add('hidden'));
 		}
-		localStorage.setItem('preferred-lang', lang);
 	}
 
-	btnEn.addEventListener('click', () => setLanguage('en'));
-	btnEs.addEventListener('click', () => setLanguage('es'));
+	window.addEventListener('languageChange', (e) => {
+		setLanguage(e.detail.lang);
+	});
 
-	// Check for saved preference, default to English if none
 	const savedLang = localStorage.getItem('preferred-lang') || 'en';
-	
-	// Apply language immediately to prevent flash of wrong content
 	setLanguage(savedLang);
 </script>
 
 <style>
 	main {
 		margin: auto;
-		padding: 4rem 2rem;
+		padding: 6rem 2rem 4rem;
 		width: 100%;
-		max-width: 800px;
-		color: #e2e8f0;
+		max-width: 720px;
+		color: var(--text-secondary);
 	}
 
 	.back-link {
-		color: #94a3b8;
+		color: var(--text-muted);
 		text-decoration: none;
 		font-weight: 600;
-		transition: color 0.2s;
+		transition: all var(--transition-fast);
 		display: inline-block;
 		margin-bottom: 3rem;
 	}
 
 	.back-link:hover {
-		color: white;
+		color: var(--text-primary);
+		transform: translateX(-3px);
 	}
 
 	h1 {
 		font-size: 2.5rem;
-		font-weight: 800;
+		font-weight: 700;
 		margin-bottom: 2rem;
 		line-height: 1.2;
 	}
@@ -121,7 +112,7 @@ const { Content } = await post.render();
 
 	.post-date {
 		font-size: 1rem;
-		color: #64748b;
+		color: var(--text-faint);
 	}
 
 	.tags {
@@ -132,25 +123,25 @@ const { Content } = await post.render();
 	}
 
 	.tag {
-		background: rgba(255, 255, 255, 0.1);
+		background: rgba(var(--accent), 0.1);
 		padding: 0.25rem 0.75rem;
-		border-radius: 9999px;
+		border-radius: var(--radius-full);
 		font-size: 0.875rem;
-		color: #e2e8f0;
+		color: rgb(var(--accent-light));
 		font-weight: 500;
 		text-decoration: none;
-		transition: background 0.2s;
+		transition: background var(--transition-fast);
 	}
 
 	.tag:hover {
-		background: rgba(255, 255, 255, 0.2);
+		background: rgba(var(--accent), 0.2);
 	}
 
 	.live-demo-banner {
-		background: rgba(56, 189, 248, 0.1);
-		border: 1px solid rgba(56, 189, 248, 0.2);
+		background: rgba(var(--accent), 0.08);
+		border: 1px solid rgba(var(--accent), 0.15);
 		padding: 1rem;
-		border-radius: 8px;
+		border-radius: var(--radius-md);
 		margin-bottom: 2rem;
 		display: flex;
 		align-items: center;
@@ -162,35 +153,47 @@ const { Content } = await post.render();
 		color: rgb(var(--accent));
 		font-weight: 600;
 		text-decoration: none;
+		transition: color var(--transition-fast);
 	}
 
 	.demo-link:hover {
-		text-decoration: underline;
+		color: rgb(var(--accent-light));
 	}
 
 	.content :global(h2) {
-		color: #f8fafc;
+		color: var(--text-primary);
 		font-size: 1.8rem;
 		margin-top: 2.5rem;
 		margin-bottom: 1.5rem;
 	}
 
 	.content :global(h3) {
-		color: #f8fafc;
+		color: var(--text-primary);
 		font-size: 1.5rem;
 		margin-top: 2rem;
 		margin-bottom: 1rem;
 	}
 
 	.content :global(p) {
-		color: #cbd5e1;
-		line-height: 1.8;
+		color: var(--text-secondary);
+		line-height: 1.9;
 		margin-bottom: 1.5rem;
 		font-size: 1.1rem;
 	}
 
+	.content :global(a) {
+		color: rgb(var(--accent));
+		text-decoration: underline;
+		text-underline-offset: 3px;
+		transition: color var(--transition-fast);
+	}
+
+	.content :global(a:hover) {
+		color: rgb(var(--accent-light));
+	}
+
 	.content :global(ul) {
-		color: #cbd5e1;
+		color: var(--text-secondary);
 		line-height: 1.8;
 		margin-bottom: 1.5rem;
 		padding-left: 1.5rem;
@@ -201,12 +204,13 @@ const { Content } = await post.render();
 	}
 
 	.content :global(pre) {
-		background: #1e293b;
+		background: rgba(15, 23, 42, 0.8);
+		backdrop-filter: blur(8px);
 		padding: 1.5rem;
-		border-radius: 8px;
+		border-radius: var(--radius-md);
 		margin-bottom: 1.5rem;
 		overflow-x: auto;
-		border: 1px solid rgba(255, 255, 255, 0.1);
+		border: 1px solid var(--border-subtle);
 	}
 
 	.content :global(code) {
@@ -218,7 +222,7 @@ const { Content } = await post.render();
 		background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.15));
 		border: 1px solid rgba(139, 92, 246, 0.3);
 		padding: 1.25rem;
-		border-radius: 12px;
+		border-radius: var(--radius-lg);
 		margin: 2rem 0;
 	}
 
@@ -231,11 +235,11 @@ const { Content } = await post.render();
 
 	.content :global(.demo-url) {
 		display: block;
-		color: #94a3b8;
+		color: var(--text-muted);
 		text-decoration: none;
 		font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
 		font-size: 0.95rem;
-		transition: color 0.2s;
+		transition: color var(--transition-fast);
 	}
 
 	.content :global(.demo-url:hover) {

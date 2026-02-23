@@ -228,10 +228,10 @@ const t = translations[currentLang];
 <style>
 	main {
 		margin: auto;
-		padding: 4rem 2rem;
+		padding: 6rem 2rem 4rem;
 		width: 100%;
 		max-width: 1200px;
-		color: #e2e8f0;
+		color: var(--text-secondary);
 		font-size: 18px;
 		line-height: 1.8;
 		position: relative;
@@ -262,11 +262,12 @@ const t = translations[currentLang];
 	}
 
 	.hero-content h1 {
-		font-size: 3.5rem;
-		font-weight: 800;
+		font-size: clamp(2.5rem, 5vw, 3.5rem);
+		font-weight: 700;
 		line-height: 1.1;
 		margin-bottom: 1.5rem;
 		letter-spacing: -0.02em;
+		animation: fadeSlideUp 0.6s ease both;
 	}
 
 	.text-gradient {
@@ -279,15 +280,17 @@ const t = translations[currentLang];
 
 	.career-description {
 		font-size: 1.25rem;
-		color: #94a3b8;
+		color: var(--text-muted);
 		margin-bottom: 2.5rem;
 		max-width: 600px;
+		animation: fadeSlideUp 0.6s ease 0.1s both;
 	}
 
 	.cta-container {
 		display: flex;
 		gap: 1rem;
 		flex-wrap: wrap;
+		animation: fadeSlideUp 0.6s ease 0.2s both;
 	}
 
 	.cta-link {
@@ -298,16 +301,30 @@ const t = translations[currentLang];
 		background: rgb(var(--accent));
 		color: white;
 		text-decoration: none;
-		border-radius: 8px;
+		border-radius: var(--radius-md);
 		font-weight: 600;
-		transition: all 0.2s ease;
-		box-shadow: 0 4px 14px 0 rgba(var(--accent), 0.39);
+		transition: all var(--transition-base);
+		box-shadow: 0 4px 14px 0 rgba(var(--accent), 0.3);
+		border: 1px solid transparent;
 	}
 
 	.cta-link:hover {
 		background: rgb(var(--accent-dark));
 		transform: translateY(-2px);
-		box-shadow: 0 6px 20px rgba(var(--accent), 0.23);
+		box-shadow: 0 6px 20px rgba(var(--accent), 0.2);
+	}
+
+	.cta-link:nth-child(2) {
+		background: transparent;
+		border: 1px solid rgba(var(--accent), 0.4);
+		color: rgb(var(--accent));
+		box-shadow: none;
+	}
+
+	.cta-link:nth-child(2):hover {
+		background: rgba(var(--accent), 0.1);
+		border-color: rgb(var(--accent));
+		box-shadow: none;
 	}
 
 	.btn-icon {
@@ -321,61 +338,68 @@ const t = translations[currentLang];
 		align-items: center;
 		gap: 1rem;
 		font-size: 0.9rem;
-		background: rgba(255, 255, 255, 0.05);
+		background: var(--surface-2);
 		padding: 0.5rem 1rem;
-		border-radius: 99px;
+		border-radius: var(--radius-full);
 		width: fit-content;
-		border: 1px solid rgba(255, 255, 255, 0.1);
+		border: 1px solid var(--border-default);
+		animation: fadeSlideUp 0.6s ease 0.3s both;
 	}
 
 	.update-badge {
 		background: #00ab41;
 		color: white;
 		padding: 0.2rem 0.6rem;
-		border-radius: 99px;
+		border-radius: var(--radius-full);
 		font-size: 0.75rem;
 		font-weight: 700;
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
+		animation: pulse 2s ease-in-out infinite;
 	}
 
 	.latest-update-link {
-		color: #e2e8f0;
+		color: var(--text-secondary);
 		text-decoration: none;
 		font-weight: 500;
-		transition: color 0.2s;
+		transition: color var(--transition-fast);
 	}
 
 	.latest-update-link:hover {
 		color: rgb(var(--accent));
 	}
 
+	@keyframes float {
+		0%, 100% { transform: translateY(0); }
+		50% { transform: translateY(-8px); }
+	}
+
+	.hero-image {
+		animation: fadeSlideUp 0.6s ease 0.15s both;
+	}
+
 	.hero-image img {
 		width: 100%;
 		height: auto;
-		border-radius: 24px;
+		border-radius: var(--radius-lg);
 		box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5);
-		transition: transform 0.5s ease;
-	}
-
-	.hero-image img:hover {
-		transform: scale(1.02) rotate(1deg);
+		animation: float 6s ease-in-out infinite;
 	}
 
 	.demos {
 		margin-bottom: 8rem;
 		padding: 2rem 2rem 4rem;
 		background: radial-gradient(circle at center, rgba(var(--accent), 0.05) 0%, transparent 70%);
-		border-radius: 48px;
+		border-radius: var(--radius-lg);
 		margin-left: -2rem;
 		margin-right: -2rem;
 	}
 
 	.demos h2 {
 		text-align: center;
-		font-size: 2.5rem;
+		font-size: clamp(1.75rem, 4vw, 2.5rem);
 		margin-bottom: 4rem;
-		color: #f8fafc;
+		color: var(--text-primary);
 		font-weight: 700;
 		letter-spacing: -0.02em;
 	}
@@ -390,14 +414,20 @@ const t = translations[currentLang];
 	}
 
 	.demo-card {
-		background: rgba(255, 255, 255, 0.03);
-		border: 1px solid rgba(255, 255, 255, 0.1);
+		background: var(--surface-1);
+		border: 1px solid var(--border-default);
 		padding: 1.5rem;
-		border-radius: 12px;
-		transition: all 0.3s ease;
+		border-radius: var(--radius-md);
+		transition: all var(--transition-base);
 		display: flex;
 		flex-direction: column;
 		height: 100%;
+	}
+
+	.demo-card:hover {
+		box-shadow: var(--shadow-glow);
+		border-color: rgba(var(--accent), 0.2);
+		transform: translateY(-2px);
 	}
 
 	.demo-header {
@@ -413,14 +443,14 @@ const t = translations[currentLang];
 	}
 
 	.demo-card h3 {
-		color: #f8fafc;
+		color: var(--text-primary);
 		font-size: 1.1rem;
 		margin: 0;
 		font-weight: 700;
 	}
 
 	.demo-card p {
-		color: #94a3b8;
+		color: var(--text-muted);
 		font-size: 0.9rem;
 		margin-bottom: 1.25rem;
 		line-height: 1.5;
@@ -438,7 +468,7 @@ const t = translations[currentLang];
 		font-size: 0.8rem;
 		font-weight: 600;
 		text-decoration: none;
-		transition: color 0.2s;
+		transition: color var(--transition-fast);
 	}
 
 	.demo-link {
@@ -450,16 +480,16 @@ const t = translations[currentLang];
 	}
 
 	.blog-link {
-		color: #94a3b8;
+		color: var(--text-muted);
 	}
 
 	.blog-link:hover {
-		color: white;
+		color: var(--text-primary);
 	}
 
 	.certifications {
 		padding: 4rem 0;
-		border-top: 1px solid rgba(255, 255, 255, 0.1);
+		border-top: 1px solid var(--border-subtle);
 	}
 
 	.cert-header {
@@ -476,15 +506,15 @@ const t = translations[currentLang];
 		text-align: center;
 		font-size: 2rem;
 		margin: 0;
-		color: #f8fafc;
-		font-weight: 600;
+		color: var(--text-primary);
+		font-weight: 700;
 	}
 
 	.social-profile-links {
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
-		color: #94a3b8;
+		color: var(--text-muted);
 		font-size: 1rem;
 	}
 
@@ -497,9 +527,9 @@ const t = translations[currentLang];
 	.social-profile-link {
 		display: flex;
 		align-items: center;
-		color: #94a3b8;
+		color: var(--text-muted);
 		text-decoration: none;
-		transition: color 0.2s;
+		transition: color var(--transition-fast);
 	}
 
 	.social-profile-link:hover {
@@ -521,16 +551,17 @@ const t = translations[currentLang];
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		background: rgba(255, 255, 255, 0.05);
-		border-radius: 20px;
+		background: var(--surface-1);
+		border-radius: var(--radius-lg);
 		padding: 1.5rem;
-		transition: all 0.3s ease;
+		transition: all var(--transition-base);
 		cursor: pointer;
 	}
 
 	.logo-item:hover {
-		background: rgba(255, 255, 255, 0.1);
+		background: var(--surface-hover);
 		transform: translateY(-5px);
+		box-shadow: var(--shadow-glow);
 	}
 
 	.logo-item img {
@@ -538,7 +569,7 @@ const t = translations[currentLang];
 		height: 100%;
 		object-fit: contain;
 		filter: grayscale(100%) brightness(200%);
-		transition: filter 0.3s ease;
+		transition: filter var(--transition-base);
 	}
 
 	.logo-item:hover img {
@@ -554,8 +585,8 @@ const t = translations[currentLang];
 	}
 
 	.logo-item .credly-logo {
-		color: #94a3b8;
-		transition: all 0.3s ease;
+		color: var(--text-muted);
+		transition: all var(--transition-base);
 	}
 
 	.logo-item:hover .credly-logo {
@@ -570,12 +601,12 @@ const t = translations[currentLang];
 		background: rgba(0, 0, 0, 0.9);
 		color: white;
 		padding: 0.5rem 1rem;
-		border-radius: 6px;
+		border-radius: var(--radius-sm);
 		font-size: 0.875rem;
 		white-space: nowrap;
 		opacity: 0;
 		visibility: hidden;
-		transition: all 0.2s ease;
+		transition: all var(--transition-fast);
 		pointer-events: none;
 		z-index: 1000;
 	}

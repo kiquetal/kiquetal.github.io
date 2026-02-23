@@ -1,7 +1,5 @@
 ---
 import Layout from '../layouts/Layout.astro';
-
-const blogUrl = Astro.url.searchParams.get('blog') || '/blog';
 ---
 
 <Layout title="Unpublished Endpoint">
@@ -18,15 +16,20 @@ const blogUrl = Astro.url.searchParams.get('blog') || '/blog';
 					<path d="M100 60C88.954 60 80 68.954 80 80V90H75C71.686 90 69 92.686 69 96V130C69 133.314 71.686 136 75 136H125C128.314 136 131 133.314 131 130V96C131 92.686 128.314 90 125 90H120V80C120 68.954 111.046 60 100 60ZM100 70C105.523 70 110 74.477 110 80V90H90V80C90 74.477 94.477 70 100 70Z" fill="#8b5cf6"/>
 				</svg>
 			</div>
-			<a href={blogUrl} class="read-more lang-en">Read about the technology →</a>
-			<a href={blogUrl} class="read-more lang-es hidden">Leer sobre la tecnología →</a>
+			<a id="blog-link-en" href="/blog" class="read-more lang-en">Read about the technology →</a>
+			<a id="blog-link-es" href="/blog" class="read-more lang-es hidden">Leer sobre la tecnología →</a>
 		</div>
 	</main>
 </Layout>
 
 <script>
-	const btnEn = document.getElementById('lang-en');
-	const btnEs = document.getElementById('lang-es');
+	// Read blog URL from query param at runtime
+	const params = new URLSearchParams(window.location.search);
+	const blogUrl = params.get('blog') || '/blog';
+	const linkEn = document.getElementById('blog-link-en');
+	const linkEs = document.getElementById('blog-link-es');
+	if (linkEn) linkEn.setAttribute('href', blogUrl);
+	if (linkEs) linkEs.setAttribute('href', blogUrl);
 
 	function setLanguage(lang) {
 		const en = document.querySelectorAll('.lang-en');
@@ -41,7 +44,6 @@ const blogUrl = Astro.url.searchParams.get('blog') || '/blog';
 		}
 	}
 
-	// Listen to header language change
 	window.addEventListener('languageChange', (e) => {
 		setLanguage(e.detail.lang);
 	});

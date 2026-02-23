@@ -29,12 +29,6 @@ const translations = {
 
 <Layout title="Contact - System Engineer">
 	<main>
-		<div class="lang-switch">
-			<button id="lang-en" class="active">EN</button>
-			<span class="separator">/</span>
-			<button id="lang-es">ES</button>
-		</div>
-
 		<div class="contact-container">
 			<h1 id="title-text">{translations.en.title}</h1>
 			<p class="subtitle" id="subtitle-text">{translations.en.subtitle}</p>
@@ -66,9 +60,6 @@ const translations = {
 </Layout>
 
 <script define:vars={{ translations }}>
-	// Language Switcher Logic
-	const btnEn = document.getElementById('lang-en');
-	const btnEs = document.getElementById('lang-es');
 	let currentLang = localStorage.getItem('preferred-lang') || 'en';
 
 	function setLanguage(lang) {
@@ -81,19 +72,12 @@ const translations = {
 		document.getElementById('email-label').textContent = t.emailLabel;
 		document.getElementById('message-label').textContent = t.messageLabel;
 		document.getElementById('submit-btn').textContent = t.submitBtn;
-
-		if (lang === 'en') {
-			btnEn.classList.add('active');
-			btnEs.classList.remove('active');
-		} else {
-			btnEs.classList.add('active');
-			btnEn.classList.remove('active');
-		}
-		localStorage.setItem('preferred-lang', lang);
 	}
 
-	btnEn.addEventListener('click', () => setLanguage('en'));
-	btnEs.addEventListener('click', () => setLanguage('es'));
+	window.addEventListener('languageChange', (e) => {
+		setLanguage(e.detail.lang);
+	});
+
 	setLanguage(currentLang);
 
 	// Form Submission Logic
@@ -159,48 +143,20 @@ const translations = {
 <style>
 	main {
 		margin: auto;
-		padding: 4rem 2rem;
+		padding: 6rem 2rem 4rem;
 		width: 100%;
 		max-width: 600px;
-		color: #e2e8f0;
+		color: var(--text-secondary);
 		position: relative;
 	}
 
-	.lang-switch {
-		position: absolute;
-		top: 2rem;
-		right: 2rem;
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		font-weight: 600;
-	}
-
-	.lang-switch button {
-		background: none;
-		border: none;
-		color: #64748b;
-		cursor: pointer;
-		font-size: 1rem;
-		padding: 0.25rem;
-		transition: color 0.2s;
-	}
-
-	.lang-switch button:hover {
-		color: #94a3b8;
-	}
-
-	.lang-switch button.active {
-		color: rgb(var(--accent));
-	}
-
-	.separator {
-		color: #475569;
+	.contact-container {
+		animation: fadeSlideUp 0.5s ease both;
 	}
 
 	h1 {
 		font-size: 3rem;
-		font-weight: 800;
+		font-weight: 700;
 		text-align: center;
 		margin-bottom: 0.5rem;
 		background-image: var(--accent-gradient);
@@ -210,16 +166,17 @@ const translations = {
 
 	.subtitle {
 		text-align: center;
-		color: #94a3b8;
+		color: var(--text-muted);
 		margin-bottom: 3rem;
 		font-size: 1.2rem;
 	}
 
 	.contact-form {
-		background: rgba(255, 255, 255, 0.03);
+		background: var(--surface-1);
+		backdrop-filter: blur(8px);
 		padding: 2rem;
-		border-radius: 16px;
-		border: 1px solid rgba(255, 255, 255, 0.1);
+		border-radius: var(--radius-lg);
+		border: 1px solid var(--border-default);
 	}
 
 	.form-group {
@@ -229,55 +186,58 @@ const translations = {
 	label {
 		display: block;
 		margin-bottom: 0.5rem;
-		color: #f8fafc;
+		color: var(--text-primary);
 		font-weight: 600;
 	}
 
 	input, textarea {
 		width: 100%;
 		padding: 0.8rem;
-		border-radius: 8px;
-		background: rgba(15, 23, 42, 0.6);
-		border: 1px solid rgba(255, 255, 255, 0.1);
+		border-radius: var(--radius-md);
+		background: rgba(15, 23, 42, 0.8);
+		border: 1px solid var(--border-default);
 		color: white;
 		font-family: inherit;
-		transition: border-color 0.2s;
+		transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 		box-sizing: border-box;
 	}
 
 	input:focus, textarea:focus {
 		outline: none;
 		border-color: rgb(var(--accent));
+		box-shadow: 0 0 0 3px rgba(var(--accent), 0.15);
 	}
 
 	.submit-btn {
 		width: 100%;
 		padding: 1rem;
-		background: rgb(var(--accent));
+		background: linear-gradient(135deg, rgb(var(--accent)), rgb(var(--accent-dark)));
 		color: white;
 		border: none;
-		border-radius: 8px;
-		font-weight: 800;
+		border-radius: var(--radius-md);
+		font-weight: 700;
 		cursor: pointer;
-		transition: all 0.2s;
+		transition: all var(--transition-base);
 		font-size: 1rem;
+		letter-spacing: 0.01em;
 	}
 
 	.submit-btn:hover {
-		background: rgb(var(--accent-dark));
 		transform: translateY(-2px);
+		box-shadow: 0 6px 20px rgba(var(--accent), 0.3);
 	}
 
 	.submit-btn:disabled {
 		opacity: 0.7;
 		cursor: not-allowed;
 		transform: none;
+		box-shadow: none;
 	}
 
 	.form-status {
 		margin-top: 1rem;
 		padding: 1rem;
-		border-radius: 8px;
+		border-radius: var(--radius-md);
 		text-align: center;
 		font-weight: 600;
 	}
