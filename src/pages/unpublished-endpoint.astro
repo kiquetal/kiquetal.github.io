@@ -55,23 +55,24 @@ import Layout from '../layouts/Layout.astro';
 <style>
 	main {
 		margin: auto;
-		padding: 4rem 2rem;
+		padding: 6rem 2rem 4rem;
 		width: 100%;
 		max-width: 800px;
-		color: #e2e8f0;
+		color: var(--text-secondary);
 	}
 
 	.back-link {
-		color: #94a3b8;
+		color: var(--text-muted);
 		text-decoration: none;
 		font-weight: 600;
-		transition: color 0.2s;
+		transition: all var(--transition-fast);
 		display: inline-block;
 		margin-bottom: 3rem;
 	}
 
 	.back-link:hover {
-		color: white;
+		color: var(--text-primary);
+		transform: translateX(-3px);
 	}
 
 	.hidden {
@@ -81,20 +82,22 @@ import Layout from '../layouts/Layout.astro';
 	.secret-container {
 		text-align: center;
 		padding: 3rem;
-		background: rgba(30, 41, 59, 0.5);
+		background: var(--surface-1);
 		border: 1px solid rgba(139, 92, 246, 0.3);
-		border-radius: 16px;
+		border-radius: var(--radius-lg);
 		margin-top: 2rem;
+		animation: fadeSlideUp 0.5s ease both;
 	}
 
 	h1 {
 		font-size: 2.5rem;
+		font-weight: 700;
 		margin-bottom: 1rem;
-		color: #e2e8f0;
+		color: var(--text-secondary);
 	}
 
 	.message {
-		color: #94a3b8;
+		color: var(--text-muted);
 		font-size: 1.1rem;
 		margin-bottom: 2rem;
 		line-height: 1.6;
@@ -113,14 +116,15 @@ import Layout from '../layouts/Layout.astro';
 		background: rgba(139, 92, 246, 0.2);
 		color: #c4b5fd;
 		text-decoration: none;
-		border-radius: 8px;
+		border-radius: var(--radius-md);
 		border: 1px solid rgba(139, 92, 246, 0.4);
 		font-weight: 600;
-		transition: all 0.2s;
+		transition: all var(--transition-base);
 	}
 
 	.read-more:hover {
 		background: rgba(139, 92, 246, 0.3);
 		transform: translateY(-2px);
+		box-shadow: 0 0 20px rgba(139, 92, 246, 0.15);
 	}
 </style>

@@ -414,6 +414,7 @@ const t = translations[currentLang];
 	}
 
 	.demo-card {
+		position: relative;
 		background: var(--surface-1);
 		border: 1px solid var(--border-default);
 		padding: 1.5rem;
@@ -422,12 +423,31 @@ const t = translations[currentLang];
 		display: flex;
 		flex-direction: column;
 		height: 100%;
+		overflow: hidden;
+	}
+
+	.demo-card::before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		border-radius: var(--radius-md);
+		padding: 1px;
+		background: linear-gradient(135deg, rgba(var(--accent), 0.3), rgba(139, 92, 246, 0.3));
+		-webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+		-webkit-mask-composite: xor;
+		mask-composite: exclude;
+		opacity: 0;
+		transition: opacity var(--transition-base);
+		pointer-events: none;
 	}
 
 	.demo-card:hover {
 		box-shadow: var(--shadow-glow);
-		border-color: rgba(var(--accent), 0.2);
 		transform: translateY(-2px);
+	}
+
+	.demo-card:hover::before {
+		opacity: 1;
 	}
 
 	.demo-header {
