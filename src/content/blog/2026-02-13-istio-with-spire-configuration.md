@@ -7,6 +7,7 @@ excerpt:
   es: 'TODO'
 date: 2026-02-13T12:00:00Z
 tags: ['istio', 'spire','k8s']
+draft: true
 ---
 
 <div class="lang-en">

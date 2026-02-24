@@ -7,6 +7,7 @@ excerpt:
   es: 'Instalación sencilla de NATS en fly.io'
 date: 2026-01-31
 tags: ['nats-sever', 'nats', 'fly.io']
+draft: true
 ---
 
 <div class="lang-en">

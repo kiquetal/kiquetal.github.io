@@ -54,6 +54,13 @@ const allTags = Array.from(allTagsMap.entries())
 		<div class="posts-grid">
 			{posts.map(post => (
 				<article class="post-card" data-tags={post.data.tags?.join(',') || ''}>
+					{post.data.draft && (
+						<div class="draft-badge">
+							<span>🚧</span>
+							<span class="lang-en">Under Development</span>
+							<span class="lang-es hidden">En Desarrollo</span>
+						</div>
+					)}
 					<span class="post-date lang-en">{post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}</span>
 					<span class="post-date lang-es hidden">{post.data.date.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}</span>
 					<h2 class="lang-en">{post.data.title.en}</h2>
@@ -205,6 +212,27 @@ const allTags = Array.from(allTagsMap.entries())
 		border-radius: var(--radius-lg);
 		transition: all var(--transition-base);
 		animation: fadeSlideUp 0.5s ease both;
+		position: relative;
+	}
+
+	.draft-badge {
+		position: absolute;
+		top: 1rem;
+		right: 1rem;
+		background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%);
+		color: white;
+		padding: 0.4rem 0.8rem;
+		border-radius: 6px;
+		font-size: 0.75rem;
+		font-weight: 600;
+		display: flex;
+		align-items: center;
+		gap: 0.4rem;
+		box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+	}
+
+	.draft-badge span:first-child {
+		font-size: 1rem;
 	}
 
 	.post-card:nth-child(1) { animation-delay: 0s; }

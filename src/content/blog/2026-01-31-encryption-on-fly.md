@@ -7,6 +7,7 @@ excerpt:
   es: 'Una integracón lista para demostrar como utilizar la encriptación aes-gcm-256 desde el cliente y aplicación realiza una encriptación de sobre antes de aloja en el server(s3-compatible)'
 date: 2026-01-31
 tags: ['encryption', 'security', 'fly.io']
+draft: true
 ---
 
 <div class="lang-en">

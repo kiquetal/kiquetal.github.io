@@ -20,6 +20,17 @@ const { Content } = await post.render();
 		</div>
 
 		<article>
+			{post.data.draft && (
+				<div class="draft-banner">
+					<span>🚧</span>
+					<div>
+						<strong class="lang-en">Under Development</strong>
+						<strong class="lang-es hidden">En Desarrollo</strong>
+						<p class="lang-en">This post is still being written and may be incomplete.</p>
+						<p class="lang-es hidden">Este artículo aún está siendo escrito y puede estar incompleto.</p>
+					</div>
+				</div>
+			)}
 			<div class="post-meta">
 				<span class="post-date lang-en">{post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}</span>
 				<span class="post-date lang-es hidden">{post.data.date.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}</span>
@@ -83,6 +94,35 @@ const { Content } = await post.render();
 		width: 100%;
 		max-width: 720px;
 		color: var(--text-secondary);
+	}
+
+	.draft-banner {
+		background: linear-gradient(135deg, rgba(255, 152, 0, 0.1) 0%, rgba(255, 87, 34, 0.1) 100%);
+		border: 2px solid #ff9800;
+		border-radius: 8px;
+		padding: 1.5rem;
+		margin-bottom: 2rem;
+		display: flex;
+		gap: 1rem;
+		align-items: flex-start;
+	}
+
+	.draft-banner > span:first-child {
+		font-size: 2rem;
+		line-height: 1;
+	}
+
+	.draft-banner strong {
+		color: #ff9800;
+		font-size: 1.1rem;
+		display: block;
+		margin-bottom: 0.5rem;
+	}
+
+	.draft-banner p {
+		margin: 0;
+		color: var(--text-muted);
+		font-size: 0.9rem;
 	}
 
 	.back-link {
