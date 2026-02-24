@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UDP vs TCP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #1f2937; }
+        .infographic { width: 500px; height: 600px; background: #111827; box-shadow: 0 12px 32px rgba(0,0,0,0.4); }
+        .kiquetal-ribbon { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); color: #f5f5f5; text-align: center; padding: 8px; font-family: 'Courier New', monospace; font-size: 11px; letter-spacing: 0.15em; border-top: 1px solid #444; opacity: 0.85; }
+        .kiquetal-ribbon::before { content: '✦'; margin-right: 8px; color: #888; }
+        .kiquetal-ribbon::after { content: '✦'; margin-left: 8px; color: #888; }
+    </style>
+</head>
+<body>
+    <div class="infographic relative">
+        <div class="p-8 h-full flex flex-col">
+            <h1 class="text-3xl font-bold text-center mb-2 text-white">Network Protocols</h1>
+            <div class="h-1 w-24 bg-gradient-to-r from-blue-500 to-green-500 mx-auto mb-8"></div>
+            
+            <div class="grid grid-cols-2 gap-4 flex-1">
+                <div class="bg-gradient-to-br from-blue-900 to-blue-800 p-4 rounded-lg">
+                    <h2 class="text-2xl font-bold text-blue-200 mb-4 text-center">UDP</h2>
+                    <div class="space-y-4">
+                        <div class="bg-blue-950 bg-opacity-50 p-3 rounded">
+                            <p class="text-blue-100 font-semibold text-sm">⚡ Fast Speed</p>
+                            <p class="text-blue-300 text-xs mt-1">Low latency</p>
+                        </div>
+                        <div class="bg-blue-950 bg-opacity-50 p-3 rounded">
+                            <p class="text-blue-100 font-semibold text-sm">🔓 Connectionless</p>
+                            <p class="text-blue-300 text-xs mt-1">No setup needed</p>
+                        </div>
+                        <div class="bg-blue-950 bg-opacity-50 p-3 rounded">
+                            <p class="text-blue-100 font-semibold text-sm">❌ Unreliable</p>
+                            <p class="text-blue-300 text-xs mt-1">Packet loss possible</p>
+                        </div>
+                        <div class="bg-blue-950 bg-opacity-50 p-3 rounded">
+                            <p class="text-blue-100 font-semibold text-sm">📺 Use Cases</p>
+                            <p class="text-blue-300 text-xs mt-1">Video, VoIP, gaming</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gradient-to-br from-green-900 to-green-800 p-4 rounded-lg">
+                    <h2 class="text-2xl font-bold text-green-200 mb-4 text-center">TCP</h2>
+                    <div class="space-y-4">
+                        <div class="bg-green-950 bg-opacity-50 p-3 rounded">
+                            <p class="text-green-100 font-semibold text-sm">✅ Reliable</p>
+                            <p class="text-green-300 text-xs mt-1">Error correction</p>
+                        </div>
+                        <div class="bg-green-950 bg-opacity-50 p-3 rounded">
+                            <p class="text-green-100 font-semibold text-sm">🔗 Connection</p>
+                            <p class="text-green-300 text-xs mt-1">Handshake required</p>
+                        </div>
+                        <div class="bg-green-950 bg-opacity-50 p-3 rounded">
+                            <p class="text-green-100 font-semibold text-sm">📦 Guaranteed</p>
+                            <p class="text-green-300 text-xs mt-1">All data arrives</p>
+                        </div>
+                        <div class="bg-green-950 bg-opacity-50 p-3 rounded">
+                            <p class="text-green-100 font-semibold text-sm">🌐 Use Cases</p>
+                            <p class="text-green-300 text-xs mt-1">Web, email, FTP</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="kiquetal-ribbon">co-designed by kiquetal</div>
+    </div>
+</body>
+</html>

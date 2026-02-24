@@ -6,7 +6,6 @@ excerpt:
   en: 'A step-by-step guide to sending emails using the Resend API in a Node.js application.'
   es: 'Una guía paso a paso para enviar correos usando la API de Resend en una aplicación Node.js.'
 date: 2024-03-25
-liveUrl: 'https://resend.com/docs/introduction'
 tags: ['email', 'resend', 'nodejs']
 ---
 
@@ -15,6 +14,8 @@ tags: ['email', 'resend', 'nodejs']
 ## Introduction
 
 Resend is a modern email API for developers. It provides a clean and easy-to-use interface for sending transactional emails. In this guide, we'll walk through setting up Resend in a Node.js project.
+
+![Resend Email API Workflow](/blog/resend-email-integration/resend-workflow.png)
 
 ### Prerequisites
 
@@ -66,6 +67,8 @@ Resend simplifies the process of sending emails with a developer-first approach.
 ## Introducción
 
 Resend es una API de correo electrónico moderna para desarrolladores. Proporciona una interfaz limpia y fácil de usar para enviar correos transaccionales. En esta guía, recorreremos la configuración de Resend en un proyecto de Node.js.
+
+![Flujo de trabajo de la API de correo electrónico de Resend](/blog/resend-email-integration/resend-workflow.png)
 
 ### Prerrequisitos
 

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UDP vs TCP</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Crimson+Text:wght@400;600&display=swap');
+        
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #D2B48C;
+        }
+        
+        .infographic {
+            width: 500px;
+            height: 600px;
+            background: linear-gradient(to bottom, #F5E6D3 0%, #E8D5C4 100%);
+            border: 8px solid #8B7355;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            position: relative;
+            font-family: 'Crimson Text', serif;
+        }
+        
+        .paper-texture {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(139, 115, 85, 0.03) 2px, rgba(139, 115, 85, 0.03) 4px),
+                repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(139, 115, 85, 0.03) 2px, rgba(139, 115, 85, 0.03) 4px);
+        }
+        
+        .content {
+            position: relative;
+            z-index: 1;
+            padding: 32px 24px 48px;
+            height: 100%;
+            box-sizing: border-box;
+        }
+        
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 36px;
+            color: #5C4A3A;
+            text-align: center;
+            margin: 0 0 8px 0;
+            letter-spacing: 2px;
+        }
+        
+        .divider {
+            width: 80px;
+            height: 2px;
+            background: #8B7355;
+            margin: 0 auto 24px;
+        }
+        
+        .columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            height: calc(100% - 120px);
+        }
+        
+        .column {
+            background: rgba(232, 213, 196, 0.6);
+            border: 2px solid #8B7355;
+            padding: 16px;
+            border-radius: 4px;
+        }
+        
+        h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            color: #5C4A3A;
+            text-align: center;
+            margin: 0 0 16px 0;
+        }
+        
+        .feature {
+            margin-bottom: 12px;
+            padding: 8px;
+            background: rgba(245, 230, 211, 0.5);
+            border-left: 3px solid #8B7355;
+        }
+        
+        .feature-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: #5C4A3A;
+            margin-bottom: 2px;
+        }
+        
+        .feature-desc {
+            font-size: 12px;
+            color: #6B5A4A;
+        }
+        
+        .kiquetal-ribbon {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #f5f5f5;
+            text-align: center;
+            padding: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            letter-spacing: 0.15em;
+            border-top: 1px solid #444;
+            opacity: 0.85;
+        }
+        
+        .kiquetal-ribbon::before {
+            content: '✦';
+            margin-right: 8px;
+            color: #888;
+        }
+        
+        .kiquetal-ribbon::after {
+            content: '✦';
+            margin-left: 8px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="infographic">
+        <div class="paper-texture"></div>
+        <div class="content">
+            <h1>Protocols</h1>
+            <div class="divider"></div>
+            
+            <div class="columns">
+                <div class="column">
+                    <h2>UDP</h2>
+                    <div class="feature">
+                        <div class="feature-title">⚡ Fast</div>
+                        <div class="feature-desc">Minimal overhead</div>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-title">🔓 Connectionless</div>
+                        <div class="feature-desc">No handshake</div>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-title">❌ No Guarantee</div>
+                        <div class="feature-desc">Packet loss</div>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-title">📺 Streaming</div>
+                        <div class="feature-desc">Video, gaming</div>
+                    </div>
+                </div>
+                
+                <div class="column">
+                    <h2>TCP</h2>
+                    <div class="feature">
+                        <div class="feature-title">✅ Reliable</div>
+                        <div class="feature-desc">Error checking</div>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-title">🔗 Connection</div>
+                        <div class="feature-desc">3-way handshake</div>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-title">📦 Guaranteed</div>
+                        <div class="feature-desc">All packets arrive</div>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-title">🌐 Web</div>
+                        <div class="feature-desc">HTTP, email, FTP</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="kiquetal-ribbon">co-designed by kiquetal</div>
+    </div>
+</body>
+</html>

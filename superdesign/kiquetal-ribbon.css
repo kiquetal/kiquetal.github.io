@@ -1,0 +1,42 @@
+/* Kiquetal Co-Design Ribbon - Universal Style */
+/* Add this to any design file and include the HTML snippet below */
+
+.kiquetal-ribbon {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    color: #f5f5f5;
+    text-align: center;
+    padding: 8px 16px;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: lowercase;
+    border-top: 1px solid #444;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
+    z-index: 9999;
+    opacity: 0.85;
+    transition: opacity 0.3s ease;
+}
+
+.kiquetal-ribbon:hover {
+    opacity: 1;
+}
+
+.kiquetal-ribbon::before {
+    content: '✦';
+    margin-right: 8px;
+    color: #888;
+}
+
+.kiquetal-ribbon::after {
+    content: '✦';
+    margin-left: 8px;
+    color: #888;
+}
+
+/* HTML to include in designs:
+<div class="kiquetal-ribbon">co-designed by kiquetal</div>
+*/

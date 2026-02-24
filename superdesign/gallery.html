@@ -69,57 +69,6 @@
             align-items: center;
         }
         
-        .refresh-controls {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-        
-        .auto-refresh-toggle {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-            cursor: pointer;
-            user-select: none;
-        }
-        
-        .auto-refresh-toggle input[type="checkbox"] {
-            width: 16px;
-            height: 16px;
-            accent-color: var(--text-primary);
-        }
-        
-        .btn-secondary {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            color: var(--text-secondary);
-            padding: 6px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-family: inherit;
-            font-size: 0.875rem;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        
-        .btn-secondary:hover {
-            background: var(--bg-secondary);
-            transform: translateY(-1px);
-        }
-        
-        .btn-secondary:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        .btn-secondary:disabled:hover {
-            transform: none;
-        }
-        
         .theme-toggle {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
@@ -138,33 +87,6 @@
         .theme-toggle:hover {
             background: var(--bg-secondary);
             transform: translateY(-1px);
-        }
-        
-        .updated-indicator {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            width: 12px;
-            height: 12px;
-            background: #48bb78;
-            border-radius: 50%;
-            border: 2px solid var(--bg-card);
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        
-        .refresh-indicator {
-            display: inline-block;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
         }
         
         .gallery-grid {
@@ -252,13 +174,6 @@
             height: 200%;
         }
         
-        .design-preview .svg-preview {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            background: var(--bg-primary);
-        }
-        
         .design-actions {
             padding: 16px;
             display: flex;
@@ -281,10 +196,10 @@
             background: #3182ce;
         }
         
-        .btn-danger {
-            background: #e53e3e;
-            color: white;
-            border: none;
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
             padding: 8px 16px;
             border-radius: 6px;
             font-size: 0.875rem;
@@ -293,8 +208,8 @@
             transition: background 0.2s ease;
         }
         
-        .btn-danger:hover {
-            background: #c53030;
+        .btn-secondary:hover {
+            background: var(--border-color);
         }
         
         @media (max-width: 768px) {
@@ -318,19 +233,9 @@
     <div class="header">
         <div class="header-content">
             <h1>superdesign.gallery</h1>
-            <p id="file-count">3 designs found</p>
+            <p id="file-count">7 designs found</p>
         </div>
         <div class="header-controls">
-            <div class="refresh-controls">
-                <button id="refresh-btn" class="btn-secondary" onclick="refreshGallery()">
-                    <span id="refresh-icon">🔄</span>
-                    <span id="refresh-text">Refresh</span>
-                </button>
-                <label class="auto-refresh-toggle">
-                    <input type="checkbox" id="auto-refresh" onchange="toggleAutoRefresh()">
-                    <span>Auto-refresh</span>
-                </label>
-            </div>
             <button class="theme-toggle" onclick="toggleTheme()">
                 <span id="theme-icon">🌙</span>
                 <span id="theme-text">Dark</span>
@@ -339,81 +244,28 @@
     </div>
     
     <div class="gallery-grid">
-        
-      <div class="design-card" data-file="modern_infographic_w_3.html" data-created="" data-modified="1771876290520">
-        <div class="design-header">
-          <div class="design-title">
-            <h3>modern_infographic_w_3</h3>
-            <span class="design-type">.HTML</span>
-          </div>
-          <div class="design-meta">
-            
-              <span class="design-size">4.8 KB</span>
-              <span class="design-date">Feb 23, 16:51</span>
-            
-          </div>
+        <div class="design-card">
+            <div class="design-header">
+                <div class="design-title">
+                    <h3>resend_workflow_1</h3>
+                    <span class="design-type">.HTML</span>
+                </div>
+                <div class="design-meta">
+                    <span class="design-size">6.0 KB</span>
+                    <span class="design-date">Feb 23, 20:42</span>
+                </div>
+            </div>
+            <div class="design-preview">
+                <iframe src="./design_iterations/resend_workflow_1.html" loading="lazy"></iframe>
+            </div>
+            <div class="design-actions">
+                <button onclick="openFullscreen('./design_iterations/resend_workflow_1.html')" class="btn-primary">View Full</button>
+                <button onclick="copyPath('./design_iterations/resend_workflow_1.html')" class="btn-secondary">Copy Path</button>
+            </div>
         </div>
-        <div class="design-preview">
-          <iframe src="./design_iterations/modern_infographic_w_3.html" loading="lazy" data-file="modern_infographic_w_3.html"></iframe>
-        </div>
-        <div class="design-actions">
-          <button onclick="openFullscreen('./design_iterations/modern_infographic_w_3.html')" class="btn-primary">View Full</button>
-          <button onclick="copyPath('./design_iterations/modern_infographic_w_3.html')" class="btn-secondary">Copy Path</button>
-          <button onclick="deleteDesign('modern_infographic_w_3.html')" class="btn-danger">Delete</button>
-        </div>
-      </div>
-    
-      <div class="design-card" data-file="modern_infographic_w_2.html" data-created="" data-modified="1771876270196">
-        <div class="design-header">
-          <div class="design-title">
-            <h3>modern_infographic_w_2</h3>
-            <span class="design-type">.HTML</span>
-          </div>
-          <div class="design-meta">
-            
-              <span class="design-size">5.7 KB</span>
-              <span class="design-date">Feb 23, 16:51</span>
-            
-          </div>
-        </div>
-        <div class="design-preview">
-          <iframe src="./design_iterations/modern_infographic_w_2.html" loading="lazy" data-file="modern_infographic_w_2.html"></iframe>
-        </div>
-        <div class="design-actions">
-          <button onclick="openFullscreen('./design_iterations/modern_infographic_w_2.html')" class="btn-primary">View Full</button>
-          <button onclick="copyPath('./design_iterations/modern_infographic_w_2.html')" class="btn-secondary">Copy Path</button>
-          <button onclick="deleteDesign('modern_infographic_w_2.html')" class="btn-danger">Delete</button>
-        </div>
-      </div>
-    
-      <div class="design-card" data-file="modern_infographic_w_1.html" data-created="" data-modified="1771876251395">
-        <div class="design-header">
-          <div class="design-title">
-            <h3>modern_infographic_w_1</h3>
-            <span class="design-type">.HTML</span>
-          </div>
-          <div class="design-meta">
-            
-              <span class="design-size">4.3 KB</span>
-              <span class="design-date">Feb 23, 16:50</span>
-            
-          </div>
-        </div>
-        <div class="design-preview">
-          <iframe src="./design_iterations/modern_infographic_w_1.html" loading="lazy" data-file="modern_infographic_w_1.html"></iframe>
-        </div>
-        <div class="design-actions">
-          <button onclick="openFullscreen('./design_iterations/modern_infographic_w_1.html')" class="btn-primary">View Full</button>
-          <button onclick="copyPath('./design_iterations/modern_infographic_w_1.html')" class="btn-secondary">Copy Path</button>
-          <button onclick="deleteDesign('modern_infographic_w_1.html')" class="btn-danger">Delete</button>
-        </div>
-      </div>
-    
     </div>
     
     <script>
-        const fileManifest = [{"name":"modern_infographic_w_3.html","size":4847,"modified":1771876290520},{"name":"modern_infographic_w_2.html","size":5742,"modified":1771876270196},{"name":"modern_infographic_w_1.html","size":4349,"modified":1771876251395}];
-        
         const theme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-theme', theme);
         updateThemeButton();
@@ -447,88 +299,9 @@
         
         function copyPath(path) {
             navigator.clipboard.writeText(path).then(() => {
-                showToast('Path copied to clipboard!', 'success');
+                alert('Path copied to clipboard!');
             });
         }
-        
-        function deleteDesign(fileName) {
-            if (confirm(`Are you sure you want to delete ${fileName}?`)) {
-                showToast('Delete functionality coming soon!', 'info');
-            }
-        }
-        
-        function showToast(message, type = 'info') {
-            const colors = {
-                success: '#48bb78',
-                error: '#e53e3e',
-                info: '#4299e1',
-                warning: '#ed8936'
-            };
-            
-            const toast = document.createElement('div');
-            toast.textContent = message;
-            toast.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: ${colors[type] || colors.info};
-                color: white;
-                padding: 12px 20px;
-                border-radius: 6px;
-                z-index: 1000;
-                font-size: 14px;
-                font-family: inherit;
-                animation: slideIn 0.3s ease;
-            `;
-            
-            document.body.appendChild(toast);
-            setTimeout(() => {
-                toast.style.animation = 'slideOut 0.3s ease';
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
-        }
-        
-        let isRefreshing = false;
-        
-        function refreshGallery() {
-            if (isRefreshing) return;
-            
-            isRefreshing = true;
-            const refreshBtn = document.getElementById('refresh-btn');
-            const refreshIcon = document.getElementById('refresh-icon');
-            const refreshText = document.getElementById('refresh-text');
-            
-            refreshBtn.disabled = true;
-            refreshIcon.classList.add('refresh-indicator');
-            refreshText.textContent = 'Refreshing...';
-            
-            setTimeout(() => {
-                location.reload();
-            }, 500);
-        }
-        
-        function toggleAutoRefresh() {
-            const autoRefreshCheckbox = document.getElementById('auto-refresh');
-            
-            if (autoRefreshCheckbox.checked) {
-                showToast('Auto-refresh enabled (5s interval)', 'success');
-            } else {
-                showToast('Auto-refresh disabled', 'info');
-            }
-        }
-        
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideIn {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
-            }
-            @keyframes slideOut {
-                from { transform: translateX(0); opacity: 1; }
-                to { transform: translateX(100%); opacity: 0; }
-            }
-        `;
-        document.head.appendChild(style);
     </script>
 </body>
 </html>

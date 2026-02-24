@@ -1,30 +1,41 @@
 ---
-import Layout from '../../layouts/Layout.astro';
+import Layout from '../../../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
 
-export async function getStaticPaths({ paginate }) {
-	const posts = (await getCollection('blog')).sort(
-		(a, b) => b.data.date.valueOf() - a.data.date.valueOf()
-	);
-	return paginate(posts, { pageSize: 3 });
+export async function getStaticPaths() {
+	const posts = await getCollection('blog');
+	const tagsMap = new Map();
+	posts.forEach(post => {
+		(post.data.tags || []).forEach(tag => {
+			if (!tagsMap.has(tag)) tagsMap.set(tag, []);
+			tagsMap.get(tag).push(post);
+		});
+	});
+
+	return Array.from(tagsMap.entries()).map(([tag, tagPosts]) => ({
+		params: { tag },
+		props: {
+			posts: tagPosts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()),
+			tag,
+		},
+	}));
 }
 
-const { page } = Astro.props;
-const posts = page.data;
+const { posts, tag } = Astro.props;
 
 const allPosts = await getCollection('blog');
 const allTagsMap = new Map();
 allPosts.forEach(post => {
-	(post.data.tags || []).forEach(tag => {
-		allTagsMap.set(tag, (allTagsMap.get(tag) || 0) + 1);
+	(post.data.tags || []).forEach(t => {
+		allTagsMap.set(t, (allTagsMap.get(t) || 0) + 1);
 	});
 });
 const allTags = Array.from(allTagsMap.entries())
 	.sort((a, b) => b[1] - a[1])
-	.map(([tag, count]) => ({ tag, count }));
+	.map(([t, count]) => ({ tag: t, count }));
 ---
 
-<Layout title="Blog - System Engineer">
+<Layout title={`#${tag} - Blog`}>
 	<aside class="tags-sidebar">
 		<div class="tags-sidebar-inner">
 			<div class="sidebar-core">
@@ -36,24 +47,30 @@ const allTags = Array.from(allTagsMap.entries())
 			<svg id="tag-lines" class="tag-lines" aria-hidden="true"></svg>
 			<div class="tags-scroll">
 				<ul id="tags-list" class="tags-list">
-					{allTags.map(({ tag, count }) => (
+					{allTags.map(({ tag: t, count }) => (
 						<li>
-							<a href={`/blog/tag/${tag}`} class="sidebar-tag">
-								<span>#{tag}</span>
+							<a href={`/blog/tag/${t}`} class:list={["sidebar-tag", { active: t === tag }]}>
+								<span>#{t}</span>
 								<span class="tag-count">{count}</span>
 							</a>
 						</li>
 					))}
 				</ul>
 			</div>
+		</div>
 	</aside>
 
 	<main>
 		<h1>Blog</h1>
 
+		<div class="filter-status">
+			<span class="lang-en">Filtering by tag: <span class="highlight">#{tag}</span> <a href="/blog" class="clear-filter">Clear</a></span>
+			<span class="lang-es hidden">Filtrando por etiqueta: <span class="highlight">#{tag}</span> <a href="/blog" class="clear-filter">Borrar</a></span>
+		</div>
+
 		<div class="posts-grid">
 			{posts.map(post => (
-				<article class="post-card" data-tags={post.data.tags?.join(',') || ''}>
+				<article class="post-card">
 					<span class="post-date lang-en">{post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}</span>
 					<span class="post-date lang-es hidden">{post.data.date.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}</span>
 					<h2 class="lang-en">{post.data.title.en}</h2>
@@ -64,8 +81,8 @@ const allTags = Array.from(allTagsMap.entries())
 					
 					{post.data.tags && (
 						<div class="tags">
-							{post.data.tags.map(tag => (
-								<a href={`/blog/tag/${tag}`} class="tag">#{tag}</a>
+							{post.data.tags.map(t => (
+								<a href={`/blog/tag/${t}`} class="tag">#{t}</a>
 							))}
 						</div>
 					)}
@@ -77,27 +94,6 @@ const allTags = Array.from(allTagsMap.entries())
 				</article>
 			))}
 		</div>
-
-		<nav class="pagination">
-			{page.url.prev ? (
-				<a href={page.url.prev} class="prev">
-					<span class="lang-en">← Previous</span>
-					<span class="lang-es hidden">← Anterior</span>
-				</a>
-			) : <span />}
-			
-			<span class="page-info">
-				<span class="lang-en">Page {page.currentPage} of {page.lastPage}</span>
-				<span class="lang-es hidden">Página {page.currentPage} de {page.lastPage}</span>
-			</span>
-
-			{page.url.next ? (
-				<a href={page.url.next} class="next">
-					<span class="lang-en">Next →</span>
-					<span class="lang-es hidden">Siguiente →</span>
-				</a>
-			) : <span />}
-		</nav>
 	</main>
 </Layout>
 
@@ -154,17 +150,18 @@ const allTags = Array.from(allTagsMap.entries())
 	}
 
 	// Tag search filter
+	const searchInput = document.getElementById('tag-search') as HTMLInputElement;
 	const tagItems = document.querySelectorAll('.tags-list li');
 
-	document.querySelectorAll('.tag-search').forEach(input => {
-		input.addEventListener('input', (e) => {
-			const query = (e.target as HTMLInputElement).value.toLowerCase();
+	if (searchInput) {
+		searchInput.addEventListener('input', () => {
+			const query = searchInput.value.toLowerCase();
 			tagItems.forEach(li => {
 				const text = li.textContent?.toLowerCase() || '';
 				(li as HTMLElement).style.display = text.includes(query) ? '' : 'none';
 			});
 		});
-	});
+	}
 </script>
 
 <style>
@@ -174,13 +171,6 @@ const allTags = Array.from(allTagsMap.entries())
 		width: 100%;
 		max-width: 800px;
 		color: var(--text-secondary);
-	}
-
-	.header-row {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin-bottom: 4rem;
 	}
 
 	h1 {
@@ -269,34 +259,28 @@ const allTags = Array.from(allTagsMap.entries())
 		background: rgba(var(--accent), 0.2);
 	}
 
-	.pagination {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin-top: 4rem;
-		padding-top: 2rem;
-		border-top: 1px solid var(--border-subtle);
+	.filter-status {
+		margin-bottom: 2rem;
+		padding: 1rem;
+		background: rgba(var(--accent), 0.1);
+		border: 1px solid rgba(var(--accent), 0.2);
+		border-radius: var(--radius-md);
+		color: var(--text-secondary);
 	}
 
-	.pagination a {
+	.highlight {
+		font-weight: bold;
 		color: rgb(var(--accent));
-		text-decoration: none;
-		font-weight: 600;
-		background: var(--surface-1);
-		padding: 0.5rem 1.25rem;
-		border-radius: var(--radius-full);
-		border: 1px solid var(--border-default);
-		transition: all var(--transition-fast);
 	}
 
-	.pagination a:hover {
-		background: var(--surface-hover);
-		border-color: rgba(var(--accent), 0.3);
-	}
-
-	.page-info {
+	.clear-filter {
+		margin-left: 1rem;
 		color: var(--text-muted);
-		font-size: 0.875rem;
+		font-size: 0.9em;
+	}
+
+	.clear-filter:hover {
+		color: var(--text-secondary);
 	}
 
 	.hidden {

@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "superdesign": {
+      "command": "/mydata/.nvm/versions/node/v22.14.0/bin/node",
+      "args": ["/tmp/superdesign-mcp-claude-code/dist/index.js"],
+      "env": {}
+    }
+  }
+}
