@@ -28,7 +28,8 @@ const translations = {
     demo5Title: "Speech-to-Text with Whisper and F#",
     demo5Desc: "Converting speech to text using OpenAI Whisper model implemented in F#.",
     demoLabel: "Live Demo",
-    blogLabel: "Read Article"
+    blogLabel: "Read Article",
+    visitorsLabel: "visitors"
   },
   es: {
     title: "Portafolio de Ingeniero de Sistemas",
@@ -50,7 +51,8 @@ const translations = {
     demo5Title: "Speech-to-Text con Whisper y F#",
     demo5Desc: "Conversión de voz a texto usando el modelo Whisper de OpenAI implementado en F#.",
     demoLabel: "Ver Demo",
-    blogLabel: "Leer Artículo"
+    blogLabel: "Leer Artículo",
+    visitorsLabel: "visitantes"
   }
 };
 
@@ -104,6 +106,12 @@ const t = translations[currentLang];
 						</a>
 					</div>
 				)}
+
+				<div class="visitor-counter">
+					<span class="visitor-icon">👁️</span>
+					<span id="visitor-count">...</span>
+					<span class="visitor-label" id="visitors-label-text">{t.visitorsLabel}</span>
+				</div>
 			</div>
 			<div class="hero-image">
 				<img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop" alt="Cloud Architecture Landscape" />
@@ -176,6 +184,16 @@ const t = translations[currentLang];
 </Layout>
 
 <script define:vars={{ translations, demos }}>
+	// Fetch visitor count
+	fetch('https://counter-visitors.kiquetal.workers.dev')
+		.then(res => res.json())
+		.then(data => {
+			document.getElementById('visitor-count').textContent = data.visitors;
+		})
+		.catch(() => {
+			document.getElementById('visitor-count').textContent = '—';
+		});
+
 	function setLanguage(lang) {
 		const t = translations[lang];
 
@@ -212,6 +230,8 @@ const t = translations[currentLang];
 		document.getElementById('cert3-text').textContent = t.cert3;
 		const certCredly = document.getElementById('cert-credly-text');
 		if (certCredly) certCredly.textContent = t.certCredly;
+		
+		document.getElementById('visitors-label-text').textContent = t.visitorsLabel;
 	}
 
 	// Listen to header language change
@@ -637,5 +657,29 @@ const t = translations[currentLang];
 		opacity: 1;
 		visibility: visible;
 		top: -50px;
+	}
+
+	.visitor-counter {
+		margin-top: 1.5rem;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-size: 0.9rem;
+		color: var(--text-muted);
+		animation: fadeSlideUp 0.6s ease 0.4s both;
+	}
+
+	.visitor-icon {
+		font-size: 1.1rem;
+	}
+
+	#visitor-count {
+		font-weight: 700;
+		color: rgb(var(--accent));
+		font-size: 1rem;
+	}
+
+	.visitor-label {
+		font-size: 0.85rem;
 	}
 </style>
