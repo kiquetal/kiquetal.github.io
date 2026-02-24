@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AES-GCM-256 Encryption</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Crimson+Text:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #F5E6D3;
+            font-family: 'Crimson Text', serif;
+            padding: 40px 20px;
+            position: relative;
+            min-height: 100vh;
+        }
+        
+        .infographic {
+            max-width: 800px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, #F5E6D3 0%, #E8D5C4 100%);
+            border: 6px solid #8B7355;
+            border-radius: 4px;
+            padding: 32px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            position: relative;
+            margin-bottom: 60px;
+        }
+        
+        .infographic::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                repeating-linear-gradient(0deg, rgba(139, 115, 85, 0.03) 0px, transparent 1px, transparent 2px, rgba(139, 115, 85, 0.03) 3px),
+                repeating-linear-gradient(90deg, rgba(139, 115, 85, 0.03) 0px, transparent 1px, transparent 2px, rgba(139, 115, 85, 0.03) 3px);
+            pointer-events: none;
+        }
+        
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 42px;
+            color: #5C4A3A;
+            text-align: center;
+            letter-spacing: 0.1em;
+            margin-bottom: 8px;
+            position: relative;
+        }
+        
+        .subtitle {
+            font-size: 18px;
+            color: #8B7355;
+            text-align: center;
+            letter-spacing: 0.08em;
+            margin-bottom: 24px;
+            font-style: italic;
+        }
+        
+        .divider {
+            text-align: center;
+            color: #8B7355;
+            font-size: 20px;
+            margin: 20px 0;
+            letter-spacing: 0.5em;
+        }
+        
+        .section {
+            background: rgba(232, 213, 196, 0.6);
+            border: 3px solid #8B7355;
+            border-radius: 3px;
+            padding: 20px;
+            margin-bottom: 16px;
+            position: relative;
+        }
+        
+        .section h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            color: #5C4A3A;
+            letter-spacing: 0.08em;
+            margin-bottom: 12px;
+            border-bottom: 2px solid #8B7355;
+            padding-bottom: 8px;
+        }
+        
+        .section p, .section ul {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #5C4A3A;
+        }
+        
+        .section ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .section li {
+            padding-left: 20px;
+            position: relative;
+            margin-bottom: 6px;
+        }
+        
+        .section li::before {
+            content: '✦';
+            position: absolute;
+            left: 0;
+            color: #8B7355;
+        }
+        
+        .flow-diagram {
+            background: rgba(245, 230, 211, 0.8);
+            border: 2px solid #8B7355;
+            padding: 20px;
+            margin: 16px 0;
+            text-align: center;
+            border-radius: 3px;
+        }
+        
+        .flow-step {
+            display: inline-block;
+            background: #D2B48C;
+            color: #5C4A3A;
+            padding: 10px 16px;
+            margin: 4px;
+            border: 2px solid #8B7355;
+            border-radius: 3px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .arrow {
+            display: inline-block;
+            color: #8B7355;
+            font-size: 20px;
+            margin: 0 8px;
+        }
+        
+        .kiquetal-ribbon {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #f5f5f5;
+            text-align: center;
+            padding: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            letter-spacing: 0.15em;
+            border-top: 1px solid #444;
+            opacity: 0.85;
+            z-index: 9999;
+        }
+        
+        .kiquetal-ribbon::before {
+            content: '✦';
+            margin-right: 8px;
+            color: #888;
+        }
+        
+        .kiquetal-ribbon::after {
+            content: '✦';
+            margin-left: 8px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="infographic">
+        <h1>AES-GCM-256</h1>
+        <p class="subtitle">Advanced Encryption Standard - Galois/Counter Mode</p>
+        
+        <div class="divider">✦ ❦ ✦</div>
+        
+        <div class="section">
+            <h2>Initialization Vector (IV)</h2>
+            <ul>
+                <li>96-bit (12 bytes) random value</li>
+                <li>Must be unique for each encryption operation</li>
+                <li>Never reuse with the same key</li>
+                <li>Ensures same plaintext produces different ciphertext</li>
+                <li>Not secret, but must be unpredictable</li>
+            </ul>
+        </div>
+        
+        <div class="section">
+            <h2>Authentication Tag</h2>
+            <ul>
+                <li>128-bit cryptographic checksum</li>
+                <li>Verifies data integrity and authenticity</li>
+                <li>Generated during encryption process</li>
+                <li>Validated during decryption</li>
+                <li>Prevents tampering and forgery attacks</li>
+                <li>Decryption fails if tag doesn't match</li>
+            </ul>
+        </div>
+        
+        <div class="section">
+            <h2>PBKDF2 - Key Derivation</h2>
+            <ul>
+                <li>Password-Based Key Derivation Function 2</li>
+                <li>Converts passwords into encryption keys</li>
+                <li>Uses salt + iterations for security</li>
+                <li>Recommended: 100,000+ iterations</li>
+                <li>When to use: Deriving keys from user passwords</li>
+                <li>Protects against brute-force attacks</li>
+            </ul>
+        </div>
+        
+        <div class="divider">✦</div>
+        
+        <div class="flow-diagram">
+            <div style="margin-bottom: 12px; font-family: 'Playfair Display', serif; color: #5C4A3A; font-size: 18px; letter-spacing: 0.08em;">
+                Encryption Flow
+            </div>
+            <div>
+                <span class="flow-step">Password</span>
+                <span class="arrow">→</span>
+                <span class="flow-step">PBKDF2</span>
+                <span class="arrow">→</span>
+                <span class="flow-step">256-bit Key</span>
+                <span class="arrow">→</span>
+                <span class="flow-step">AES-GCM<br>(+ IV)</span>
+                <span class="arrow">→</span>
+                <span class="flow-step">Ciphertext<br>+ Tag</span>
+            </div>
+        </div>
+        
+        <div class="kiquetal-ribbon">co-designed by kiquetal</div>
+    </div>
+</body>
+</html>

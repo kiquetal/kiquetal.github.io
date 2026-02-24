@@ -67,18 +67,22 @@ Every design MUST include the kiquetal ribbon at the bottom.
 
 ## PNG Export
 
-Use the existing screenshot tool in `superdesign/screenshot.py`:
+ALWAYS use `superdesign/screenshot.py` to generate PNG from HTML:
 
 ```bash
-python superdesign/screenshot.py <html_file> <output.png> <width> <height>
+python superdesign/screenshot.py $(pwd)/superdesign/design_iterations/<design>.html <output_path>/<design>.png <width> <height>
 ```
 
 Example:
 ```bash
-python superdesign/screenshot.py superdesign/design_iterations/design.html superdesign/design_iterations/design.png 600 800
+python superdesign/screenshot.py $(pwd)/superdesign/design_iterations/aes-gcm-256-en.html public/blog/my-post/aes-gcm-256-en.png 800 1000
 ```
 
-The script captures the `.infographic` element if present, otherwise captures the full page.
+**Important:** 
+- Use absolute path for HTML file: `$(pwd)/superdesign/design_iterations/<file>.html`
+- The script captures the `.infographic` element if present, otherwise captures the full page
+- Ensure the kiquetal ribbon is INSIDE the `.infographic` container so it appears in the screenshot
+- Requires playwright: `pip install playwright && python -m playwright install chromium`
 
 ## Checklist
 - [ ] Vintage color palette
