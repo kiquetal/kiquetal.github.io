@@ -64,3 +64,8 @@ npm run preview  # Preview production build
 - Follow accessibility standards (WCAG 2.1 AA)
 - Optimize for SEO (meta tags, semantic HTML)
 - Use semantic HTML5 elements
+
+## Blog Post Updates
+- **ALWAYS add or update the `updated` field** in the frontmatter when modifying blog post content
+- Format: `updated: YYYY-MM-DD` (use current date)
+- This helps track content freshness and revision history

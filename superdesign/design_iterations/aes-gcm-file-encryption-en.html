@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client-Side File Encryption with AES-GCM-256</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Crimson+Text:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #F5E6D3;
+            font-family: 'Crimson Text', serif;
+            padding: 40px 20px;
+        }
+        
+        .infographic {
+            max-width: 900px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, #F5E6D3 0%, #E8D5C4 100%);
+            border: 6px solid #8B7355;
+            border-radius: 4px;
+            padding: 32px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        
+        .infographic::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                repeating-linear-gradient(0deg, rgba(139, 115, 85, 0.03) 0px, transparent 1px, transparent 2px, rgba(139, 115, 85, 0.03) 3px),
+                repeating-linear-gradient(90deg, rgba(139, 115, 85, 0.03) 0px, transparent 1px, transparent 2px, rgba(139, 115, 85, 0.03) 3px);
+            pointer-events: none;
+        }
+        
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 38px;
+            color: #5C4A3A;
+            text-align: center;
+            letter-spacing: 0.1em;
+            margin-bottom: 8px;
+            position: relative;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            color: #8B7355;
+            text-align: center;
+            letter-spacing: 0.08em;
+            margin-bottom: 24px;
+            font-style: italic;
+        }
+        
+        .divider {
+            text-align: center;
+            color: #8B7355;
+            font-size: 20px;
+            margin: 20px 0;
+            letter-spacing: 0.5em;
+        }
+        
+        .step {
+            background: rgba(232, 213, 196, 0.6);
+            border: 3px solid #8B7355;
+            border-radius: 3px;
+            padding: 20px;
+            margin-bottom: 16px;
+            position: relative;
+        }
+        
+        .step-number {
+            position: absolute;
+            top: -15px;
+            left: 20px;
+            background: #8B7355;
+            color: #F5E6D3;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Playfair Display', serif;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .step h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            color: #5C4A3A;
+            letter-spacing: 0.08em;
+            margin-bottom: 12px;
+            padding-left: 20px;
+        }
+        
+        .step-content {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #5C4A3A;
+        }
+        
+        .bytes-box {
+            background: rgba(245, 230, 211, 0.8);
+            border: 2px solid #8B7355;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        
+        .bytes-label {
+            font-weight: 600;
+            color: #5C4A3A;
+        }
+        
+        .bytes-value {
+            color: #8B7355;
+            margin-left: 8px;
+        }
+        
+        .important {
+            background: rgba(210, 180, 140, 0.4);
+            border-left: 4px solid #8B7355;
+            padding: 12px;
+            margin: 12px 0;
+            font-style: italic;
+        }
+        
+        .flow-arrow {
+            text-align: center;
+            color: #8B7355;
+            font-size: 24px;
+            margin: 8px 0;
+        }
+        
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        li {
+            padding-left: 20px;
+            position: relative;
+            margin-bottom: 6px;
+        }
+        
+        li::before {
+            content: '✦';
+            position: absolute;
+            left: 0;
+            color: #8B7355;
+        }
+        
+        .kiquetal-ribbon {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #f5f5f5;
+            text-align: center;
+            padding: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            letter-spacing: 0.15em;
+            border-top: 1px solid #444;
+            opacity: 0.85;
+            z-index: 9999;
+        }
+        
+        .kiquetal-ribbon::before {
+            content: '✦';
+            margin-right: 8px;
+            color: #888;
+        }
+        
+        .kiquetal-ribbon::after {
+            content: '✦';
+            margin-left: 8px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="infographic">
+        <h1>Client-Side File Encryption</h1>
+        <p class="subtitle">AES-GCM-256 with Passphrase-Based Key Derivation</p>
+        
+        <div class="divider">✦ ❦ ✦</div>
+        
+        <div class="step">
+            <div class="step-number">1</div>
+            <h2>Generate Random Salt</h2>
+            <div class="step-content">
+                <p>Create a cryptographically secure random salt for PBKDF2.</p>
+                <div class="bytes-box">
+                    <span class="bytes-label">Salt Size:</span>
+                    <span class="bytes-value">16 bytes (128 bits)</span>
+                </div>
+                <div class="important">
+                    ⚠ Salt must be unique for each encryption. Store it with the encrypted file.
+                </div>
+            </div>
+        </div>
+        
+        <div class="flow-arrow">↓</div>
+        
+        <div class="step">
+            <div class="step-number">2</div>
+            <h2>Derive Encryption Key with PBKDF2</h2>
+            <div class="step-content">
+                <p>Convert user passphrase into a strong encryption key using PBKDF2-HMAC-SHA256.</p>
+                <div class="bytes-box">
+                    <span class="bytes-label">Input:</span>
+                    <span class="bytes-value">User Passphrase (string)</span><br>
+                    <span class="bytes-label">Salt:</span>
+                    <span class="bytes-value">16 bytes (from Step 1)</span><br>
+                    <span class="bytes-label">Iterations:</span>
+                    <span class="bytes-value">100,000+ (recommended: 600,000)</span><br>
+                    <span class="bytes-label">Hash Function:</span>
+                    <span class="bytes-value">HMAC-SHA256</span><br>
+                    <span class="bytes-label">Output Key:</span>
+                    <span class="bytes-value">32 bytes (256 bits)</span>
+                </div>
+                <div class="important">
+                    Higher iterations = stronger protection against brute-force attacks
+                </div>
+            </div>
+        </div>
+        
+        <div class="flow-arrow">↓</div>
+        
+        <div class="step">
+            <div class="step-number">3</div>
+            <h2>Generate Initialization Vector (IV)</h2>
+            <div class="step-content">
+                <p>Create a random IV for AES-GCM encryption.</p>
+                <div class="bytes-box">
+                    <span class="bytes-label">IV Size:</span>
+                    <span class="bytes-value">12 bytes (96 bits)</span>
+                </div>
+                <div class="important">
+                    ⚠ IV must be unique for each encryption with the same key. Never reuse!
+                </div>
+            </div>
+        </div>
+        
+        <div class="flow-arrow">↓</div>
+        
+        <div class="step">
+            <div class="step-number">4</div>
+            <h2>Encrypt File with AES-GCM-256</h2>
+            <div class="step-content">
+                <p>Encrypt the file content using AES in Galois/Counter Mode.</p>
+                <div class="bytes-box">
+                    <span class="bytes-label">Algorithm:</span>
+                    <span class="bytes-value">AES-GCM</span><br>
+                    <span class="bytes-label">Key:</span>
+                    <span class="bytes-value">32 bytes (from Step 2)</span><br>
+                    <span class="bytes-label">IV:</span>
+                    <span class="bytes-value">12 bytes (from Step 3)</span><br>
+                    <span class="bytes-label">Input:</span>
+                    <span class="bytes-value">File content (plaintext)</span><br>
+                    <span class="bytes-label">Output:</span>
+                    <span class="bytes-value">Encrypted content (ciphertext)</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="flow-arrow">↓</div>
+        
+        <div class="step">
+            <div class="step-number">5</div>
+            <h2>Generate Authentication Tag</h2>
+            <div class="step-content">
+                <p>AES-GCM automatically produces an authentication tag during encryption.</p>
+                <div class="bytes-box">
+                    <span class="bytes-label">Tag Size:</span>
+                    <span class="bytes-value">16 bytes (128 bits)</span>
+                </div>
+                <div class="important">
+                    The tag ensures data integrity and authenticity. Decryption will fail if data is tampered with.
+                </div>
+            </div>
+        </div>
+        
+        <div class="flow-arrow">↓</div>
+        
+        <div class="step">
+            <div class="step-number">6</div>
+            <h2>Construct Final Encrypted File</h2>
+            <div class="step-content">
+                <p>Combine all components into a single encrypted file.</p>
+                <div class="bytes-box">
+                    <span class="bytes-label">File Structure:</span><br>
+                    <span class="bytes-value">
+                        [Salt: 16 bytes] + [IV: 12 bytes] + [Ciphertext: variable] + [Tag: 16 bytes]
+                    </span>
+                </div>
+                <ul style="margin-top: 12px;">
+                    <li>Salt and IV are stored in plaintext (not secret)</li>
+                    <li>Total overhead: 44 bytes (16 + 12 + 16)</li>
+                    <li>File can be decrypted with the correct passphrase</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="divider">✦</div>
+        
+        <div class="step" style="background: rgba(210, 180, 140, 0.3);">
+            <h2 style="padding-left: 0; text-align: center; border-bottom: 2px solid #8B7355; padding-bottom: 8px;">Total Bytes Summary</h2>
+            <div class="step-content" style="text-align: center; margin-top: 12px;">
+                <div class="bytes-box" style="display: inline-block; text-align: left;">
+                    <span class="bytes-label">Salt:</span> <span class="bytes-value">16 bytes</span><br>
+                    <span class="bytes-label">IV:</span> <span class="bytes-value">12 bytes</span><br>
+                    <span class="bytes-label">Encryption Key:</span> <span class="bytes-value">32 bytes (derived, not stored)</span><br>
+                    <span class="bytes-label">Authentication Tag:</span> <span class="bytes-value">16 bytes</span><br>
+                    <span class="bytes-label">PBKDF2 Iterations:</span> <span class="bytes-value">100,000 - 600,000</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="kiquetal-ribbon">co-designed by kiquetal</div>
+    </div>
+</body>
+</html>
