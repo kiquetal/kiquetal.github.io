@@ -6,7 +6,7 @@ excerpt:
   en: 'An implementation of e2e encryption.'
   es: 'Una implementación de encriptación e2e.'
 date: 2026-02-13
-tags: ['quarkus', 'encryption','angular']
+tags: ['quarkus', 'encryption','angular','aes-gcm']
 draft: true
 ---
 
