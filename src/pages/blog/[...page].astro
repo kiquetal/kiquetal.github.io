@@ -14,14 +14,36 @@ const posts = page.data;
 
 const allPosts = await getCollection('blog');
 const allTagsMap = new Map();
+const allDatesMap = new Map();
+
 allPosts.forEach(post => {
 	(post.data.tags || []).forEach(tag => {
 		allTagsMap.set(tag, (allTagsMap.get(tag) || 0) + 1);
 	});
+	
+	const year = post.data.date.getFullYear();
+	const month = post.data.date.getMonth();
+	const dateKey = `${year}-${String(month + 1).padStart(2, '0')}`;
+	const monthNames = {
+		en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+		es: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+	};
+	allDatesMap.set(dateKey, {
+		year,
+		month,
+		monthNameEn: monthNames.en[month],
+		monthNameEs: monthNames.es[month],
+		count: (allDatesMap.get(dateKey)?.count || 0) + 1
+	});
 });
+
 const allTags = Array.from(allTagsMap.entries())
 	.sort((a, b) => b[1] - a[1])
 	.map(([tag, count]) => ({ tag, count }));
+
+const allDates = Array.from(allDatesMap.entries())
+	.sort((a, b) => b[0].localeCompare(a[0]))
+	.map(([key, data]) => ({ key, ...data }));
 ---
 
 <Layout title="Blog - System Engineer">
@@ -29,23 +51,43 @@ const allTags = Array.from(allTagsMap.entries())
 		<div class="tags-sidebar-inner">
 			<div class="sidebar-core">
 				<span class="core-dot"></span>
-				<span class="core-label">Tags</span>
+				<span class="core-label">Filters</span>
 			</div>
 			<input type="text" id="tag-search" class="tag-search lang-en" placeholder="Search tags..." autocomplete="off" />
 			<input type="text" id="tag-search-es" class="tag-search lang-es hidden" placeholder="Buscar etiquetas..." autocomplete="off" />
 			<svg id="tag-lines" class="tag-lines" aria-hidden="true"></svg>
 			<div class="tags-scroll">
-				<ul id="tags-list" class="tags-list">
-					{allTags.map(({ tag, count }) => (
-						<li>
-							<a href={`/blog/tag/${tag}`} class="sidebar-tag">
-								<span>#{tag}</span>
-								<span class="tag-count">{count}</span>
-							</a>
-						</li>
-					))}
-				</ul>
+				<div class="filter-section">
+					<h3 class="filter-title lang-en">By Date</h3>
+					<h3 class="filter-title lang-es hidden">Por Fecha</h3>
+					<ul class="dates-list">
+						{allDates.map(({ key, year, monthNameEn, monthNameEs, count }) => (
+							<li>
+								<button class="sidebar-tag date-filter" data-date={key}>
+									<span class="lang-en">{monthNameEn} {year}</span>
+									<span class="lang-es hidden">{monthNameEs} {year}</span>
+									<span class="tag-count">{count}</span>
+								</button>
+							</li>
+						))}
+					</ul>
+				</div>
+				<div class="filter-section">
+					<h3 class="filter-title lang-en">By Tag</h3>
+					<h3 class="filter-title lang-es hidden">Por Etiqueta</h3>
+					<ul id="tags-list" class="tags-list">
+						{allTags.map(({ tag, count }) => (
+							<li>
+								<a href={`/blog/tag/${tag}`} class="sidebar-tag">
+									<span>#{tag}</span>
+									<span class="tag-count">{count}</span>
+								</a>
+							</li>
+						))}
+					</ul>
+				</div>
 			</div>
+		</div>
 	</aside>
 
 	<main>
@@ -53,7 +95,7 @@ const allTags = Array.from(allTagsMap.entries())
 
 		<div class="posts-grid">
 			{posts.map(post => (
-				<article class="post-card" data-tags={post.data.tags?.join(',') || ''}>
+				<article class="post-card" data-tags={post.data.tags?.join(',') || ''} data-date={`${post.data.date.getFullYear()}-${String(post.data.date.getMonth() + 1).padStart(2, '0')}`}>
 					{post.data.draft && (
 						<div class="draft-badge">
 							<span>🚧</span>
@@ -170,6 +212,36 @@ const allTags = Array.from(allTagsMap.entries())
 				const text = li.textContent?.toLowerCase() || '';
 				(li as HTMLElement).style.display = text.includes(query) ? '' : 'none';
 			});
+		});
+	});
+
+	// Date filter
+	const dateFilters = document.querySelectorAll('.date-filter');
+	const postCards = document.querySelectorAll('.post-card');
+	let activeFilter: string | null = null;
+
+	dateFilters.forEach(btn => {
+		btn.addEventListener('click', () => {
+			const dateKey = (btn as HTMLElement).dataset.date;
+			
+			if (activeFilter === dateKey) {
+				// Deactivate filter
+				activeFilter = null;
+				btn.classList.remove('active');
+				postCards.forEach(card => {
+					(card as HTMLElement).style.display = '';
+				});
+			} else {
+				// Activate filter
+				dateFilters.forEach(b => b.classList.remove('active'));
+				btn.classList.add('active');
+				activeFilter = dateKey;
+				
+				postCards.forEach(card => {
+					const cardDate = (card as HTMLElement).dataset.date;
+					(card as HTMLElement).style.display = cardDate === dateKey ? '' : 'none';
+				});
+			}
 		});
 	});
 </script>
@@ -435,6 +507,28 @@ const allTags = Array.from(allTagsMap.entries())
 		gap: 0.35rem;
 	}
 
+	.dates-list {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 0.35rem;
+	}
+
+	.filter-section {
+		margin-bottom: 1.5rem;
+	}
+
+	.filter-title {
+		font-size: 0.7rem;
+		font-weight: 600;
+		color: var(--text-faint);
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		margin: 0 0 0.5rem 0.5rem;
+	}
+
 	.sidebar-tag {
 		display: flex;
 		align-items: center;
@@ -450,6 +544,12 @@ const allTags = Array.from(allTagsMap.entries())
 		white-space: nowrap;
 		transition: all 0.2s;
 		gap: 0.5rem;
+		width: 100%;
+		cursor: pointer;
+	}
+
+	.date-filter {
+		text-align: left;
 	}
 
 	.sidebar-tag:hover, .sidebar-tag.active {
