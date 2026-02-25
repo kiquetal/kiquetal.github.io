@@ -63,11 +63,11 @@ const allDates = Array.from(allDatesMap.entries())
 					<ul class="dates-list">
 						{allDates.map(({ key, year, monthNameEn, monthNameEs, count }) => (
 							<li>
-								<button class="sidebar-tag date-filter" data-date={key}>
+								<a href={`/blog/date/${key}`} class="sidebar-tag">
 									<span class="lang-en">{monthNameEn} {year}</span>
 									<span class="lang-es hidden">{monthNameEs} {year}</span>
 									<span class="tag-count">{count}</span>
-								</button>
+								</a>
 							</li>
 						))}
 					</ul>
@@ -95,7 +95,7 @@ const allDates = Array.from(allDatesMap.entries())
 
 		<div class="posts-grid">
 			{posts.map(post => (
-				<article class="post-card" data-tags={post.data.tags?.join(',') || ''} data-date={`${post.data.date.getFullYear()}-${String(post.data.date.getMonth() + 1).padStart(2, '0')}`}>
+				<article class="post-card" data-tags={post.data.tags?.join(',') || ''}>
 					{post.data.draft && (
 						<div class="draft-badge">
 							<span>🚧</span>
@@ -212,36 +212,6 @@ const allDates = Array.from(allDatesMap.entries())
 				const text = li.textContent?.toLowerCase() || '';
 				(li as HTMLElement).style.display = text.includes(query) ? '' : 'none';
 			});
-		});
-	});
-
-	// Date filter
-	const dateFilters = document.querySelectorAll('.date-filter');
-	const postCards = document.querySelectorAll('.post-card');
-	let activeFilter: string | null = null;
-
-	dateFilters.forEach(btn => {
-		btn.addEventListener('click', () => {
-			const dateKey = (btn as HTMLElement).dataset.date;
-			
-			if (activeFilter === dateKey) {
-				// Deactivate filter
-				activeFilter = null;
-				btn.classList.remove('active');
-				postCards.forEach(card => {
-					(card as HTMLElement).style.display = '';
-				});
-			} else {
-				// Activate filter
-				dateFilters.forEach(b => b.classList.remove('active'));
-				btn.classList.add('active');
-				activeFilter = dateKey;
-				
-				postCards.forEach(card => {
-					const cardDate = (card as HTMLElement).dataset.date;
-					(card as HTMLElement).style.display = cardDate === dateKey ? '' : 'none';
-				});
-			}
 		});
 	});
 </script>
@@ -544,12 +514,6 @@ const allDates = Array.from(allDatesMap.entries())
 		white-space: nowrap;
 		transition: all 0.2s;
 		gap: 0.5rem;
-		width: 100%;
-		cursor: pointer;
-	}
-
-	.date-filter {
-		text-align: left;
 	}
 
 	.sidebar-tag:hover, .sidebar-tag.active {

@@ -1,0 +1,238 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+  const allPosts = await getCollection('blog');
+  const datesMap = new Map();
+
+  allPosts.forEach(post => {
+    const year = post.data.date.getFullYear();
+    const month = post.data.date.getMonth();
+    const dateKey = `${year}-${String(month + 1).padStart(2, '0')}`;
+    
+    if (!datesMap.has(dateKey)) {
+      datesMap.set(dateKey, []);
+    }
+    datesMap.get(dateKey).push(post);
+  });
+
+  return Array.from(datesMap.entries()).map(([dateKey, posts]) => {
+    const [year, month] = dateKey.split('-');
+    const monthNames = {
+      en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+      es: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+    };
+    
+    return {
+      params: { date: dateKey },
+      props: { 
+        posts: posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()),
+        dateKey,
+        year: parseInt(year),
+        monthNameEn: monthNames.en[parseInt(month) - 1],
+        monthNameEs: monthNames.es[parseInt(month) - 1]
+      },
+    };
+  });
+}
+
+const { posts, dateKey, year, monthNameEn, monthNameEs } = Astro.props;
+---
+
+<Layout title={`Blog - ${monthNameEn} ${year}`}>
+	<main>
+		<a href="/blog" class="back-link">← <span class="lang-en">Back to all posts</span><span class="lang-es hidden">Volver a todos</span></a>
+		
+		<h1>
+			<span class="lang-en">Posts from {monthNameEn} {year}</span>
+			<span class="lang-es hidden">Artículos de {monthNameEs} {year}</span>
+		</h1>
+
+		<div class="posts-grid">
+			{posts.map(post => (
+				<article class="post-card">
+					{post.data.draft && (
+						<div class="draft-badge">
+							<span>🚧</span>
+							<span class="lang-en">Under Development</span>
+							<span class="lang-es hidden">En Desarrollo</span>
+						</div>
+					)}
+					<span class="post-date lang-en">{post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}</span>
+					<span class="post-date lang-es hidden">{post.data.date.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}</span>
+					<h2 class="lang-en">{post.data.title.en}</h2>
+					<h2 class="lang-es hidden">{post.data.title.es}</h2>
+					
+					<p class="lang-en">{post.data.excerpt.en}</p>
+					<p class="lang-es hidden">{post.data.excerpt.es}</p>
+					
+					{post.data.tags && (
+						<div class="tags">
+							{post.data.tags.map(tag => (
+								<a href={`/blog/tag/${tag}`} class="tag">#{tag}</a>
+							))}
+						</div>
+					)}
+
+					<a href={`/blog/${post.slug}`} class="read-more">
+						<span class="lang-en">Read more →</span>
+						<span class="lang-es hidden">Leer más →</span>
+					</a>
+				</article>
+			))}
+		</div>
+	</main>
+</Layout>
+
+<script>
+	const enElements = document.querySelectorAll('.lang-en');
+	const esElements = document.querySelectorAll('.lang-es');
+
+	function setLanguage(lang) {
+		if (lang === 'en') {
+			enElements.forEach(el => el.classList.remove('hidden'));
+			esElements.forEach(el => el.classList.add('hidden'));
+		} else {
+			esElements.forEach(el => el.classList.remove('hidden'));
+			enElements.forEach(el => el.classList.add('hidden'));
+		}
+	}
+
+	window.addEventListener('languageChange', (e) => {
+		setLanguage(e.detail.lang);
+	});
+
+	const savedLang = localStorage.getItem('preferred-lang') || 'en';
+	setLanguage(savedLang);
+</script>
+
+<style>
+	main {
+		margin: auto;
+		padding: 6rem 2rem 4rem;
+		width: 100%;
+		max-width: 800px;
+		color: var(--text-secondary);
+	}
+
+	.back-link {
+		color: var(--text-muted);
+		text-decoration: none;
+		font-weight: 600;
+		transition: all var(--transition-fast);
+		display: inline-block;
+		margin-bottom: 3rem;
+	}
+
+	.back-link:hover {
+		color: var(--text-primary);
+		transform: translateX(-3px);
+	}
+
+	h1 {
+		font-size: 3rem;
+		font-weight: 700;
+		margin-bottom: 3rem;
+		background-image: var(--accent-gradient);
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+	}
+
+	.posts-grid {
+		display: grid;
+		gap: 2rem;
+	}
+
+	.post-card {
+		background: var(--surface-1);
+		border: 1px solid var(--border-default);
+		border-left: 3px solid transparent;
+		padding: 2rem;
+		border-radius: var(--radius-lg);
+		transition: all var(--transition-base);
+		position: relative;
+	}
+
+	.draft-badge {
+		position: absolute;
+		top: 1rem;
+		right: 1rem;
+		background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%);
+		color: white;
+		padding: 0.4rem 0.8rem;
+		border-radius: 6px;
+		font-size: 0.75rem;
+		font-weight: 600;
+		display: flex;
+		align-items: center;
+		gap: 0.4rem;
+		box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+	}
+
+	.draft-badge span:first-child {
+		font-size: 1rem;
+	}
+
+	.post-card:hover {
+		transform: translateY(-2px);
+		background: var(--surface-hover);
+		border-left-color: rgb(var(--accent));
+		box-shadow: var(--shadow-glow);
+	}
+
+	.post-date {
+		font-size: 0.875rem;
+		color: var(--text-faint);
+	}
+
+	h2 {
+		margin: 0.5rem 0 1rem;
+		font-size: 1.5rem;
+		color: var(--text-primary);
+	}
+
+	p {
+		color: var(--text-muted);
+		line-height: 1.6;
+		margin-bottom: 1.5rem;
+	}
+
+	.read-more {
+		color: rgb(var(--accent));
+		text-decoration: none;
+		font-weight: 600;
+		display: inline-block;
+		transition: color var(--transition-fast);
+	}
+
+	.read-more:hover {
+		color: rgb(var(--accent-light));
+	}
+
+	.tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		margin-bottom: 1.5rem;
+	}
+
+	.tag {
+		background: rgba(var(--accent), 0.1);
+		padding: 0.25rem 0.75rem;
+		border-radius: var(--radius-full);
+		font-size: 0.875rem;
+		color: rgb(var(--accent-light));
+		font-weight: 500;
+		text-decoration: none;
+		transition: background var(--transition-fast);
+	}
+
+	.tag:hover {
+		background: rgba(var(--accent), 0.2);
+	}
+
+	.hidden {
+		display: none;
+	}
+</style>
