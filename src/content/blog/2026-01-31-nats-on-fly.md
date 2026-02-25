@@ -8,7 +8,7 @@ excerpt:
 date: 2026-01-31
 updated: 2026-02-25
 tags: ['nats-sever', 'nats', 'fly.io']
-draft: true
+draft: false
 ---
 
 <div class="lang-en">
