@@ -49,4 +49,38 @@ After setup, you can test the connection and monitor your NATS server using the 
 </div>
 
 <div class="lang-es hidden">
+Necesitaba un servidor NATS para usar como mi broker de mensajes. Elegí instalarlo en fly.io. Seguí las instrucciones de la documentación oficial y encontré algunos problemas, así que quiero compartir con ustedes cómo instalar el servidor NATS en fly.io sin problemas.
+
+El `dockerfile` puede ser usado para desplegar NATS:
+
+```dockerfile
+FROM nats:2.10.25-alpine
+
+# Exponer puertos de cliente, gestión y enrutamiento
+EXPOSE 4222 8222 6222
+
+# El entrypoint por defecto ya es "nats-server"
+CMD ["-js", "-sd", "/data", "-m", "8222"]
+```
+
+Para asegurar la conexión correcta, necesitamos usar WireGuard para establecer una conexión segura desde local al servidor NATS.
+
+## Configuración Inicial
+
+El primer paso es configurar tu servidor NATS en fly.io y establecer las variables de entorno y secretos necesarios:
+
+![1-setup-configuration-es.png](/blog/2026-01-31-nats-on-fly/1-setup-configuration-es.png)
+
+## Métodos de Acceso
+
+Una vez desplegado, tienes múltiples formas de acceder a tu servidor NATS - a través de DNS interno, VPN WireGuard, o DNS público:
+
+![2-access-methods-es.png](/blog/2026-01-31-nats-on-fly/2-access-methods-es.png)
+
+## Pruebas y Monitoreo
+
+Después de la configuración, puedes probar la conexión y monitorear tu servidor NATS usando la interfaz de gestión:
+
+![3-testing-monitoring-es.png](/blog/2026-01-31-nats-on-fly/3-testing-monitoring-es.png)
+
 </div>

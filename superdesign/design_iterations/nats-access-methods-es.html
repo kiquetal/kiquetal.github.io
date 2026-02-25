@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Métodos de Acceso a NATS en Fly.io</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Crimson+Text:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Crimson Text', serif;
+            background: linear-gradient(135deg, #F5E6D3 0%, #E8D5C4 100%);
+            padding: 32px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .infographic {
+            background: linear-gradient(135deg, #F5E6D3 0%, #E8D5C4 50%, #D2B48C 100%);
+            border: 8px solid #8B7355;
+            border-radius: 4px;
+            padding: 32px;
+            max-width: 900px;
+            width: 100%;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            position: relative;
+            background-image: 
+                repeating-linear-gradient(0deg, rgba(139, 115, 85, 0.03) 0px, transparent 1px, transparent 2px, rgba(139, 115, 85, 0.03) 3px),
+                repeating-linear-gradient(90deg, rgba(139, 115, 85, 0.03) 0px, transparent 1px, transparent 2px, rgba(139, 115, 85, 0.03) 3px);
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 42px;
+            color: #5C4A3A;
+            text-align: center;
+            margin-bottom: 32px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .divider {
+            text-align: center;
+            color: #8B7355;
+            font-size: 24px;
+            margin: 24px 0;
+            letter-spacing: 0.5em;
+        }
+
+        .methods-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-top: 32px;
+        }
+
+        .method {
+            background: rgba(232, 213, 196, 0.6);
+            border: 3px solid #8B7355;
+            border-radius: 2px;
+            padding: 24px;
+        }
+
+        .method-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            color: #5C4A3A;
+            margin-bottom: 16px;
+            letter-spacing: 0.05em;
+            text-align: center;
+            border-bottom: 2px solid #8B7355;
+            padding-bottom: 12px;
+        }
+
+        .method-content {
+            font-size: 16px;
+            color: #5C4A3A;
+            line-height: 1.8;
+        }
+
+        .endpoint {
+            background: rgba(92, 74, 58, 0.1);
+            border-left: 4px solid #8B7355;
+            padding: 12px;
+            margin: 12px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .feature {
+            margin: 8px 0;
+            padding-left: 16px;
+            position: relative;
+        }
+
+        .feature::before {
+            content: '✦';
+            position: absolute;
+            left: 0;
+            color: #8B7355;
+        }
+
+        .kiquetal-ribbon {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #f5f5f5;
+            text-align: center;
+            padding: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            letter-spacing: 0.15em;
+            border-top: 1px solid #444;
+            opacity: 0.85;
+            z-index: 9999;
+        }
+
+        .kiquetal-ribbon::before {
+            content: '✦';
+            margin-right: 8px;
+            color: #888;
+        }
+
+        .kiquetal-ribbon::after {
+            content: '✦';
+            margin-left: 8px;
+            color: #888;
+        }
+
+        @media (max-width: 768px) {
+            .methods-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="infographic">
+        <h1>Métodos de Acceso<br>a NATS en Fly.io</h1>
+        
+        <div class="divider">✦ ❦ ✦</div>
+
+        <div class="methods-grid">
+            <div class="method">
+                <div class="method-title">DNS Interno</div>
+                <div class="method-content">
+                    <div class="endpoint">nats-server.internal:4222</div>
+                    <div class="feature">Solo accesible desde apps en Fly.io</div>
+                    <div class="feature">Conexión directa y rápida</div>
+                    <div class="feature">Sin configuración adicional</div>
+                    <div class="feature">Red privada segura</div>
+                </div>
+            </div>
+
+            <div class="method">
+                <div class="method-title">VPN WireGuard</div>
+                <div class="method-content">
+                    <div class="endpoint">fly wireguard create</div>
+                    <div class="feature">Instalar WireGuard localmente</div>
+                    <div class="feature">Acceso seguro desde local</div>
+                    <div class="feature">Conexión cifrada</div>
+                    <div class="endpoint">nats-server.internal:4222</div>
+                </div>
+            </div>
+
+            <div class="method">
+                <div class="method-title">DNS Público</div>
+                <div class="method-content">
+                    <div class="endpoint">your-app.fly.dev:4222</div>
+                    <div class="feature">Configurar servicio público</div>
+                    <div class="feature">Acceso desde internet</div>
+                    <div class="feature">Requiere autenticación</div>
+                    <div class="feature">Usar TLS/SSL</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="kiquetal-ribbon">co-designed by kiquetal</div>
+    </div>
+</body>
+</html>
