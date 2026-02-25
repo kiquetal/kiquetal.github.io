@@ -4,7 +4,7 @@ title:
   es: 'Encriptación de extremo a extremo con Quarkus'
 excerpt:
   en: 'An implementation of e2e encryption.'
-  es: 'Una implementatación de encriptación e2e.'
+  es: 'Una implementación de encriptación e2e.'
 date: 2026-02-13
 tags: ['quarkus', 'encryption','angular']
 draft: true
@@ -16,6 +16,15 @@ draft: true
   <div class="demo-label">🔐 Live Demo</div>
   <a href="https://e2equarks.kiquetal.dev/whisper" target="_blank" class="demo-url">https://e2equarks.kiquetal.dev/whisper</a>
 </div>
+
+## Description of the problem
+
+I wanted to implement encryption both in transit and at rest. For this particular scenario, I have implemented an Angular project that uses AES-256-GCM. The user enters a pre-defined passphrase that the server should share securely; using this passphrase, we start the process of encrypting a file. Following the AES-256 standard, we'll end up with an encrypted file including an authentication tag.
+
+We will use the same configuration from the client to decrypt on the server to ensure the file was correctly encrypted. Later, we will encrypt the file using a master key from the server. We'll use envelope encryption to encrypt the randomly generated Data Encryption Key (DEK) used for the file and IV, and then encrypt this DEK with a Master Key (KEK). Using this pattern, we rely on the server to perform decryption operations.
+
+
+
 
 ## Architecture
 
@@ -110,9 +119,11 @@ S3/Tigris Storage
   <a href="https://e2equarks.kiquetal.dev/whisper" target="_blank" class="demo-url">https://e2equarks.kiquetal.dev/whisper</a>
 </div>
 
+## Descripción del problema
 
+Quería implementar encriptación tanto en tránsito como en reposo. Para este escenario particular, he implementado un proyecto en Angular que utiliza AES-256-GCM. El usuario ingresa una frase de contraseña predefinida que el servidor debe compartir de manera segura; utilizando esta frase, iniciamos el proceso de encriptación de un archivo. Siguiendo el estándar AES-256, terminaremos con un archivo encriptado que incluye una etiqueta de autenticación.
 
-
+Utilizaremos la misma configuración del cliente para desencriptar en el servidor y asegurar que el archivo fue encriptado correctamente. Posteriormente, encriptaremos el archivo utilizando una clave maestra del servidor. Utilizaremos encriptación de sobre (envelope encryption) para encriptar la Clave de Encriptación de Datos (DEK) generada aleatoriamente que se usó para el archivo y el IV, y luego encriptaremos esta DEK con una Clave Maestra (KEK). Usando este patrón, confiaremos en el servidor para realizar las operaciones de desencriptación.
 
 ## Arquitectura
 
@@ -124,7 +135,7 @@ S3/Tigris Storage
 └──────────────────────────────────────────────────────────────────┘
                                │
                                │ 1. Acceder a la UI Web
-                               │    http://localhost:8080/whisper
+                               │    https://e2equarks.kiquetal.dev/whisper
                                ▼
 ┌──────────────────────────────────────────────────────────────────┐
 │                      Angular Frontend (SPA)                      │
