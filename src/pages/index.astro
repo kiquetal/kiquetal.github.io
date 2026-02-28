@@ -10,7 +10,7 @@ const latestPost = sortedPosts.length > 0 ? sortedPosts[0] : null;
 const translations = {
   en: {
     latestUpdate: "Newest Blog Post",
-    title: "Enrique Talavera — Resilience as a First-Class Citizen",
+    title: "kiquetal — Resilience as a First-Class Citizen",
     heroTitle: "Resilience as a ",
     heroTitleItalic: "First-Class",
     heroTitleSuffix: " Citizen.",
@@ -49,7 +49,7 @@ const translations = {
     detailsBtn: "DETAILS"
   },
   es: {
-    title: "Enrique Talavera — Resiliencia como Ciudadano de Primera Clase",
+    title: "kiquetal — Resiliencia como Ciudadano de Primera Clase",
     latestUpdate: "Nuevo Blog",
     heroTitle: "Resiliencia como ",
     heroTitleItalic: "Ciudadano",
@@ -122,6 +122,18 @@ const t = translations[currentLang];
 				<!-- Background Ambient Glow -->
 				<div class="absolute -top-24 left-1/2 -translate-x-1/2 w-full max-w-4xl h-96 bg-brand-accent/5 blur-[120px] rounded-full pointer-events-none"></div>
 				
+				<!-- Meta Row -->
+				<div class="flex items-center justify-between mb-8 px-2">
+					<div class="flex items-center gap-4">
+						<div class="h-px w-8 bg-brand-accent/30"></div>
+						<span class="font-mono text-[9px] tracking-[0.4em] text-brand-accent uppercase font-bold">kiquetal // System_Engineer_v2.0</span>
+					</div>
+					<a href="https://www.linkedin.com/in/kiquetal" target="_blank" rel="noopener noreferrer" class="group/link flex items-center gap-2 text-brand-text-muted hover:text-brand-accent transition-colors">
+						<span class="font-mono text-[8px] tracking-widest uppercase opacity-0 group-hover/link:opacity-100 transition-opacity">Connect_Identity</span>
+						<Icon name="ph:linkedin-logo-bold" size={18} />
+					</a>
+				</div>
+
 				<div class="relative group">
 					<div class="absolute -inset-4 bg-brand-accent/5 rounded-xl blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
 					<div class="relative aspect-[16/9] lg:aspect-[21/9] w-full card-dark overflow-hidden border-brand-border/40 transition-all duration-1000 shadow-[0_0_100px_rgba(0,0,0,0.5)]">
