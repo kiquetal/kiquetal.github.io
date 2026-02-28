@@ -12,7 +12,7 @@ draft: true
 
 <div class="lang-en">
 
-<div class="demo-box">
+<div class="demo-box demo-box-small">
   <div class="demo-label">🔐 Live Demo</div>
   <a href="https://e2equarks.kiquetal.dev/whisper" target="_blank" class="demo-url">https://e2equarks.kiquetal.dev/whisper</a>
 </div>
@@ -106,15 +106,19 @@ S3/Tigris Storage
     └─ Metadata (with encrypted DEK)
 ```
 
-![AES-GCM File Encryption Part 1](/blog/2026-02-13-e2s-encryption-with-quarkus/aes-gcm-file-encryption-part1-en.png)
+<img src="/blog/2026-02-13-e2s-encryption-with-quarkus/architeture-angular-quarkus-en.png" alt="Architecture Overview" class="img-small" />
 
-![AES-GCM File Encryption Part 2](/blog/2026-02-13-e2s-encryption-with-quarkus/aes-gcm-file-encryption-part2-en.png)
+<img src="/blog/2026-02-13-e2s-encryption-with-quarkus/aes-gcm-256-en.png" alt="AES-GCM Encryption" class="img-small" />
+
+<img src="/blog/2026-02-13-e2s-encryption-with-quarkus/aes-gcm-file-encryption-part1-en.png" alt="AES-GCM File Encryption Part 1" class="img-small" />
+
+<img src="/blog/2026-02-13-e2s-encryption-with-quarkus/aes-gcm-file-encryption-part2-en.png" alt="AES-GCM File Encryption Part 2" class="img-small" />
 
 </div>
 
 <div class="lang-es hidden">
 
-<div class="demo-box">
+<div class="demo-box demo-box-small">
   <div class="demo-label">🔐 Demo en Vivo</div>
   <a href="https://e2equarks.kiquetal.dev/whisper" target="_blank" class="demo-url">https://e2equarks.kiquetal.dev/whisper</a>
 </div>
@@ -204,5 +208,13 @@ Almacenamiento S3/Tigris
     ├─ Datos del Archivo Encriptado
     └─ Metadata (con DEK encriptado)
 ```
+
+<img src="/blog/2026-02-13-e2s-encryption-with-quarkus/architeture-angular-quarkus-es.png" alt="Vista General de la Arquitectura" class="img-small" />
+
+<img src="/blog/2026-02-13-e2s-encryption-with-quarkus/aes-gcm-256-es.png" alt="Encriptación AES-GCM" class="img-small" />
+
+<img src="/blog/2026-02-13-e2s-encryption-with-quarkus/aes-gcm-file-encryption-part1-es.png" alt="Encriptación de Archivos AES-GCM Parte 1" class="img-small" />
+
+<img src="/blog/2026-02-13-e2s-encryption-with-quarkus/aes-gcm-file-encryption-part2-es.png" alt="Encriptación de Archivos AES-GCM Parte 2" class="img-small" />
 
 </div>

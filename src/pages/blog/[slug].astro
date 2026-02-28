@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
+import { Icon } from 'astro-icon/components';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog');
@@ -37,10 +38,17 @@ const t = translations[currentLang];
 <Layout title={post.data.title.en}>
 	<main class="flex-grow flex flex-col px-8 md:px-16 pt-32 pb-20">
 		<div class="max-w-4xl w-full mx-auto">
-			<nav class="mb-12">
-				<a href="/blog" class="font-mono text-[10px] tracking-[0.3em] text-brand-text-muted hover:text-brand-text-main uppercase transition-all font-bold">
-					<span class="lang-en">{t.back}</span>
-					<span class="lang-es hidden">{translations.es.back}</span>
+			<nav class="mb-16 flex items-center gap-6">
+				<a href="/" class="font-mono text-[10px] tracking-[0.3em] text-brand-text-muted hover:text-brand-accent uppercase transition-all font-bold group flex items-center gap-2">
+					<Icon name="ph:house-bold" size={14} class="group-hover:scale-110 transition-transform" />
+					<span class="lang-en">HOME</span>
+					<span class="lang-es hidden">INICIO</span>
+				</a>
+				<div class="h-px w-4 bg-brand-border/30"></div>
+				<a href="/blog" class="font-mono text-[10px] tracking-[0.3em] text-brand-text-muted hover:text-brand-accent uppercase transition-all font-bold group flex items-center gap-2">
+					<Icon name="ph:arrow-left-bold" size={14} class="group-hover:-translate-x-1 transition-transform" />
+					<span class="lang-en">BACK TO ARCHIVE</span>
+					<span class="lang-es hidden">VOLVER AL ARCHIVO</span>
 				</a>
 			</nav>
 
@@ -170,6 +178,8 @@ const t = translations[currentLang];
 
 	.prose-custom pre {
 		@apply bg-brand-surface-accent border border-brand-border p-6 md:p-10 rounded-sm my-16 overflow-x-auto shadow-2xl;
+		font-size: 0.75rem; /* Smaller text for ASCII */
+		line-height: 1.2;
 	}
 
 	.prose-custom code {
@@ -177,11 +187,15 @@ const t = translations[currentLang];
 	}
 
 	.prose-custom pre code {
-		@apply bg-transparent p-0 text-sm md:text-base leading-relaxed border-none text-brand-text-main font-medium normal-case tracking-normal;
+		@apply bg-transparent p-0 text-[11px] md:text-sm leading-relaxed border-none text-brand-text-main font-medium normal-case tracking-tight;
 	}
 	
 	.prose-custom img {
 		@apply w-full max-w-full h-auto rounded-sm my-20 border border-brand-border/50 grayscale-[20%] hover:grayscale-0 transition-all duration-1000 opacity-90 hover:opacity-100 shadow-[0_20px_50px_rgba(0,0,0,0.5)];
+	}
+
+	.prose-custom img.img-small {
+		@apply max-w-[60%] mx-auto my-12;
 	}
 
 	.prose-custom blockquote {
@@ -190,6 +204,10 @@ const t = translations[currentLang];
 
 	.prose-custom .demo-box {
 		@apply p-10 my-16 bg-brand-surface border border-brand-border/60 rounded-sm flex flex-col gap-6 border-l-4 border-l-brand-accent/50;
+	}
+
+	.prose-custom .demo-box-small {
+		@apply p-6 my-8 max-w-2xl;
 	}
 
 	.prose-custom .demo-label {
