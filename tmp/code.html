@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Enrique Talavera — About: Technical &amp; Personal Balance</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&amp;family=JetBrains+Mono:wght@300;400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "bg": "#0A0C10",
+                        "surface": "#12151C",
+                        "surface-accent": "#1A1F29",
+                        "text-main": "#E5E7EB",
+                        "text-muted": "#9CA3AF",
+                        "accent": "#60A5FA",
+                        "border": "#1F2937",
+                    },
+                    fontFamily: {
+                        "serif": ["'Playfair Display'", "serif"],
+                        "mono": ["'JetBrains Mono'", "monospace"],
+                    },
+                    spacing: {
+                        "block": "120px",
+                    }
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer base {
+            body {
+                @apply bg-bg text-text-main font-mono antialiased relative;
+                background-image: radial-gradient(circle at 50% 50%, #111827 0%, #0A0C10 100%);
+            }
+            p {
+                @apply leading-relaxed;
+            }
+        }
+        .sidebar-item {
+            @apply border-b border-border/50 py-4 last:border-0;
+        }
+        .card-dark {
+            @apply bg-surface border border-border/60 rounded-sm;
+        }
+        .text-glow {
+            text-shadow: 0 0 15px rgba(96, 165, 250, 0.3);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+<header class="fixed top-0 w-full z-50 bg-bg/80 backdrop-blur-md border-b border-border/30">
+<div class="px-8 md:px-12 py-6 flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-mono text-xs tracking-[0.2em] font-bold uppercase text-text-main">Enrique Talavera</span>
+<span class="font-mono text-[10px] text-accent uppercase tracking-[0.1em] font-medium">Distinguished Architect</span>
+</div>
+<nav class="flex items-center gap-10">
+<a class="text-xs font-medium tracking-[0.2em] text-text-muted hover:text-text-main transition-colors" href="#">DEMOS</a>
+<a class="text-xs font-medium tracking-[0.2em] text-text-muted hover:text-text-main transition-colors" href="#">BLOG</a>
+<a class="text-xs font-medium tracking-[0.2em] border-b border-accent pb-1 text-text-main" href="#">ABOUT</a>
+</nav>
+</div>
+</header>
+<main class="flex-grow pt-40 px-8 md:px-12 pb-32 max-w-7xl mx-auto w-full">
+<div class="grid grid-cols-12 gap-12 lg:gap-20">
+<div class="col-span-12 lg:col-span-8">
+<div class="mb-16">
+<div class="aspect-[4/5] w-full max-w-2xl bg-surface-accent overflow-hidden rounded-sm grayscale hover:grayscale-0 transition-all duration-700">
+<img alt="Enrique Talavera" class="w-full h-full object-cover opacity-80" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFbPNQmVDiypeCrTprUP1Tn2Kj-_NXfMHHI2gipAE-4aUoEwYSlWe0tYhqDvyIjLNPNTpYN4G8CmIdcZcUL7KOtFd2kb9dvplRQigt6DNOC-Yxq11eocZUXJ6pZl3q0O_9qn0tvMjiNyc8cKzHnuJa424EsAmuYPRYP2VTeNSxDMUTg9zh69OtSSPyADzbRPaBKzIUtW1JyTiJwv93V_NjnzmH6qiHO2iDdN413bdTIAuvLM6h1ieHX6229uiN9rq9JJDOUVs6GFE"/>
+</div>
+</div>
+<div class="max-w-2xl">
+<h1 class="font-serif text-5xl md:text-7xl tracking-tight leading-tight mb-12">
+                        Beyond <br/><span class="italic text-accent">The Code.</span>
+</h1>
+<div class="space-y-8 text-text-muted text-lg">
+<p class="font-serif text-2xl italic text-text-main leading-relaxed">
+                            "System resilience is a mindset that extends far beyond the production cluster. It's about finding balance in high-entropy environments."
+                        </p>
+<p>
+                            When I'm not architecting reactive systems or orchestrating global failovers, I find my focus in the analog world. My dedication to precision and reliability transitions from the terminal to the outdoors and the workshop.
+                        </p>
+<p>
+                            An avid endurance cyclist and amateur horologist, I spend my 'off the clock' hours exploring the intersection of mechanical simplicity and human endurance. These pursuits inform my professional philosophy: that the most reliable systems are often the most elegant in their simplicity.
+                        </p>
+</div>
+<div class="mt-20 grid grid-cols-1 md:grid-cols-2 gap-12 pt-12 border-t border-border/50">
+<div>
+<h3 class="text-[10px] tracking-[0.3em] uppercase text-accent mb-8 font-bold">Personal Pursuits</h3>
+<ul class="space-y-6">
+<li class="flex items-start gap-4">
+<span class="font-mono text-accent/40 text-[10px] mt-1">01</span>
+<div>
+<span class="block text-xs uppercase tracking-[0.15em] text-text-main font-semibold mb-1">Ultra-Endurance Cycling</span>
+<span class="block text-[11px] text-text-muted leading-relaxed">Testing human latency and physical resilience through long-distance mountain brevets.</span>
+</div>
+</li>
+<li class="flex items-start gap-4">
+<span class="font-mono text-accent/40 text-[10px] mt-1">02</span>
+<div>
+<span class="block text-xs uppercase tracking-[0.15em] text-text-main font-semibold mb-1">Mechanical Horology</span>
+<span class="block text-[11px] text-text-muted leading-relaxed">Studying the architecture of time—restoring vintage movements and Swiss escapements.</span>
+</div>
+</li>
+</ul>
+</div>
+<div>
+<h3 class="text-[10px] tracking-[0.3em] uppercase text-accent mb-8 font-bold">Philosophy</h3>
+<p class="text-[11px] text-text-muted leading-loose uppercase tracking-widest">
+                                Complexity is the enemy of reliability. Whether in a watch movement or a distributed database, transparency and accessibility are the keys to maintenance.
+                            </p>
+</div>
+</div>
+</div>
+</div>
+<div class="col-span-12 lg:col-span-4 space-y-10">
+<div class="card-dark p-8">
+<h3 class="text-[10px] tracking-[0.3em] uppercase text-text-main mb-8 flex items-center gap-3 font-bold">
+<span class="h-px w-6 bg-accent/40"></span> Core Competencies
+                    </h3>
+<div class="space-y-2">
+<div class="sidebar-item">
+<span class="block text-[9px] text-accent/70 mb-1 tracking-[0.2em] font-bold">RUNTIME</span>
+<span class="font-serif text-lg italic text-text-main">Java, Vert.x, Node.js</span>
+</div>
+<div class="sidebar-item">
+<span class="block text-[9px] text-accent/70 mb-1 tracking-[0.2em] font-bold">CLOUD ARCHITECTURE</span>
+<span class="font-serif text-lg italic text-text-main">AWS (Fargate, EKS, Serverless)</span>
+</div>
+<div class="sidebar-item">
+<span class="block text-[9px] text-accent/70 mb-1 tracking-[0.2em] font-bold">ORCHESTRATION</span>
+<span class="font-serif text-lg italic text-text-main">Kubernetes, Terraform, CDK</span>
+</div>
+<div class="sidebar-item">
+<span class="block text-[9px] text-accent/70 mb-1 tracking-[0.2em] font-bold">RELIABILITY</span>
+<span class="font-serif text-lg italic text-text-main">SRE, Chaos Engineering</span>
+</div>
+</div>
+</div>
+<div class="card-dark p-8 border-l-2 border-l-accent/50">
+<div class="flex items-center gap-3 mb-6">
+<span class="flex h-2 w-2 rounded-full bg-blue-500 animate-pulse shadow-[0_0_8px_rgba(59,130,246,0.8)]"></span>
+<span class="text-[10px] tracking-[0.2em] text-text-main uppercase font-bold text-glow">System Status: Nominal</span>
+</div>
+<p class="text-[11px] text-text-muted leading-relaxed uppercase tracking-widest font-medium">
+                        Currently accepting architectural consultations and specialized response interventions for Tier-1 infrastructure failures.
+                    </p>
+<button class="mt-8 w-full border border-accent/30 py-4 text-[10px] tracking-[0.25em] uppercase hover:bg-accent hover:text-bg transition-all duration-300 font-bold text-accent hover:text-white">
+                        Initiate Protocol
+                    </button>
+</div>
+<div class="px-8 py-6 border-l border-border/50">
+<p class="text-[10px] font-mono text-text-muted/60 uppercase leading-loose tracking-[0.15em]">
+                        Ref: Talavera.E<br/>
+                        ID: 8829-ARCH-DIST<br/>
+                        Loc: 59.3293° N, 18.0686° E<br/>
+                        TZ: GMT+1
+                    </p>
+</div>
+</div>
+</div>
+</main>
+<footer class="mt-auto border-t border-border/30 py-16 px-8 md:px-12 bg-surface/50">
+<div class="flex flex-col md:flex-row justify-between items-center gap-10 max-w-7xl mx-auto w-full">
+<div class="text-[10px] tracking-[0.2em] text-text-muted uppercase font-medium">
+                © 2024 Enrique Talavera — Systems Resilience
+            </div>
+<div class="flex gap-12">
+<a class="text-[10px] tracking-[0.2em] uppercase text-text-main hover:text-accent transition-colors underline decoration-accent/20 underline-offset-8" href="#">LinkedIn</a>
+<a class="text-[10px] tracking-[0.2em] uppercase text-text-main hover:text-accent transition-colors underline decoration-accent/20 underline-offset-8" href="#">GitHub</a>
+<a class="text-[10px] tracking-[0.2em] uppercase text-text-main hover:text-accent transition-colors underline decoration-accent/20 underline-offset-8" href="#">Email</a>
+</div>
+<div class="text-[10px] tracking-[0.2em] text-text-muted uppercase font-medium">
+                Stockholm, SE / Global Response
+            </div>
+</div>
+</footer>
+
+</body></html>

@@ -40,7 +40,7 @@ const currentPath = Astro.url.pathname;
 						</a>
 					</div>
 				</div>
-				<nav class="flex items-center gap-3 md:gap-10">
+				<nav class="hidden md:flex items-center gap-10">
 					<a class={`nav-link ${currentPath === '/' ? 'text-brand-text-main border-b border-brand-accent pb-1' : 'text-brand-text-muted hover:text-brand-text-main'}`} href="/">
 						<span class="lang-en">PHILOSOPHY</span>
 						<span class="lang-es hidden">FILOSOFÍA</span>
@@ -58,14 +58,47 @@ const currentPath = Astro.url.pathname;
 						<span class="lang-es hidden">CONTACTO</span>
 					</a>
 					
-					<div class="flex items-center gap-1.5 md:gap-2 ml-1 md:ml-4 border-l border-brand-border/30 pl-3 md:pl-4">
-						<button id="lang-en-header" class="text-[8px] md:text-[9px] tracking-widest text-brand-text-muted hover:text-brand-accent uppercase transition-colors">EN</button>
-						<span class="text-[8px] md:text-[9px] text-brand-border">/</span>
-						<button id="lang-es-header" class="text-[8px] md:text-[9px] tracking-widest text-brand-text-muted hover:text-brand-accent uppercase transition-colors">ES</button>
+					<div class="flex items-center gap-2 ml-4 border-l border-brand-border/30 pl-4">
+						<button id="lang-en-header" class="text-[9px] tracking-widest text-brand-text-muted hover:text-brand-accent uppercase transition-colors">EN</button>
+						<span class="text-[9px] text-brand-border">/</span>
+						<button id="lang-es-header" class="text-[9px] tracking-widest text-brand-text-muted hover:text-brand-accent uppercase transition-colors">ES</button>
 					</div>
 				</nav>
+
+				<button id="mobile-menu-toggle" class="md:hidden flex items-center text-brand-text-main p-2 -mr-2" aria-label="Toggle Menu">
+					<Icon name="ph:list" size={24} id="hamburger-icon" />
+					<Icon name="ph:x" size={24} id="close-icon" class="hidden" />
+				</button>
 			</div>
 		</header>
+
+		<!-- Mobile Menu Overlay -->
+		<div id="mobile-menu" class="fixed inset-0 z-40 bg-brand-bg/95 backdrop-blur-lg hidden pt-32 px-10">
+			<nav class="flex flex-col gap-8">
+				<a class={`text-xl tracking-[0.2em] font-medium transition-colors ${currentPath === '/' ? 'text-brand-accent' : 'text-brand-text-muted'}`} href="/">
+					<span class="lang-en">PHILOSOPHY</span>
+					<span class="lang-es hidden">FILOSOFÍA</span>
+				</a>
+				<a class={`text-xl tracking-[0.2em] font-medium transition-colors ${currentPath.startsWith('/blog') ? 'text-brand-accent' : 'text-brand-text-muted'}`} href="/blog">
+					<span class="lang-en">BLOG</span>
+					<span class="lang-es hidden">BLOG</span>
+				</a>
+				<a class={`text-xl tracking-[0.2em] font-medium transition-colors ${currentPath === '/about' ? 'text-brand-accent' : 'text-brand-text-muted'}`} href="/about">
+					<span class="lang-en">ABOUT</span>
+					<span class="lang-es hidden">SOBRE MÍ</span>
+				</a>
+				<a class={`text-xl tracking-[0.2em] font-medium transition-colors ${currentPath === '/contact' ? 'text-brand-accent' : 'text-brand-text-muted'}`} href="/contact">
+					<span class="lang-en">CONTACT</span>
+					<span class="lang-es hidden">CONTACTO</span>
+				</a>
+				
+				<div class="flex items-center gap-6 mt-8 pt-8 border-t border-brand-border/30">
+					<button id="lang-en-mobile" class="text-xs tracking-[0.3em] text-brand-text-muted uppercase transition-colors">ENGLISH</button>
+					<span class="text-brand-border">/</span>
+					<button id="lang-es-mobile" class="text-xs tracking-[0.3em] text-brand-text-muted uppercase transition-colors">ESPAÑOL</button>
+				</div>
+			</nav>
+		</div>
 
 		<slot />
 
@@ -107,21 +140,31 @@ const currentPath = Astro.url.pathname;
 		<script>
 			const btnEnHeader = document.getElementById('lang-en-header');
 			const btnEsHeader = document.getElementById('lang-es-header');
+			const btnEnMobile = document.getElementById('lang-en-mobile');
+			const btnEsMobile = document.getElementById('lang-es-mobile');
+			const mobileMenu = document.getElementById('mobile-menu');
+			const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+			const hamburgerIcon = document.getElementById('hamburger-icon');
+			const closeIcon = document.getElementById('close-icon');
 
 			function setLanguage(lang) {
-				if (btnEnHeader && btnEsHeader) {
-					if (lang === 'en') {
-						btnEnHeader.classList.add('text-brand-accent', 'font-bold');
-						btnEnHeader.classList.remove('text-brand-text-muted');
-						btnEsHeader.classList.remove('text-brand-accent', 'font-bold');
-						btnEsHeader.classList.add('text-brand-text-muted');
+				const buttons = [
+					{ btn: btnEnHeader, isEn: true },
+					{ btn: btnEsHeader, isEn: false },
+					{ btn: btnEnMobile, isEn: true },
+					{ btn: btnEsMobile, isEn: false }
+				];
+
+				buttons.forEach(({ btn, isEn }) => {
+					if (!btn) return;
+					if ((isEn && lang === 'en') || (!isEn && lang === 'es')) {
+						btn.classList.add('text-brand-accent', 'font-bold');
+						btn.classList.remove('text-brand-text-muted');
 					} else {
-						btnEsHeader.classList.add('text-brand-accent', 'font-bold');
-						btnEsHeader.classList.remove('text-brand-text-muted');
-						btnEnHeader.classList.remove('text-brand-accent', 'font-bold');
-						btnEnHeader.classList.add('text-brand-text-muted');
+						btn.classList.remove('text-brand-accent', 'font-bold');
+						btn.classList.add('text-brand-text-muted');
 					}
-				}
+				});
 
 				// Toggle language-specific spans globally
 				document.querySelectorAll('.lang-en').forEach(el => lang === 'en' ? el.classList.remove('hidden') : el.classList.add('hidden'));
@@ -133,6 +176,35 @@ const currentPath = Astro.url.pathname;
 
 			if (btnEnHeader) btnEnHeader.addEventListener('click', () => setLanguage('en'));
 			if (btnEsHeader) btnEsHeader.addEventListener('click', () => setLanguage('es'));
+			if (btnEnMobile) btnEnMobile.addEventListener('click', () => setLanguage('en'));
+			if (btnEsMobile) btnEsMobile.addEventListener('click', () => setLanguage('es'));
+
+			if (mobileMenuToggle) {
+				mobileMenuToggle.addEventListener('click', () => {
+					const isHidden = mobileMenu.classList.contains('hidden');
+					if (isHidden) {
+						mobileMenu.classList.remove('hidden');
+						hamburgerIcon.classList.add('hidden');
+						closeIcon.classList.remove('hidden');
+						document.body.style.overflow = 'hidden';
+					} else {
+						mobileMenu.classList.add('hidden');
+						hamburgerIcon.classList.remove('hidden');
+						closeIcon.classList.add('hidden');
+						document.body.style.overflow = '';
+					}
+				});
+			}
+
+			// Close mobile menu when clicking a link
+			mobileMenu?.querySelectorAll('a').forEach(link => {
+				link.addEventListener('click', () => {
+					mobileMenu.classList.add('hidden');
+					hamburgerIcon.classList.remove('hidden');
+					closeIcon.classList.add('hidden');
+					document.body.style.overflow = '';
+				});
+			});
 
 			const savedLang = localStorage.getItem('preferred-lang') || 'en';
 			setLanguage(savedLang);
@@ -161,7 +233,7 @@ const currentPath = Astro.url.pathname;
 					@apply leading-relaxed;
 				}
 				.hidden {
-					display: none !important;
+					display: none;
 				}
 			}
 
