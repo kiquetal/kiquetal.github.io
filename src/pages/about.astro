@@ -1,0 +1,149 @@
+---
+import Layout from '../layouts/Layout.astro';
+import location from '../data/location.json';
+
+const translations = {
+  en: {
+    title: "Philosophy & ",
+    titleItalic: "Narrative",
+    titleSuffix: ".",
+    description: "Engineering is not just about writing code; it's about building systems that endure. I am a Distributed Architect focused on the intersection of performance, security, and human-centric design.",
+    lifeTitle: "The Human Component",
+    lifeDescription: "Beyond the terminal, I am a lifelong student of complexity. My journey has taken me through the intricacies of cloud-native ecosystems, the precision of low-latency systems, and the relentless pursuit of architectural elegance.",
+    cta: "Initiate Contact",
+    statsTitle: "Current Status",
+    stat1Label: "Based in",
+    stat1Value: `${location.city}, ${location.country}`,
+    stat2Label: "Experience",
+    stat2Value: "10+ Solar Cycles",
+    stat3Label: "Focus",
+    stat3Value: "Resilience Engineering"
+  },
+  es: {
+    title: "Filosofía y ",
+    titleItalic: "Narrativa",
+    titleSuffix: ".",
+    description: "La ingeniería no se trata solo de escribir código; se trata de construir sistemas que perduren. Soy un Arquitecto Distribuido centrado en la intersección del rendimiento, la seguridad y el diseño centrado en el ser humano.",
+    lifeTitle: "El Componente Humano",
+    lifeDescription: "Más allá de la terminal, soy un estudiante de la complejidad de por vida. Mi viaje me ha llevado a través de las intrincadas redes de los ecosistemas nativos de la nube, la precisión de los sistemas de baja latencia y la búsqueda incansable de la elegancia arquitectónica.",
+    cta: "Iniciar Contacto",
+    statsTitle: "Estado Actual",
+    stat1Label: "Basado en",
+    stat1Value: `${location.city}, ${location.country}`,
+    stat2Label: "Experiencia",
+    stat2Value: "10+ Ciclos Solares",
+    stat3Label: "Enfoque",
+    stat3Value: "Ingeniería de Resiliencia"
+  }
+};
+---
+
+<Layout title="About — Enrique Talavera">
+	<main class="flex-grow flex flex-col justify-center px-8 md:px-16 pt-32 pb-20">
+		<div class="max-w-7xl w-full mx-auto">
+			<div class="mb-16">
+				<h1 class="font-serif text-[clamp(2.5rem,8vw,8rem)] leading-[0.9] tracking-tight mb-16">
+                    <span id="title-text">{translations.en.title}</span> <br/>
+					<span class="italic text-brand-accent text-glow" id="title-italic">{translations.en.titleItalic}</span>
+					<span id="title-suffix">{translations.en.titleSuffix}</span>
+				</h1>
+				
+				<div class="grid grid-cols-12 gap-8 md:gap-16">
+					<div class="col-span-12 md:col-span-6">
+						<p class="font-serif text-xl md:text-2xl leading-relaxed text-brand-text-main mb-12 italic" id="description-text">
+                            {translations.en.description}
+                        </p>
+
+						<div class="flex items-center gap-4 mb-12">
+							<div class="h-[1px] w-12 bg-brand-border"></div>
+							<a href="/contact" class="font-mono text-[10px] tracking-[0.4em] text-brand-text-main uppercase border border-brand-accent/30 px-8 py-4 hover:bg-brand-accent hover:text-brand-bg transition-all" id="cta-text">
+								{translations.en.cta}
+							</a>
+						</div>
+					</div>
+
+					<div class="col-span-12 md:col-span-5 md:col-start-8">
+						<div class="mb-16">
+							<h2 class="font-mono text-[10px] tracking-[0.4em] text-brand-text-muted uppercase mb-8 font-bold" id="life-title-text">{translations.en.lifeTitle}</h2>
+							<p class="font-mono text-[11px] leading-relaxed text-brand-text-muted uppercase tracking-widest" id="life-description-text">
+								{translations.en.lifeDescription}
+							</p>
+						</div>
+
+						<div>
+							<h2 class="font-mono text-[10px] tracking-[0.4em] text-brand-text-muted uppercase mb-8 font-bold" id="stats-title-text">{translations.en.statsTitle}</h2>
+							<div class="flex flex-col gap-6">
+								<div class="flex justify-between items-baseline border-b border-brand-border/50 pb-2">
+									<span class="font-mono text-[9px] tracking-widest text-brand-text-muted uppercase" id="stat1-label">{translations.en.stat1Label}</span>
+									<span class="font-mono text-xs tracking-widest text-brand-text-main uppercase font-bold" id="stat1-value">{translations.en.stat1Value}</span>
+								</div>
+								<div class="flex justify-between items-baseline border-b border-brand-border/50 pb-2">
+									<span class="font-mono text-[9px] tracking-widest text-brand-text-muted uppercase" id="stat2-label">{translations.en.stat2Label}</span>
+									<span class="font-mono text-xs tracking-widest text-brand-text-main uppercase font-bold" id="stat2-value">{translations.en.stat2Value}</span>
+								</div>
+								<div class="flex justify-between items-baseline border-b border-brand-border/50 pb-2">
+									<span class="font-mono text-[9px] tracking-widest text-brand-text-muted uppercase" id="stat3-label">{translations.en.stat3Label}</span>
+									<span class="font-mono text-xs tracking-widest text-brand-text-main uppercase font-bold" id="stat3-value">{translations.en.stat3Value}</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</main>
+</Layout>
+
+<script define:vars={{ translations }}>
+	let currentLang = localStorage.getItem('preferred-lang') || 'en';
+
+	function setLanguage(lang) {
+		currentLang = lang;
+		const t = translations[lang];
+		
+		const titleText = document.getElementById('title-text');
+		if (titleText) titleText.textContent = t.title;
+		
+		const titleItalic = document.getElementById('title-italic');
+		if (titleItalic) titleItalic.textContent = t.titleItalic;
+
+		const titleSuffix = document.getElementById('title-suffix');
+		if (titleSuffix) titleSuffix.textContent = t.titleSuffix;
+
+		const subtitleText = document.getElementById('description-text');
+		if (subtitleText) subtitleText.textContent = t.description;
+
+		const lifeTitleText = document.getElementById('life-title-text');
+		if (lifeTitleText) lifeTitleText.textContent = t.lifeTitle;
+
+		const lifeDescriptionText = document.getElementById('life-description-text');
+		if (lifeDescriptionText) lifeDescriptionText.textContent = t.lifeDescription;
+
+		const statsTitleText = document.getElementById('stats-title-text');
+		if (statsTitleText) statsTitleText.textContent = t.statsTitle;
+
+		const ctaText = document.getElementById('cta-text');
+		if (ctaText) ctaText.textContent = t.cta;
+
+		const stat1Label = document.getElementById('stat1-label');
+		if (stat1Label) stat1Label.textContent = t.stat1Label;
+		const stat1Value = document.getElementById('stat1-value');
+		if (stat1Value) stat1Value.textContent = t.stat1Value;
+
+		const stat2Label = document.getElementById('stat2-label');
+		if (stat2Label) stat2Label.textContent = t.stat2Label;
+		const stat2Value = document.getElementById('stat2-value');
+		if (stat2Value) stat2Value.textContent = t.stat2Value;
+
+		const stat3Label = document.getElementById('stat3-label');
+		if (stat3Label) stat3Label.textContent = t.stat3Label;
+		const stat3Value = document.getElementById('stat3-value');
+		if (stat3Value) stat3Value.textContent = t.stat3Value;
+	}
+
+	window.addEventListener('languageChange', (e) => {
+		setLanguage(e.detail.lang);
+	});
+
+	setLanguage(currentLang);
+</script>

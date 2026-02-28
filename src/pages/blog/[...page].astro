@@ -1,160 +1,204 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
+import type { Page } from 'astro';
 
-export async function getStaticPaths({ paginate }) {
-	const posts = (await getCollection('blog')).sort(
-		(a, b) => b.data.date.valueOf() - a.data.date.valueOf()
-	);
-	return paginate(posts, { pageSize: 3 });
+export async function getStaticPaths({ paginate }: { paginate: any }) {
+  const posts = await getCollection('blog');
+  const sortedPosts = posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+  const allTags = [...new Set(sortedPosts.flatMap(post => post.data.tags || []))];
+  
+  const allMonths = [...new Set(sortedPosts.map(post => {
+    const d = post.data.date;
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  }))].sort((a, b) => b.localeCompare(a));
+
+  return paginate(sortedPosts, { 
+    pageSize: 10,
+    props: { allTags, allMonths, posts: sortedPosts }
+  });
 }
 
-const { page } = Astro.props;
-const posts = page.data;
+const { page, allTags, allMonths, posts } = Astro.props as { page: Page<any>, allTags: string[], allMonths: string[], posts: any[] };
 
-const allPosts = await getCollection('blog');
-const allTagsMap = new Map();
-const allDatesMap = new Map();
+const translations = {
+  en: {
+    title: "Architectural Record.",
+    description: "Technical documentation and insights into ",
+    descriptionHighlight: "Systems Architecture",
+    back: "Back to Index",
+    readArticle: "READ ARTICLE",
+    recentEntries: "RECENT ENTRIES",
+    olderEntries: "OLDER ENTRIES",
+    node: "NODE",
+    of: "OF",
+    curatedTopics: "Curated Topics",
+    dateArchive: "Time Machine"
+  },
+  es: {
+    title: "Registro Arquitectónico.",
+    description: "Documentación técnica y reflexiones sobre ",
+    descriptionHighlight: "Arquitectura de Sistemas",
+    back: "Volver al Índice",
+    readArticle: "LEER ARTÍCULO",
+    recentEntries: "ENTRADAS RECIENTES",
+    olderEntries: "ENTRADAS ANTIGUAS",
+    node: "NODO",
+    of: "DE",
+    curatedTopics: "Temas Seleccionados",
+    dateArchive: "Archivo Temporal"
+  }
+};
 
-allPosts.forEach(post => {
-	(post.data.tags || []).forEach(tag => {
-		allTagsMap.set(tag, (allTagsMap.get(tag) || 0) + 1);
-	});
-	
-	const year = post.data.date.getFullYear();
-	const month = post.data.date.getMonth();
-	const dateKey = `${year}-${String(month + 1).padStart(2, '0')}`;
-	const monthNames = {
-		en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-		es: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
-	};
-	allDatesMap.set(dateKey, {
-		year,
-		month,
-		monthNameEn: monthNames.en[month],
-		monthNameEs: monthNames.es[month],
-		count: (allDatesMap.get(dateKey)?.count || 0) + 1
-	});
-});
-
-const allTags = Array.from(allTagsMap.entries())
-	.sort((a, b) => b[1] - a[1])
-	.map(([tag, count]) => ({ tag, count }));
-
-const allDates = Array.from(allDatesMap.entries())
-	.sort((a, b) => b[0].localeCompare(a[0]))
-	.map(([key, data]) => ({ key, ...data }));
+const t = translations.en;
 ---
 
-<Layout title="Blog - System Engineer">
-	<aside class="tags-sidebar">
-		<div class="tags-sidebar-inner">
-			<div class="sidebar-core">
-				<span class="core-dot"></span>
-				<span class="core-label">Filters</span>
-			</div>
-			<input type="text" id="tag-search" class="tag-search lang-en" placeholder="Search tags..." autocomplete="off" />
-			<input type="text" id="tag-search-es" class="tag-search lang-es hidden" placeholder="Buscar etiquetas..." autocomplete="off" />
-			<svg id="tag-lines" class="tag-lines" aria-hidden="true"></svg>
-			<div class="tags-scroll">
-				<div class="filter-section">
-					<h3 class="filter-title lang-en">By Date</h3>
-					<h3 class="filter-title lang-es hidden">Por Fecha</h3>
-					<ul class="dates-list">
-						{allDates.map(({ key, year, monthNameEn, monthNameEs, count }) => (
-							<li>
-								<a href={`/blog/date/${key}`} class="sidebar-tag">
-									<span class="lang-en">{monthNameEn} {year}</span>
-									<span class="lang-es hidden">{monthNameEs} {year}</span>
-									<span class="tag-count">{count}</span>
-								</a>
-							</li>
-						))}
-					</ul>
+<Layout title="Blog — Enrique Talavera">
+	<main class="flex-grow flex flex-col px-8 md:px-16 pt-32 pb-20">
+		<div class="max-w-7xl w-full mx-auto">
+			<header class="mb-20 border-b border-brand-border pb-12">
+				<h1 class="font-serif text-4xl md:text-6xl tracking-tight mb-4 text-brand-text-main italic">
+					<span class="lang-en">{translations.en.title}</span>
+					<span class="lang-es hidden">{translations.es.title}</span>
+				</h1>
+				<p class="font-mono text-[11px] tracking-[0.3em] text-brand-text-muted uppercase">
+					<span class="lang-en">{translations.en.description}<span class="italic text-brand-accent text-glow">{translations.en.descriptionHighlight}</span>.</span>
+					<span class="lang-es hidden">{translations.es.description}<span class="italic text-brand-accent text-glow">{translations.es.descriptionHighlight}</span>.</span>
+				</p>
+				<div class="mt-8 flex flex-wrap gap-4">
+					{allTags.map(tag => (
+						<a href={`/blog/tag/${tag}`} class="font-mono text-[9px] tracking-widest text-brand-text-muted hover:text-brand-accent uppercase transition-colors border border-brand-border/50 px-3 py-1 rounded-full">
+							#{tag}
+						</a>
+					))}
 				</div>
-				<div class="filter-section">
-					<h3 class="filter-title lang-en">By Tag</h3>
-					<h3 class="filter-title lang-es hidden">Por Etiqueta</h3>
-					<ul id="tags-list" class="tags-list">
-						{allTags.map(({ tag, count }) => (
-							<li>
-								<a href={`/blog/tag/${tag}`} class="sidebar-tag">
-									<span>#{tag}</span>
-									<span class="tag-count">{count}</span>
-								</a>
-							</li>
+			</header>
+
+			<div class="grid grid-cols-12 gap-12 lg:gap-20">
+				<div class="col-span-12 lg:col-span-8">
+					<div class="flex flex-col gap-24">
+						{page.data.map(post => (
+							<article class="group relative">
+								<div class="flex flex-col md:flex-row gap-8 items-baseline">
+									<span class="font-mono text-[10px] text-brand-text-muted uppercase tracking-[0.2em] whitespace-nowrap">
+										<span class="lang-en">{post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}</span>
+										<span class="lang-es hidden">{post.data.date.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}</span>
+									</span>
+									<div class="flex-grow">
+										{post.data.draft && (
+											<div class="flex items-center gap-2 mb-4">
+												<span class="flex h-1.5 w-1.5 rounded-full bg-yellow-500 animate-pulse"></span>
+												<span class="font-mono text-[9px] tracking-[0.2em] text-yellow-500 uppercase font-bold">In Progress / Borrador</span>
+											</div>
+										)}
+										<h2 class="font-serif text-3xl md:text-5xl tracking-tight group-hover:text-brand-accent transition-colors text-brand-text-main mb-6 italic leading-tight">
+											<a href={`/blog/${post.slug}`}>
+												<span class="lang-en">{post.data.title.en}</span>
+												<span class="lang-es hidden">{post.data.title.es}</span>
+											</a>
+										</h2>
+										<p class="font-mono text-[13px] leading-relaxed text-brand-text-muted uppercase tracking-wider mb-8">
+											<span class="lang-en">{post.data.description?.en || post.data.excerpt?.en || "System architectural documentation."}</span>
+											<span class="lang-es hidden">{post.data.description?.es || post.data.excerpt?.es || "Documentación arquitectónica del sistema."}</span>
+										</p>
+										<div class="flex items-center gap-6">
+											<a href={`/blog/${post.slug}`} class="font-mono text-[9px] tracking-[0.3em] text-brand-text-main uppercase border-b border-brand-accent/30 pb-1 hover:text-brand-accent hover:border-brand-accent transition-all font-bold">
+												<span class="lang-en">{t.readArticle}</span>
+												<span class="lang-es hidden">{translations.es.readArticle}</span>
+											</a>
+											<div class="flex gap-4">
+												{post.data.tags?.map(tag => (
+													<span class="text-[9px] font-mono text-brand-text-muted/50 uppercase tracking-widest">#{tag}</span>
+												))}
+											</div>
+										</div>
+									</div>
+								</div>
+							</article>
 						))}
-					</ul>
+					</div>
+
+					<nav class="mt-32 flex justify-between items-center border-t border-brand-border pt-12">
+						{page.url.prev ? (
+							<a href={page.url.prev} class="font-mono text-[10px] tracking-[0.2em] text-brand-text-main uppercase hover:text-brand-accent transition-colors font-bold">
+								<span class="lang-en">← {t.recentEntries}</span>
+								<span class="lang-es hidden">← {translations.es.recentEntries}</span>
+							</a>
+						) : <div />}
+						<span class="font-mono text-[10px] tracking-[0.2em] text-brand-text-muted uppercase">
+							<span class="lang-en">{t.node}_{page.currentPage} {t.of} {page.lastPage}</span>
+							<span class="lang-es hidden">{translations.es.node}_{page.currentPage} {translations.es.of} {page.lastPage}</span>
+						</span>
+						{page.url.next ? (
+							<a href={page.url.next} class="font-mono text-[10px] tracking-[0.2em] text-brand-text-main uppercase hover:text-brand-accent transition-colors font-bold">
+								<span class="lang-en">{t.olderEntries} →</span>
+								<span class="lang-es hidden">{translations.es.olderEntries} →</span>
+							</a>
+						) : <div />}
+					</nav>
 				</div>
+
+				<aside class="col-span-12 lg:col-span-4 space-y-20">
+					<!-- Date Archive -->
+					<div class="card-dark p-8 border-l-2 border-brand-accent/30">
+						<div class="flex items-center gap-4 mb-10">
+							<div class="h-[1px] w-8 bg-brand-border"></div>
+							<span class="font-mono text-[9px] tracking-[0.3em] text-brand-text-muted uppercase font-bold">
+								<span class="lang-en">{t.dateArchive}</span>
+								<span class="lang-es hidden">{translations.es.dateArchive}</span>
+							</span>
+						</div>
+						<div class="flex flex-col">
+							{allMonths.map(month => {
+								const [y, m] = month.split('-');
+								const monthName = new Date(parseInt(y), parseInt(m)-1).toLocaleString('en-US', { month: 'long' });
+								const monthNameEs = new Date(parseInt(y), parseInt(m)-1).toLocaleString('es-ES', { month: 'long' });
+								return (
+									<a href={`/blog/date/${month}`} class="group flex justify-between items-center py-3 border-b border-brand-border/30 last:border-0">
+										<span class="font-mono text-[13px] tracking-widest text-brand-text-muted group-hover:text-brand-accent transition-colors uppercase">
+											<span class="lang-en">{monthName} {y}</span>
+											<span class="lang-es hidden">{monthNameEs} {y}</span>
+										</span>
+										<span class="font-mono text-[11px] text-brand-text-muted/50 group-hover:text-brand-text-main transition-colors">
+											[{posts.filter(p => p.data.date.toISOString().startsWith(month)).length}]
+										</span>
+									</a>
+								);
+							})}
+						</div>
+					</div>
+
+					<div class="card-dark p-8">
+						<div class="flex items-center gap-4 mb-10">
+							<div class="h-[1px] w-8 bg-brand-border"></div>
+							<span class="font-mono text-[9px] tracking-[0.3em] text-brand-text-muted uppercase font-bold">
+								<span class="lang-en">{t.curatedTopics}</span>
+								<span class="lang-es hidden">{translations.es.curatedTopics}</span>
+							</span>
+						</div>
+						<div class="flex flex-col">
+							{allTags.map(tag => {
+								const count = posts.filter(p => p.data.tags?.includes(tag)).length;
+								return (
+									<a href={`/blog/tag/${tag}`} class="group flex justify-between items-center py-3 border-b border-brand-border/30 last:border-0">
+										<span class="font-mono text-[13px] tracking-widest text-brand-text-muted group-hover:text-brand-accent transition-colors uppercase">#{tag}</span>
+										<span class="font-mono text-[11px] text-brand-text-muted/50 group-hover:text-brand-text-main transition-colors">[{count}]</span>
+									</a>
+								);
+							})}
+						</div>
+					</div>
+				</aside>
 			</div>
 		</div>
-	</aside>
-
-	<main>
-		<h1>Blog</h1>
-
-		<div class="posts-grid">
-			{posts.map(post => (
-				<article class="post-card" data-tags={post.data.tags?.join(',') || ''}>
-					{post.data.draft && (
-						<div class="draft-badge">
-							<span>🚧</span>
-							<span class="lang-en">Under Development</span>
-							<span class="lang-es hidden">En Desarrollo</span>
-						</div>
-					)}
-					<span class="post-date lang-en">{post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}</span>
-					<span class="post-date lang-es hidden">{post.data.date.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}</span>
-					<h2 class="lang-en">{post.data.title.en}</h2>
-					<h2 class="lang-es hidden">{post.data.title.es}</h2>
-					
-					<p class="lang-en">{post.data.excerpt.en}</p>
-					<p class="lang-es hidden">{post.data.excerpt.es}</p>
-					
-					{post.data.tags && (
-						<div class="tags">
-							{post.data.tags.map(tag => (
-								<a href={`/blog/tag/${tag}`} class="tag">#{tag}</a>
-							))}
-						</div>
-					)}
-
-					<a href={`/blog/${post.slug}`} class="read-more">
-						<span class="lang-en">Read more →</span>
-						<span class="lang-es hidden">Leer más →</span>
-					</a>
-				</article>
-			))}
-		</div>
-
-		<nav class="pagination">
-			{page.url.prev ? (
-				<a href={page.url.prev} class="prev">
-					<span class="lang-en">← Previous</span>
-					<span class="lang-es hidden">← Anterior</span>
-				</a>
-			) : <span />}
-			
-			<span class="page-info">
-				<span class="lang-en">Page {page.currentPage} of {page.lastPage}</span>
-				<span class="lang-es hidden">Página {page.currentPage} de {page.lastPage}</span>
-			</span>
-
-			{page.url.next ? (
-				<a href={page.url.next} class="next">
-					<span class="lang-en">Next →</span>
-					<span class="lang-es hidden">Siguiente →</span>
-				</a>
-			) : <span />}
-		</nav>
 	</main>
 </Layout>
 
 <script>
-	const enElements = document.querySelectorAll('.lang-en');
-	const esElements = document.querySelectorAll('.lang-es');
-
-	function setLanguage(lang) {
+	function setLanguage(lang: string) {
+		const enElements = document.querySelectorAll('.lang-en');
+		const esElements = document.querySelectorAll('.lang-es');
+		
 		if (lang === 'en') {
 			enElements.forEach(el => el.classList.remove('hidden'));
 			esElements.forEach(el => el.classList.add('hidden'));
@@ -164,377 +208,10 @@ const allDates = Array.from(allDatesMap.entries())
 		}
 	}
 
-	window.addEventListener('languageChange', (e) => {
+	window.addEventListener('languageChange', (e: any) => {
 		setLanguage(e.detail.lang);
 	});
 
 	const savedLang = localStorage.getItem('preferred-lang') || 'en';
 	setLanguage(savedLang);
-
-	// Draw lines from core dot to each tag
-	const sidebar = document.querySelector('.tags-sidebar-inner') as HTMLElement;
-	const coreDot = document.querySelector('.core-dot') as HTMLElement;
-	const svg = document.getElementById('tag-lines');
-	const tagEls = document.querySelectorAll('.sidebar-tag');
-
-	if (sidebar && coreDot && svg && tagEls.length) {
-		const ns = 'http://www.w3.org/2000/svg';
-		const sRect = sidebar.getBoundingClientRect();
-		const cRect = coreDot.getBoundingClientRect();
-		const coreX = cRect.left + cRect.width / 2 - sRect.left;
-		const coreY = cRect.top + cRect.height / 2 - sRect.top;
-
-		svg.setAttribute('viewBox', `0 0 ${sRect.width} ${sRect.height}`);
-		svg.style.width = sRect.width + 'px';
-		svg.style.height = sRect.height + 'px';
-
-		tagEls.forEach(t => {
-			const tRect = t.getBoundingClientRect();
-			const tx = tRect.left + tRect.width / 2 - sRect.left;
-			const ty = tRect.top + tRect.height / 2 - sRect.top;
-
-			const line = document.createElementNS(ns, 'line');
-			line.setAttribute('x1', String(coreX));
-			line.setAttribute('y1', String(coreY));
-			line.setAttribute('x2', String(tx));
-			line.setAttribute('y2', String(ty));
-			svg.appendChild(line);
-		});
-	}
-
-	// Tag search filter
-	const tagItems = document.querySelectorAll('.tags-list li');
-
-	document.querySelectorAll('.tag-search').forEach(input => {
-		input.addEventListener('input', (e) => {
-			const query = (e.target as HTMLInputElement).value.toLowerCase();
-			tagItems.forEach(li => {
-				const text = li.textContent?.toLowerCase() || '';
-				(li as HTMLElement).style.display = text.includes(query) ? '' : 'none';
-			});
-		});
-	});
 </script>
-
-<style>
-	main {
-		margin: auto;
-		padding: 6rem 2rem 4rem;
-		width: 100%;
-		max-width: 800px;
-		color: var(--text-secondary);
-	}
-
-	.header-row {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin-bottom: 4rem;
-	}
-
-	h1 {
-		font-size: 3rem;
-		font-weight: 700;
-		margin: 0;
-		background-image: var(--accent-gradient);
-		-webkit-background-clip: text;
-		-webkit-text-fill-color: transparent;
-	}
-
-	.posts-grid {
-		display: grid;
-		gap: 2rem;
-	}
-
-	.post-card {
-		background: var(--surface-1);
-		border: 1px solid var(--border-default);
-		border-left: 3px solid transparent;
-		padding: 2rem;
-		border-radius: var(--radius-lg);
-		transition: all var(--transition-base);
-		animation: fadeSlideUp 0.5s ease both;
-		position: relative;
-	}
-
-	.draft-badge {
-		position: absolute;
-		top: 1rem;
-		right: 1rem;
-		background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%);
-		color: white;
-		padding: 0.4rem 0.8rem;
-		border-radius: 6px;
-		font-size: 0.75rem;
-		font-weight: 600;
-		display: flex;
-		align-items: center;
-		gap: 0.4rem;
-		box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
-	}
-
-	.draft-badge span:first-child {
-		font-size: 1rem;
-	}
-
-	.post-card:nth-child(1) { animation-delay: 0s; }
-	.post-card:nth-child(2) { animation-delay: 0.1s; }
-	.post-card:nth-child(3) { animation-delay: 0.2s; }
-
-	.post-card:hover {
-		transform: translateY(-2px);
-		background: var(--surface-hover);
-		border-left-color: rgb(var(--accent));
-		box-shadow: var(--shadow-glow);
-	}
-
-	.post-date {
-		font-size: 0.875rem;
-		color: var(--text-faint);
-	}
-
-	h2 {
-		margin: 0.5rem 0 1rem;
-		font-size: 1.5rem;
-		color: var(--text-primary);
-	}
-
-	p {
-		color: var(--text-muted);
-		line-height: 1.6;
-		margin-bottom: 1.5rem;
-	}
-
-	.read-more {
-		color: rgb(var(--accent));
-		text-decoration: none;
-		font-weight: 600;
-		display: inline-block;
-		transition: color var(--transition-fast);
-	}
-
-	.read-more:hover {
-		color: rgb(var(--accent-light));
-	}
-
-	.tags {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.5rem;
-		margin-bottom: 1.5rem;
-	}
-
-	.tag {
-		background: rgba(var(--accent), 0.1);
-		padding: 0.25rem 0.75rem;
-		border-radius: var(--radius-full);
-		font-size: 0.875rem;
-		color: rgb(var(--accent-light));
-		font-weight: 500;
-		text-decoration: none;
-		transition: background var(--transition-fast);
-	}
-
-	.tag:hover {
-		background: rgba(var(--accent), 0.2);
-	}
-
-	.pagination {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin-top: 4rem;
-		padding-top: 2rem;
-		border-top: 1px solid var(--border-subtle);
-	}
-
-	.pagination a {
-		color: rgb(var(--accent));
-		text-decoration: none;
-		font-weight: 600;
-		background: var(--surface-1);
-		padding: 0.5rem 1.25rem;
-		border-radius: var(--radius-full);
-		border: 1px solid var(--border-default);
-		transition: all var(--transition-fast);
-	}
-
-	.pagination a:hover {
-		background: var(--surface-hover);
-		border-color: rgba(var(--accent), 0.3);
-	}
-
-	.page-info {
-		color: var(--text-muted);
-		font-size: 0.875rem;
-	}
-
-	.hidden {
-		display: none;
-	}
-
-	.tags-sidebar {
-		position: fixed;
-		left: 0;
-		top: 50%;
-		transform: translateY(-50%);
-		width: 200px;
-		z-index: 5;
-		padding: 1rem 0.75rem 1rem 1rem;
-	}
-
-	.tags-sidebar-inner {
-		position: relative;
-	}
-
-	.sidebar-core {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		margin-bottom: 1rem;
-		padding-left: 0.25rem;
-	}
-
-	.core-dot {
-		width: 10px;
-		height: 10px;
-		border-radius: 50%;
-		background: rgb(var(--accent));
-		box-shadow: 0 0 8px rgba(var(--accent), 0.6), 0 0 20px rgba(var(--accent), 0.2);
-		flex-shrink: 0;
-	}
-
-	.core-label {
-		font-size: 0.8rem;
-		font-weight: 600;
-		color: rgb(var(--accent-light));
-		letter-spacing: 0.05em;
-		text-transform: uppercase;
-	}
-
-	.tag-search {
-		width: 100%;
-		padding: 0.35rem 0.6rem;
-		margin-bottom: 0.75rem;
-		background: rgba(var(--accent), 0.06);
-		border: 1px solid rgba(var(--accent), 0.2);
-		border-radius: 999px;
-		color: rgb(var(--accent-light));
-		font-size: 0.75rem;
-		outline: none;
-		transition: border-color 0.2s;
-		box-sizing: border-box;
-	}
-
-	.tag-search::placeholder {
-		color: var(--text-faint);
-	}
-
-	.tag-search:focus {
-		border-color: rgba(var(--accent), 0.5);
-	}
-
-	.tag-lines {
-		position: absolute;
-		top: 0;
-		left: 0;
-		pointer-events: none;
-		z-index: 0;
-	}
-
-	.tag-lines :global(line) {
-		stroke: rgba(var(--accent), 0.15);
-		stroke-width: 1;
-		stroke-dasharray: 3 3;
-	}
-
-	.tags-scroll {
-		max-height: 70vh;
-		overflow-y: auto;
-		scrollbar-width: thin;
-		scrollbar-color: rgba(var(--accent), 0.2) transparent;
-		position: relative;
-		z-index: 1;
-		mask-image: linear-gradient(to bottom, black 90%, transparent 100%);
-		-webkit-mask-image: linear-gradient(to bottom, black 90%, transparent 100%);
-	}
-
-	.tags-scroll::-webkit-scrollbar {
-		width: 3px;
-	}
-
-	.tags-scroll::-webkit-scrollbar-thumb {
-		background: rgba(var(--accent), 0.3);
-		border-radius: 3px;
-	}
-
-	.tags-list {
-		list-style: none;
-		padding: 0;
-		margin: 0;
-		display: flex;
-		flex-direction: column;
-		gap: 0.35rem;
-	}
-
-	.dates-list {
-		list-style: none;
-		padding: 0;
-		margin: 0;
-		display: flex;
-		flex-direction: column;
-		gap: 0.35rem;
-	}
-
-	.filter-section {
-		margin-bottom: 1.5rem;
-	}
-
-	.filter-title {
-		font-size: 0.7rem;
-		font-weight: 600;
-		color: var(--text-faint);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		margin: 0 0 0.5rem 0.5rem;
-	}
-
-	.sidebar-tag {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		padding: 0.25rem 0.65rem;
-		background: rgba(var(--accent), 0.08);
-		border: 1px solid rgba(var(--accent), 0.2);
-		border-radius: 999px;
-		color: rgb(var(--accent-light));
-		text-decoration: none;
-		font-size: 0.78rem;
-		font-weight: 500;
-		white-space: nowrap;
-		transition: all 0.2s;
-		gap: 0.5rem;
-	}
-
-	.sidebar-tag:hover, .sidebar-tag.active {
-		background: rgba(var(--accent), 0.2);
-		border-color: rgb(var(--accent));
-		transform: translateX(3px);
-	}
-
-	.tag-count {
-		font-size: 0.65rem;
-		color: var(--text-faint);
-		background: rgba(var(--accent), 0.1);
-		padding: 0.1rem 0.35rem;
-		border-radius: 999px;
-		min-width: 1.2em;
-		text-align: center;
-	}
-
-	@media (max-width: 1200px) {
-		.tags-sidebar {
-			display: none;
-		}
-	}
-</style>

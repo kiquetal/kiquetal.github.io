@@ -3,58 +3,104 @@ import Layout from '../layouts/Layout.astro';
 
 const translations = {
   en: {
-    title: "Contact Me",
-    subtitle: "Let's turn ideas into reality",
-    nameLabel: "Name",
-    emailLabel: "Email",
-    messageLabel: "Message",
-    submitBtn: "Send Message",
-    sending: "Sending...",
-    success: "Message sent successfully!",
-    error: "Failed to send message. Please try again."
+    title: "Initiate ",
+    titleItalic: "Protocol",
+    titleSuffix: ".",
+    description: "Whether it's a systems architecture inquiry or a potential collaboration, all signals are welcome. My response latency typically ranges from 12 to 24 hours.",
+    nameLabel: "Identifier",
+    emailLabel: "Return Address",
+    messageLabel: "Payload",
+    submitBtn: "Transmit Message",
+    sending: "Transmitting...",
+    success: "Signal received and acknowledged.",
+    error: "Transmission failure. Please re-attempt."
   },
   es: {
-    title: "Contáctame",
-    subtitle: "Convirtamos ideas en realidad",
-    nameLabel: "Nombre",
-    emailLabel: "Correo",
-    messageLabel: "Mensaje",
-    submitBtn: "Enviar Mensaje",
-    sending: "Enviando...",
-    success: "¡Mensaje enviado con éxito!",
-    error: "Error al enviar el mensaje. Inténtalo de nuevo."
+    title: "Iniciar ",
+    titleItalic: "Protocolo",
+    titleSuffix: ".",
+    description: "Ya sea una consulta de arquitectura de sistemas o una posible colaboración, todas las señales son bienvenidas. Mi latencia de respuesta suele oscilar entre 12 y 24 horas.",
+    nameLabel: "Identificador",
+    emailLabel: "Dirección de Retorno",
+    messageLabel: "Carga Útil",
+    submitBtn: "Transmitir Mensaje",
+    sending: "Transmitiendo...",
+    success: "Señal recibida y reconocida.",
+    error: "Fallo en la transmisión. Por favor, reintente."
   }
 };
 ---
 
-<Layout title="Contact - System Engineer">
-	<main>
-		<div class="contact-container">
-			<h1 id="title-text">{translations.en.title}</h1>
-			<p class="subtitle" id="subtitle-text">{translations.en.subtitle}</p>
+<Layout title="Contact — Enrique Talavera">
+	<main class="flex-grow flex flex-col justify-center px-8 md:px-16 pt-32 pb-20">
+		<div class="max-w-7xl w-full mx-auto">
+			<div class="mb-16">
+				<h1 class="font-serif text-[clamp(2.5rem,8vw,8rem)] leading-[0.9] tracking-tight mb-16">
+                    <span id="title-text">{translations.en.title}</span> <br/>
+					<span class="italic text-brand-accent text-glow" id="title-italic">{translations.en.titleItalic}</span>
+					<span id="title-suffix">{translations.en.titleSuffix}</span>
+				</h1>
+				
+				<div class="grid grid-cols-12 gap-8">
+					<div class="col-start-1 md:col-start-7 col-span-12 md:col-span-5">
+						<p class="font-serif text-xl md:text-2xl leading-relaxed text-brand-text-main mb-12 italic" id="subtitle-text">
+                            {translations.en.description}
+                        </p>
 
-			<form id="contact-form" class="contact-form">
-				<div class="form-group">
-					<label for="name" id="name-label">{translations.en.nameLabel}</label>
-					<input type="text" id="name" name="name" required />
+						<form id="contact-form" class="flex flex-col gap-10">
+							<div class="group border-b border-brand-border/50 focus-within:border-brand-accent/50 transition-colors pb-2">
+								<label for="name" class="block text-[9px] tracking-[0.3em] text-brand-text-muted uppercase mb-2 group-focus-within:text-brand-accent transition-colors font-bold" id="name-label">
+									{translations.en.nameLabel}
+								</label>
+								<input 
+									type="text" 
+									id="name" 
+									name="name" 
+									required 
+									class="w-full bg-transparent border-none p-0 font-mono text-xs uppercase tracking-widest focus:ring-0 text-brand-text-main placeholder:text-brand-border/50"
+									placeholder="NAME / ORG"
+								/>
+							</div>
+
+							<div class="group border-b border-brand-border/50 focus-within:border-brand-accent/50 transition-colors pb-2">
+								<label for="email" class="block text-[9px] tracking-[0.3em] text-brand-text-muted uppercase mb-2 group-focus-within:text-brand-accent transition-colors font-bold" id="email-label">
+									{translations.en.emailLabel}
+								</label>
+								<input 
+									type="email" 
+									id="email" 
+									name="email" 
+									required 
+									class="w-full bg-transparent border-none p-0 font-mono text-xs uppercase tracking-widest focus:ring-0 text-brand-text-main placeholder:text-brand-border/50"
+									placeholder="EMAIL@DOMAIN.COM"
+								/>
+							</div>
+
+							<div class="group border-b border-brand-border/50 focus-within:border-brand-accent/50 transition-colors pb-2">
+								<label for="message" class="block text-[9px] tracking-[0.3em] text-brand-text-muted uppercase mb-2 group-focus-within:text-brand-accent transition-colors font-bold" id="message-label">
+									{translations.en.messageLabel}
+								</label>
+								<textarea 
+									id="message" 
+									name="message" 
+									rows="4" 
+									required 
+									class="w-full bg-transparent border-none p-0 font-mono text-xs uppercase tracking-widest focus:ring-0 text-brand-text-main placeholder:text-brand-border/50 resize-none"
+									placeholder="YOUR MESSAGE DATA..."
+								></textarea>
+							</div>
+
+							<div class="flex flex-col gap-6">
+								<button type="submit" id="submit-btn" class="font-mono text-[10px] tracking-[0.4em] text-brand-accent uppercase border border-brand-accent/30 px-8 py-4 hover:bg-brand-accent hover:text-brand-bg transition-all self-start font-bold">
+									{translations.en.submitBtn}
+								</button>
+
+								<div id="form-status" class="text-[9px] tracking-[0.2em] uppercase hidden"></div>
+							</div>
+						</form>
+					</div>
 				</div>
-
-				<div class="form-group">
-					<label for="email" id="email-label">{translations.en.emailLabel}</label>
-					<input type="email" id="email" name="email" required />
-				</div>
-
-				<div class="form-group">
-					<label for="message" id="message-label">{translations.en.messageLabel}</label>
-					<textarea id="message" name="message" rows="5" required></textarea>
-				</div>
-
-				<button type="submit" id="submit-btn" class="submit-btn">
-					{translations.en.submitBtn}
-				</button>
-
-				<div id="form-status" class="form-status hidden"></div>
-			</form>
+			</div>
 		</div>
 	</main>
 </Layout>
@@ -66,12 +112,29 @@ const translations = {
 		currentLang = lang;
 		const t = translations[lang];
 		
-		document.getElementById('title-text').textContent = t.title;
-		document.getElementById('subtitle-text').textContent = t.subtitle;
-		document.getElementById('name-label').textContent = t.nameLabel;
-		document.getElementById('email-label').textContent = t.emailLabel;
-		document.getElementById('message-label').textContent = t.messageLabel;
-		document.getElementById('submit-btn').textContent = t.submitBtn;
+		const titleText = document.getElementById('title-text');
+		if (titleText) titleText.textContent = t.title;
+		
+		const titleItalic = document.getElementById('title-italic');
+		if (titleItalic) titleItalic.textContent = t.titleItalic;
+
+		const titleSuffix = document.getElementById('title-suffix');
+		if (titleSuffix) titleSuffix.textContent = t.titleSuffix;
+
+		const subtitleText = document.getElementById('subtitle-text');
+		if (subtitleText) subtitleText.textContent = t.description;
+
+		const nameLabel = document.getElementById('name-label');
+		if (nameLabel) nameLabel.textContent = t.nameLabel;
+
+		const emailLabel = document.getElementById('email-label');
+		if (emailLabel) emailLabel.textContent = t.emailLabel;
+
+		const messageLabel = document.getElementById('message-label');
+		if (messageLabel) messageLabel.textContent = t.messageLabel;
+
+		const submitBtn = document.getElementById('submit-btn');
+		if (submitBtn) submitBtn.textContent = t.submitBtn;
 	}
 
 	window.addEventListener('languageChange', (e) => {
@@ -85,172 +148,68 @@ const translations = {
 	const statusDiv = document.getElementById('form-status');
 	const submitBtn = document.getElementById('submit-btn');
 
-	form.addEventListener('submit', async (e) => {
-		e.preventDefault();
-		const t = translations[currentLang];
-		
-		submitBtn.disabled = true;
-		submitBtn.textContent = t.sending;
-		statusDiv.classList.add('hidden');
-		statusDiv.className = 'form-status hidden';
-
-		const formData = new FormData(form);
-		const rawData = Object.fromEntries(formData);
-
-		const resendPayload = {
-			from: "contact@kiquetal.dev",
-			to: "hi@kiquetal.dev",
-			subject: `New Contact from ${rawData.name}`,
-			html: `
-				<p><strong>Name:</strong> ${rawData.name}</p>
-				<p><strong>Email:</strong> ${rawData.email}</p>
-				<p><strong>Message:</strong></p>
-				<p>${rawData.message.replace(/\n/g, '<br>')}</p>
-			`,
-			reply_to: rawData.email
-		};
-
-		try {
-			const response = await fetch('https://emailer.kiquetal.dev', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify(resendPayload),
-			});
-
-			if (response.ok) {
-				statusDiv.textContent = t.success;
-				statusDiv.classList.add('success');
-				form.reset();
-			} else {
-				const errorData = await response.json();
-				console.error('Submission Error:', errorData);
-				throw new Error(errorData.error || errorData.message || 'Network response was not ok');
+	if (form) {
+		form.addEventListener('submit', async (e) => {
+			e.preventDefault();
+			const t = translations[currentLang];
+			
+			if (submitBtn) {
+				submitBtn.disabled = true;
+				submitBtn.textContent = t.sending;
 			}
-		} catch (error) {
-			console.error('Form Error:', error);
-			statusDiv.textContent = t.error;
-			statusDiv.classList.add('error');
-		} finally {
-			submitBtn.disabled = false;
-			submitBtn.textContent = t.submitBtn;
-			statusDiv.classList.remove('hidden');
-		}
-	});
+			
+			if (statusDiv) {
+				statusDiv.classList.add('hidden');
+				statusDiv.className = 'text-[9px] tracking-[0.2em] uppercase hidden';
+			}
+
+			const formData = new FormData(form);
+			const rawData = Object.fromEntries(formData);
+
+			const resendPayload = {
+				from: "contact@kiquetal.dev",
+				to: "hi@kiquetal.dev",
+				subject: `New Contact from ${rawData.name}`,
+				html: `
+					<p><strong>Name:</strong> ${rawData.name}</p>
+					<p><strong>Email:</strong> ${rawData.email}</p>
+					<p><strong>Message:</strong></p>
+					<p>${rawData.message.replace(/\n/g, '<br>')}</p>
+				`,
+				reply_to: rawData.email
+			};
+
+			try {
+				const response = await fetch('https://emailer.kiquetal.dev', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify(resendPayload),
+				});
+
+				if (response.ok) {
+					if (statusDiv) {
+						statusDiv.textContent = t.success;
+						statusDiv.classList.remove('hidden');
+						statusDiv.classList.add('text-green-500');
+					}
+					form.reset();
+				} else {
+					throw new Error('Network response was not ok');
+				}
+			} catch (error) {
+				if (statusDiv) {
+					statusDiv.textContent = t.error;
+					statusDiv.classList.remove('hidden');
+					statusDiv.classList.add('text-red-500');
+				}
+			} finally {
+				if (submitBtn) {
+					submitBtn.disabled = false;
+					submitBtn.textContent = t.submitBtn;
+				}
+			}
+		});
+	}
 </script>
-
-<style>
-	main {
-		margin: auto;
-		padding: 6rem 2rem 4rem;
-		width: 100%;
-		max-width: 600px;
-		color: var(--text-secondary);
-		position: relative;
-	}
-
-	.contact-container {
-		animation: fadeSlideUp 0.5s ease both;
-	}
-
-	h1 {
-		font-size: 3rem;
-		font-weight: 700;
-		text-align: center;
-		margin-bottom: 0.5rem;
-		background-image: var(--accent-gradient);
-		-webkit-background-clip: text;
-		-webkit-text-fill-color: transparent;
-	}
-
-	.subtitle {
-		text-align: center;
-		color: var(--text-muted);
-		margin-bottom: 3rem;
-		font-size: 1.2rem;
-	}
-
-	.contact-form {
-		background: var(--surface-1);
-		backdrop-filter: blur(8px);
-		padding: 2rem;
-		border-radius: var(--radius-lg);
-		border: 1px solid var(--border-default);
-	}
-
-	.form-group {
-		margin-bottom: 1.5rem;
-	}
-
-	label {
-		display: block;
-		margin-bottom: 0.5rem;
-		color: var(--text-primary);
-		font-weight: 600;
-	}
-
-	input, textarea {
-		width: 100%;
-		padding: 0.8rem;
-		border-radius: var(--radius-md);
-		background: rgba(15, 23, 42, 0.8);
-		border: 1px solid var(--border-default);
-		color: white;
-		font-family: inherit;
-		transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-		box-sizing: border-box;
-	}
-
-	input:focus, textarea:focus {
-		outline: none;
-		border-color: rgb(var(--accent));
-		box-shadow: 0 0 0 3px rgba(var(--accent), 0.15);
-	}
-
-	.submit-btn {
-		width: 100%;
-		padding: 1rem;
-		background: linear-gradient(135deg, rgb(var(--accent)), rgb(var(--accent-dark)));
-		color: white;
-		border: none;
-		border-radius: var(--radius-md);
-		font-weight: 700;
-		cursor: pointer;
-		transition: all var(--transition-base);
-		font-size: 1rem;
-		letter-spacing: 0.01em;
-	}
-
-	.submit-btn:hover {
-		transform: translateY(-2px);
-		box-shadow: 0 6px 20px rgba(var(--accent), 0.3);
-	}
-
-	.submit-btn:disabled {
-		opacity: 0.7;
-		cursor: not-allowed;
-		transform: none;
-		box-shadow: none;
-	}
-
-	.form-status {
-		margin-top: 1rem;
-		padding: 1rem;
-		border-radius: var(--radius-md);
-		text-align: center;
-		font-weight: 600;
-	}
-
-	.form-status.success {
-		background: rgba(34, 197, 94, 0.2);
-		color: #4ade80;
-		border: 1px solid rgba(34, 197, 94, 0.3);
-	}
-
-	.form-status.error {
-		background: rgba(239, 68, 68, 0.2);
-		color: #f87171;
-		border: 1px solid rgba(239, 68, 68, 0.3);
-	}
-</style>

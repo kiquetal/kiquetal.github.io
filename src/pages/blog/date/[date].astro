@@ -1,95 +1,106 @@
 ---
-import { getCollection } from 'astro:content';
 import Layout from '../../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
 
 export async function getStaticPaths() {
-  const allPosts = await getCollection('blog');
-  const datesMap = new Map();
+  const posts = await getCollection('blog');
+  
+  // Full dates (YYYY-MM-DD)
+  const fullDates = [...new Set(posts.map(post => post.data.date.toISOString().split('T')[0]))];
+  
+  // Months (YYYY-MM)
+  const months = [...new Set(posts.map(post => {
+    const d = post.data.date;
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  }))];
 
-  allPosts.forEach(post => {
-    const year = post.data.date.getFullYear();
-    const month = post.data.date.getMonth();
-    const dateKey = `${year}-${String(month + 1).padStart(2, '0')}`;
-    
-    if (!datesMap.has(dateKey)) {
-      datesMap.set(dateKey, []);
+  const allParams = [...fullDates, ...months];
+  
+  return allParams.map(date => ({
+    params: { date },
+    props: { 
+      posts: posts.filter(post => post.data.date.toISOString().startsWith(date)).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
     }
-    datesMap.get(dateKey).push(post);
-  });
-
-  return Array.from(datesMap.entries()).map(([dateKey, posts]) => {
-    const [year, month] = dateKey.split('-');
-    const monthNames = {
-      en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-      es: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
-    };
-    
-    return {
-      params: { date: dateKey },
-      props: { 
-        posts: posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()),
-        dateKey,
-        year: parseInt(year),
-        monthNameEn: monthNames.en[parseInt(month) - 1],
-        monthNameEs: monthNames.es[parseInt(month) - 1]
-      },
-    };
-  });
+  }));
 }
 
-const { posts, dateKey, year, monthNameEn, monthNameEs } = Astro.props;
+const { date } = Astro.params;
+const { posts } = Astro.props;
+
+const isMonth = date.length === 7;
+const [y, m] = date.split('-');
+const dateTitleEn = isMonth ? new Date(parseInt(y), parseInt(m)-1).toLocaleString('en-US', { month: 'long', year: 'numeric' }) : date;
+const dateTitleEs = isMonth ? new Date(parseInt(y), parseInt(m)-1).toLocaleString('es-ES', { month: 'long', year: 'numeric' }) : date;
 ---
 
-<Layout title={`Blog - ${monthNameEn} ${year}`}>
-	<main>
-		<a href="/blog" class="back-link">← <span class="lang-en">Back to all posts</span><span class="lang-es hidden">Volver a todos</span></a>
-		
-		<h1>
-			<span class="lang-en">Posts from {monthNameEn} {year}</span>
-			<span class="lang-es hidden">Artículos de {monthNameEs} {year}</span>
-		</h1>
+<Layout title={`Archive: ${dateTitleEn} — Enrique Talavera`}>
+	<main class="flex-grow flex flex-col px-8 md:px-16 pt-32 pb-20">
+		<div class="max-w-7xl w-full mx-auto">
+			<header class="mb-20 border-b border-brand-border pb-12">
+				<div class="flex items-center gap-4 mb-4">
+					<div class="h-[1px] w-8 bg-brand-border"></div>
+					<span class="font-mono text-[9px] tracking-[0.3em] text-brand-text-muted uppercase font-bold">
+						<span class="lang-en">Date Archive</span>
+						<span class="lang-es hidden">Archivo Temporal</span>
+					</span>
+				</div>
+				<h1 class="font-serif text-4xl md:text-6xl tracking-tight text-brand-text-main italic">
+					<span class="lang-en">{dateTitleEn}</span>
+					<span class="lang-es hidden text-capitalize">{dateTitleEs}</span>
+				</h1>
+				<div class="mt-8">
+				<a href="/blog" class="font-mono text-[9px] tracking-[0.3em] text-brand-text-main uppercase border-b border-brand-accent/30 pb-1 hover:text-brand-accent hover:border-brand-accent transition-all font-bold">
+					<span class="lang-en">BACK TO ARCHIVE</span>
+					<span class="lang-es hidden">VOLVER AL ARCHIVO</span>
+				</a>
+				</div>
+			</header>
 
-		<div class="posts-grid">
-			{posts.map(post => (
-				<article class="post-card">
-					{post.data.draft && (
-						<div class="draft-badge">
-							<span>🚧</span>
-							<span class="lang-en">Under Development</span>
-							<span class="lang-es hidden">En Desarrollo</span>
-						</div>
-					)}
-					<span class="post-date lang-en">{post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}</span>
-					<span class="post-date lang-es hidden">{post.data.date.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}</span>
-					<h2 class="lang-en">{post.data.title.en}</h2>
-					<h2 class="lang-es hidden">{post.data.title.es}</h2>
-					
-					<p class="lang-en">{post.data.excerpt.en}</p>
-					<p class="lang-es hidden">{post.data.excerpt.es}</p>
-					
-					{post.data.tags && (
-						<div class="tags">
-							{post.data.tags.map(tag => (
-								<a href={`/blog/tag/${tag}`} class="tag">#{tag}</a>
-							))}
-						</div>
-					)}
-
-					<a href={`/blog/${post.slug}`} class="read-more">
-						<span class="lang-en">Read more →</span>
-						<span class="lang-es hidden">Leer más →</span>
-					</a>
-				</article>
-			))}
+			<div class="max-w-4xl mx-auto">
+				<div class="flex flex-col gap-24">
+					{posts.map(post => (
+						<article class="group relative">
+							<div class="flex flex-col md:flex-row gap-8 items-baseline">
+								<span class="font-mono text-[10px] text-brand-text-muted uppercase tracking-[0.2em] whitespace-nowrap">
+									<span class="lang-en">{post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}</span>
+									<span class="lang-es hidden">{post.data.date.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}</span>
+								</span>
+								<div class="flex-grow">
+									{post.data.draft && (
+										<div class="flex items-center gap-2 mb-4">
+											<span class="flex h-1.5 w-1.5 rounded-full bg-yellow-500 animate-pulse"></span>
+											<span class="font-mono text-[9px] tracking-[0.2em] text-yellow-500 uppercase font-bold">In Progress / Borrador</span>
+										</div>
+									)}
+									<h2 class="font-serif text-3xl md:text-5xl tracking-tight group-hover:text-brand-accent transition-colors text-brand-text-main mb-6 italic leading-tight">
+										<a href={`/blog/${post.slug}`}>
+											<span class="lang-en">{post.data.title.en}</span>
+											<span class="lang-es hidden">{post.data.title.es}</span>
+										</a>
+									</h2>
+									<p class="font-mono text-[13px] leading-relaxed text-brand-text-muted uppercase tracking-wider mb-8">
+										<span class="lang-en">{post.data.description?.en || post.data.excerpt?.en || "System architectural documentation."}</span>
+										<span class="lang-es hidden">{post.data.description?.es || post.data.excerpt?.es || "Documentación arquitectónica del sistema."}</span>
+									</p>
+									<a href={`/blog/${post.slug}`} class="font-mono text-[9px] tracking-[0.3em] text-brand-text-main uppercase border-b border-brand-accent/30 pb-1 hover:text-brand-accent hover:border-brand-accent transition-all font-bold">
+										<span class="lang-en">READ ARTICLE</span>
+										<span class="lang-es hidden">LEER ARTÍCULO</span>
+									</a>
+								</div>
+							</div>
+						</article>
+					))}
+				</div>
+			</div>
 		</div>
 	</main>
 </Layout>
 
 <script>
-	const enElements = document.querySelectorAll('.lang-en');
-	const esElements = document.querySelectorAll('.lang-es');
-
-	function setLanguage(lang) {
+	function setLanguage(lang: string) {
+		const enElements = document.querySelectorAll('.lang-en');
+		const esElements = document.querySelectorAll('.lang-es');
+		
 		if (lang === 'en') {
 			enElements.forEach(el => el.classList.remove('hidden'));
 			esElements.forEach(el => el.classList.add('hidden'));
@@ -99,7 +110,7 @@ const { posts, dateKey, year, monthNameEn, monthNameEs } = Astro.props;
 		}
 	}
 
-	window.addEventListener('languageChange', (e) => {
+	window.addEventListener('languageChange', (e: any) => {
 		setLanguage(e.detail.lang);
 	});
 
@@ -107,132 +118,8 @@ const { posts, dateKey, year, monthNameEn, monthNameEs } = Astro.props;
 	setLanguage(savedLang);
 </script>
 
-<style>
-	main {
-		margin: auto;
-		padding: 6rem 2rem 4rem;
-		width: 100%;
-		max-width: 800px;
-		color: var(--text-secondary);
-	}
-
-	.back-link {
-		color: var(--text-muted);
-		text-decoration: none;
-		font-weight: 600;
-		transition: all var(--transition-fast);
-		display: inline-block;
-		margin-bottom: 3rem;
-	}
-
-	.back-link:hover {
-		color: var(--text-primary);
-		transform: translateX(-3px);
-	}
-
-	h1 {
-		font-size: 3rem;
-		font-weight: 700;
-		margin-bottom: 3rem;
-		background-image: var(--accent-gradient);
-		-webkit-background-clip: text;
-		-webkit-text-fill-color: transparent;
-	}
-
-	.posts-grid {
-		display: grid;
-		gap: 2rem;
-	}
-
-	.post-card {
-		background: var(--surface-1);
-		border: 1px solid var(--border-default);
-		border-left: 3px solid transparent;
-		padding: 2rem;
-		border-radius: var(--radius-lg);
-		transition: all var(--transition-base);
-		position: relative;
-	}
-
-	.draft-badge {
-		position: absolute;
-		top: 1rem;
-		right: 1rem;
-		background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%);
-		color: white;
-		padding: 0.4rem 0.8rem;
-		border-radius: 6px;
-		font-size: 0.75rem;
-		font-weight: 600;
-		display: flex;
-		align-items: center;
-		gap: 0.4rem;
-		box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
-	}
-
-	.draft-badge span:first-child {
-		font-size: 1rem;
-	}
-
-	.post-card:hover {
-		transform: translateY(-2px);
-		background: var(--surface-hover);
-		border-left-color: rgb(var(--accent));
-		box-shadow: var(--shadow-glow);
-	}
-
-	.post-date {
-		font-size: 0.875rem;
-		color: var(--text-faint);
-	}
-
-	h2 {
-		margin: 0.5rem 0 1rem;
-		font-size: 1.5rem;
-		color: var(--text-primary);
-	}
-
-	p {
-		color: var(--text-muted);
-		line-height: 1.6;
-		margin-bottom: 1.5rem;
-	}
-
-	.read-more {
-		color: rgb(var(--accent));
-		text-decoration: none;
-		font-weight: 600;
-		display: inline-block;
-		transition: color var(--transition-fast);
-	}
-
-	.read-more:hover {
-		color: rgb(var(--accent-light));
-	}
-
-	.tags {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.5rem;
-		margin-bottom: 1.5rem;
-	}
-
-	.tag {
-		background: rgba(var(--accent), 0.1);
-		padding: 0.25rem 0.75rem;
-		border-radius: var(--radius-full);
-		font-size: 0.875rem;
-		color: rgb(var(--accent-light));
-		font-weight: 500;
-		text-decoration: none;
-		transition: background var(--transition-fast);
-	}
-
-	.tag:hover {
-		background: rgba(var(--accent), 0.2);
-	}
-
-	.hidden {
-		display: none;
+<style is:global>
+	.text-capitalize {
+		text-transform: capitalize;
 	}
 </style>

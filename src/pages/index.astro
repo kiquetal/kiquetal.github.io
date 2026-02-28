@@ -10,10 +10,12 @@ const latestPost = sortedPosts.length > 0 ? sortedPosts[0] : null;
 const translations = {
   en: {
     latestUpdate: "Newest Blog Post",
-    title: "System Engineer Portfolio",
-    role: "System Engineer",
-    roleSuffix: "& Cloud Architect",
-    description: "Architecting scalable, secure, and high-performance solutions. I bridge the gap between complex business requirements and robust technical implementations.",
+    title: "Enrique Talavera — Resilience as a First-Class Citizen",
+    heroTitle: "Resilience as a ",
+    heroTitleItalic: "First-Class",
+    heroTitleSuffix: " Citizen.",
+    description: '"Everything fails, all the time." — Werner Vogels, CTO @ AWS. Engineering is the art of building systems that thrive in the presence of failure.',
+    manifesto: "Systems Manifesto v.1.0",
     cta: "View Credentials",
     contact: "Contact Me",
     certificationsTitle: "Professional Certifications",
@@ -29,14 +31,31 @@ const translations = {
     demo5Desc: "Converting speech to text using OpenAI Whisper model implemented in F#.",
     demoLabel: "Live Demo",
     blogLabel: "Read Article",
-    visitorsLabel: "visitors"
+    visitorsLabel: "visitors",
+    techTitle: "Technical Arsenal",
+    tech1Title: "Distributed Systems",
+    tech1Desc: "Kubernetes, Istio, NATS, and Spiffe for resilient, scalable infrastructure.",
+    tech2Title: "Cloud Native Dev",
+    tech2Desc: "Quarkus, Java, Go, and Rust for high-performance backend services.",
+    tech3Title: "Security & Ops",
+    tech3Desc: "E2E Encryption, Spire, AWS, and GitOps for secure delivery pipelines.",
+    coreTitle: "Core Runtime & Ops",
+    coreJava: "Reactive / Quarkus",
+    coreGo: "Distributed Tools",
+    coreK8s: "Orchestration",
+    coreAws: "Cloud Infrastructure",
+    viewCerts: "View Certifications →",
+    liveBtn: "LIVE",
+    detailsBtn: "DETAILS"
   },
   es: {
-    title: "Portafolio de Ingeniero de Sistemas",
+    title: "Enrique Talavera — Resiliencia como Ciudadano de Primera Clase",
     latestUpdate: "Nuevo Blog",
-    role: "Ingeniero de Sistemas",
-    roleSuffix: "y Arquitecto Cloud",
-    description: "Arquitecto soluciones escalables, seguras y de alto rendimiento. Conecto los requisitos de negocio complejos con implementaciones técnicas robustas.",
+    heroTitle: "Resiliencia como ",
+    heroTitleItalic: "Ciudadano",
+    heroTitleSuffix: " de Primera Clase.",
+    description: '"Todo falla, todo el tiempo." — Werner Vogels, CTO @ AWS. La ingeniería es el arte de construir sistemas que prosperan ante la presencia de fallos.',
+    manifesto: "Manifiesto de Sistemas v.1.0",
     cta: "Ver Credenciales",
     contact: "Contáctame",
     certificationsTitle: "Certificaciones Profesionales",
@@ -52,9 +71,30 @@ const translations = {
     demo5Desc: "Conversión de voz a texto usando el modelo Whisper de OpenAI implementado en F#.",
     demoLabel: "Ver Demo",
     blogLabel: "Leer Artículo",
-    visitorsLabel: "visitantes"
+    visitorsLabel: "visitantes",
+    techTitle: "Arsenal Técnico",
+    tech1Title: "Sistemas Distribuidos",
+    tech1Desc: "Kubernetes, Istio, NATS y Spiffe para infraestructuras resilientes.",
+    tech2Title: "Desarrollo Cloud Native",
+    tech2Desc: "Quarkus, Java, Go y Rust para servicios backend de alto rendimiento.",
+    tech3Title: "Seguridad y Ops",
+    tech3Desc: "Encriptación E2E, Spire, AWS y GitOps para pipelines seguros.",
+    coreTitle: "Núcleo Técnico y Ops",
+    coreJava: "Reactividad / Quarkus",
+    coreGo: "Herramientas Distribuidas",
+    coreK8s: "Orquestación",
+    coreAws: "Infraestructura Cloud",
+    viewCerts: "Ver Certificaciones →",
+    liveBtn: "EN VIVO",
+    detailsBtn: "DETALLES"
   }
 };
+
+const techStack = [
+  { id: 'tech1', icon: 'ph:circles-three-plus-bold' },
+  { id: 'tech2', icon: 'ph:code-bold' },
+  { id: 'tech3', icon: 'ph:shield-check-bold' }
+];
 
 const demos = [
   {
@@ -76,162 +116,334 @@ const t = translations[currentLang];
 ---
 
 <Layout title={t.title}>
-	<main>
-		<section class="hero">
-			<div class="hero-content">
-				<h1><span class="text-gradient" id="role-text">{t.role}</span> <br/><span id="role-suffix-text">{t.roleSuffix}</span></h1>
-				<p class="career-description" id="description-text">
-					{t.description}
-				</p>
-				<div class="cta-container">
-					<a href="#certifications" class="cta-link">
-						<span class="btn-icon"><Icon name="ph:certificate-bold" size={20} /></span>
-						<span id="cta-text">{t.cta}</span>
-					</a>
-					<a href="/contact" class="cta-link" id="contact-btn">
-						<span class="btn-icon"><Icon name="ph:envelope-bold" size={20} /></span>
-						<span id="contact-text">{t.contact}</span>
-					</a>
-				</div>
-
-				{latestPost && (
-					<div class="latest-update-container">
-						<span class="update-badge" id="latest-update-label">{t.latestUpdate}</span>
-						<a href={`/blog/${latestPost.slug}`} class="latest-update-link">
-							<span id="latest-post-title"
-								  data-title-en={latestPost.data.title.en}
-								  data-title-es={latestPost.data.title.es}>
-								{latestPost.data.title[currentLang]}
-							</span>
-						</a>
-					</div>
-				)}
-
-				<div class="visitor-counter">
-					<span class="visitor-icon">👁️</span>
-					<span id="visitor-count">...</span>
-					<span class="visitor-label" id="visitors-label-text">{t.visitorsLabel}</span>
-				</div>
-			</div>
-			<div class="hero-image">
-				<img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop" alt="Cloud Architecture Landscape" />
-			</div>
-		</section>
-
-		<section id="demos" class="demos">
-			<h2 id="demos-title-text">{t.demosTitle}</h2>
-			<div class="demos-grid">
-				{demos.map(demo => (
-					<div class="demo-card">
-						<div class="demo-header">
-							<div class="demo-icon"><Icon name={demo.icon} size={28} /></div>
-							<h3 id={`${demo.id}-title-text`}>{t[`${demo.id}Title`]}</h3>
+	<main class="flex-grow flex flex-col justify-center px-8 md:px-16 pt-32 pb-20">
+		<div class="max-w-7xl w-full mx-auto">
+			<div class="relative mb-16 md:mb-32 pt-8 md:pt-16">
+				<!-- Background Ambient Glow -->
+				<div class="absolute -top-24 left-1/2 -translate-x-1/2 w-full max-w-4xl h-96 bg-brand-accent/5 blur-[120px] rounded-full pointer-events-none"></div>
+				
+				<div class="relative group">
+					<div class="absolute -inset-4 bg-brand-accent/5 rounded-xl blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
+					<div class="relative aspect-[16/9] lg:aspect-[21/9] w-full card-dark overflow-hidden border-brand-border/40 transition-all duration-1000 shadow-[0_0_100px_rgba(0,0,0,0.5)]">
+						<div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 mix-blend-overlay"></div>
+						<img src="https://api.dicebear.com/7.x/shapes/svg?seed=ultra-complex-architecture&backgroundColor=0A0C10&shape1Color=60A5FA&shape2Color=1F2937&shape3Color=3B82F6&shape1Color=60A5FA" alt="System Complexity Visualization" class="w-full h-full object-cover scale-110 group-hover:scale-100 transition-all duration-[3000ms] ease-out opacity-90" />
+						
+						<!-- Overlays -->
+						<div class="absolute inset-0 bg-gradient-to-t from-brand-bg/90 via-transparent to-transparent"></div>
+						<div class="absolute inset-0 bg-gradient-to-r from-brand-bg/40 via-transparent to-brand-bg/40"></div>
+						
+						<!-- Metadata Labels -->
+						<div class="absolute top-4 left-4 md:top-8 md:left-8 flex flex-col gap-2">
+							<div class="h-0.5 w-8 md:w-12 bg-brand-accent/60"></div>
+							<span class="font-mono text-[7px] md:text-[9px] tracking-[0.4em] md:tracking-[0.6em] text-brand-accent uppercase font-bold">Architecture_State: NOMINAL</span>
 						</div>
-						<p id={`${demo.id}-desc-text`}>{t[`${demo.id}Desc`]}</p>
-						<div class="demo-links">
-							<a href={demo.liveUrl} target="_blank" class="demo-link">
-								<span class="demo-label">{t.demoLabel}</span> ↗
-							</a>
-							<a href={demo.blogUrl} class="blog-link">
-								<span class="blog-label">{t.blogLabel}</span> →
-							</a>
+
+						<div class="absolute top-4 right-4 md:top-8 md:right-8 flex items-center gap-2 md:gap-3">
+							<span class="hidden sm:inline font-mono text-[8px] text-brand-text-muted uppercase tracking-widest">Active_Nodes</span>
+							<div class="flex gap-1">
+								<div class="w-1 h-1 bg-brand-accent"></div>
+								<div class="w-1 h-1 bg-brand-accent animate-pulse"></div>
+								<div class="w-1 h-1 bg-brand-accent"></div>
+							</div>
+						</div>
+
+						<div class="absolute bottom-4 left-4 right-4 md:bottom-8 md:left-8 md:right-8 flex justify-between items-end">
+							<div class="space-y-4">
+								<div class="flex gap-6 md:gap-12">
+									<div class="flex flex-col gap-1">
+										<span class="font-mono text-[7px] md:text-[8px] text-brand-text-muted uppercase tracking-widest">Buffer_Sync</span>
+										<span class="font-mono text-[8px] md:text-[10px] text-brand-text-main uppercase font-bold">OPTIMIZED</span>
+									</div>
+									<div class="flex flex-col gap-1">
+										<span class="font-mono text-[7px] md:text-[8px] text-brand-text-muted uppercase tracking-widest">Entropy_Factor</span>
+										<span class="font-mono text-[8px] md:text-[10px] text-brand-text-main uppercase font-bold">0.0024_Σ</span>
+									</div>
+									<div class="hidden md:flex flex-col gap-1">
+										<span class="font-mono text-[8px] text-brand-text-muted uppercase tracking-widest">System_Auth</span>
+										<span class="font-mono text-[10px] text-brand-text-main uppercase font-bold">CERTIFIED</span>
+									</div>
+								</div>
+							</div>
+							<div class="hidden sm:flex flex-col items-end gap-3">
+								<span class="font-mono text-[8px] text-brand-text-muted uppercase tracking-[0.2em]">Core_System_Mapping</span>
+								<div class="h-1 w-24 md:w-32 bg-brand-border/30 overflow-hidden rounded-full">
+									<div class="h-full bg-brand-accent w-2/3 animate-[pulse_2s_infinite]"></div>
+								</div>
+							</div>
 						</div>
 					</div>
-				))}
+				</div>
 			</div>
-		</section>
 
-		<section id="certifications" class="certifications">
-			<div class="cert-header">
-				<h2 id="cert-title-text">{t.certificationsTitle}</h2>
-				<div class="social-profile-links">
-					<span id="view-profile-text">{t.viewProfile}</span>
-					<div class="social-icons">
-						<a href="https://github.com/kiquetal" target="_blank" rel="noopener noreferrer" class="social-profile-link" aria-label="GitHub">
-							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.041-1.416-4.041-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-						</a>
-						<a href="https://www.linkedin.com/in/kiquetal" target="_blank" rel="noopener noreferrer" class="social-profile-link" aria-label="LinkedIn">
-							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
-						</a>
-						<a href="https://www.credly.com/users/enrique-m-talavera/badges#credly" target="_blank" rel="noopener noreferrer" class="social-profile-link" aria-label="Credly">
-							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 1024 1024" fill="currentColor"><path d="M671.2 371.6h3c3.7.3 7.4 2.1 9.7 5 3.4 4.2 4.3 9.8 4.6 15.1.8 16.1-2.7 32.1-7.3 47.5-5.9 20.4-14.2 40-21 60.1-1.2 3.5-2.4 7.1-3.3 10.7-1.5 6-1.3 12.3-1.5 18.5-.2 5.8.2 11.6 1.3 17.3.6 3.1 1.9 6.4 4.3 8.6 2.2 2 5.4 2.9 8.3 2 3.9-1.2 7-4.2 9.8-7.1 3.9-4.3 7.6-8.7 10.3-13.8 3.8-6.8 6-14.3 7.1-22 1.5-11.6 2.7-23.4 6.9-34.4 1.6-4.2 3.6-8.5 7.4-11.1 5.1-3.6 12.8-2.1 16.7 2.7 1.9 2.4 2.4 5.5 2.4 8.4-.2 3.9-1 7.8-2.3 11.5-4.5 13.2-7.1 27.1-6.6 41.1.1 3.2.4 6.6 2.1 9.5 1.4 2.4 3.8 4.3 6.6 4.3 3.2 0 6-1.9 8-4.2 3.1-3.5 5.6-7.5 7.6-11.7 4-8.5 5.9-17.8 7.6-27 1.4-7.8 2.8-15.6 5-23.2 1.2-3.9 2.7-7.8 5.6-10.8 1.9-2.1 4.8-2.9 7.5-2.9 2.8.1 5.4 1.7 7.3 3.8 2.6 2.9 3.1 6.9 2.8 10.6-2.8 22.1-5.9 44.2-8.4 66.3-1.8 13.8-3.4 27.6-4.6 41.4-.1 1.5 1.7 2.4 2.7 1.4 7.2-6.9 14.3-14.1 19.7-22.5 2.5-3.8 4.3-7.9 6.7-11.7 1-1.7 2.2-3.4 4.1-4 2.9-1.4 6.6-1 9.1 1 1.9 1.4 2.9 3.7 3.2 6v2.7c-.6 4.6-3.3 8.5-5.3 12.5-5.5 11-13.1 21-22.6 28.9-6.8 5.8-14.8 10.2-23.2 13.2-.5.2-1.3.3-1.4 1-3.1 12.7-10 24.4-19.3 33.5-10.3 10.2-23.6 17.2-37.7 20.5-7.7 1.7-15.8 2.4-23.6 1-8-1.5-15.8-5.2-21.5-11-5.2-5.2-8.7-12.1-9.3-19.5-.6-6.7 1.1-13.5 4.3-19.4 3.7-6.7 9.3-12.3 15.9-16.2 6.3-3.8 13.5-5.6 20.6-6.5 8.1-.9 16.4-.9 24.6-.2 5.1.4 10.2.9 15.3 1.3 2.8.2 5.9 1.2 8.6-.2 1.9-.9 2.5-3.2 2.8-5.1 1.2-9 3-18.1 1.9-27.3-.2-1.2-.5-3-2-3.1-1.8.8-2.7 2.7-3.7 4.3-3.1 6-8.9 10.6-15.6 11.9-6.7 1.3-14-2.1-17.1-8.1-1.5-2.5-2.2-5.5-4.4-7.6-1.5-1.4-3.7-1.4-5.5-.6-3.2 1.4-5.3 4.3-7.9 6.5-6.8 6.1-15.4 10.7-24.7 11.2-10.8.7-21.9-5.4-26.4-15.4-.6-1.4-1.1-3.4-2.9-3.6-2-.3-3.5 1.3-4.6 2.7-5.3 6.7-10.3 13.9-17.3 18.9-4.5 3.2-9.9 5.4-15.5 5.3-5.9-.1-11.8-3.3-14.6-8.5-1.3-2.3-1.8-5.2-3.9-7-1.6-1.4-4.1-1.2-5.8-.1-2.6 1.5-4.1 4.2-6.2 6.3-5.8 5.8-14.2 8.7-22.3 7.9-9.8-1-18.7-7.8-22.3-17-.5-1.3-1.2-2.8-2.6-3.2-1.1-.4-2 .4-2.7 1.1-5.4 5-10.8 10.1-17.3 13.6-6.6 3.5-13.9 5.8-21.4 5.6-7.9.1-15.8-2.3-22.2-6.8-5.4-3.7-9.7-8.9-12.2-15-.7-1.6-1.6-3.4-3.4-3.8-1.6-.4-3 .8-3.9 2-2.7 3.8-6.2 7.1-10.1 9.6-6 3.9-13 6.6-20.3 6.6-5.6 0-11.2-2.1-15.2-6-4.3-4.2-6.6-10.1-7.5-16-1.1-7.7.5-15.5 2.7-22.8 1.4-4.8 3.2-9.4 4.3-14.3.6-2.5.8-5.2-.3-7.5-.9-1.8-2.8-2.9-4.6-3.7-2-.8-4.1.3-5.5 1.6-1.4 1.3-2.1 3-2.9 4.7-4.9 11.8-11.5 22.9-19.6 32.8-7.8 9.6-17.1 17.9-27.1 25.2-11.4 8.1-24.5 14-38.4 15.9-10.1 1.4-20.6.6-30.4-2.3-5.8-1.7-11.5-4.1-16.5-7.6-8.6-6-15.5-14.3-20.4-23.5-3.8-7.1-6.7-14.7-8.8-22.5-2.9-11.1-3.9-22.5-4.4-33.9v-7.8c.2-8.4 1-16.8 2.7-25 3-14.9 8.4-29.2 15.7-42.5 5.8-10.4 12.7-20.2 21.4-28.3 9.5-8.9 21-15.8 33.7-18.6 12.1-2.7 25.1-2 36.4 3.2 3.4 1.5 6.4 3.7 10 4.8 2.5.8 5.4.5 7.5-1.1 3.2-2.5 4.7-6.5 7.4-9.5 3.4-3.7 8.9-5.2 13.7-3.8 4.5 1.3 8 5.2 9.1 9.7.7 3 .3 6.1-.6 9-1.4 4.1-3.7 7.8-5.9 11.5-7.3 12.6-12.8 26.2-16.3 40.3-1.1 4.3-2 8.8-3.7 12.9-1.6 3.9-4.1 7.6-7.7 10-3.1 2.1-7.2 3.1-10.9 2-3.4-1-6-3.8-7.4-7-1.6-3.4-2.1-7.3-1.6-11.1 1-8.9 5.9-17 6.1-26.1.2-5.1-1.5-10.4-5.5-13.7-5.6-4.8-13.5-6.1-20.6-5.1-8.4 1.1-16.3 5.1-22.5 10.8-6.7 6.2-11.7 14-15.7 22.1-11.6 23.2-16.7 49.8-13.7 75.6 1 8.4 3 16.8 7 24.4 2.5 4.8 5.8 9.1 9.9 12.5 5.3 4.4 11.7 7.4 18.5 8.7 9.7 1.9 19.9.6 29-2.9 12.2-4.7 22.8-13.1 31.2-23 4.5-5.1 8.4-10.7 12.2-16.4 3.8-5.3 7.8-10.9 9.3-17.4 1-4.3.1-8.7-.9-12.9-.7-5.8 1.5-11.7 5.3-16 2.4-2.5 5.4-4.8 8.9-5.5 3.3-.6 7 0 9.8 2.1 3.1 2.2 4.7 6.4 3.6 10.1-.7 2.4-1.5 4.9-.8 7.4.7 2.1 2.8 3.4 4.9 3.5 4.8.4 9.8-.5 14.4 1.1 5.4 2.1 10.2 6.4 12 12.1 1.2 3.8 1.6 8.1.4 11.9-2.1 7.4-4.7 14.7-6.1 22.3-.4 2.5-.8 5.1-.1 7.6.4 1.8 2 3.4 3.9 3.5 3.3.3 6.3-1.5 8.6-3.7 4.7-4.7 7.8-10.7 10-16.9 2.7-7.5 4.1-15.4 6.1-23.1 2.1-7.9 5.3-15.6 10.3-22.1 7.4-9.8 19.4-16.1 31.8-15.8 6.9.1 13.7 2.8 18.6 7.8 4.1 4.2 6.3 9.9 7.2 15.7 1.5 9.8-.3 20.1-4.8 29-6.2 12.2-18.9 20.9-32.6 22-2 .2-4.3.1-5.8 1.6-1.3 1.3-1.2 3.3-1 5 .5 4.6 2 9.3 5.1 12.9 3.6 3.7 9 6.3 14.3 5.1 6.1-1.3 11.3-5.2 15.6-9.4 4.1-4.1 7.7-8.7 11-13.5 4.6-6.6 7.4-14.2 10.2-21.6 2.7-7.3 5.2-14.7 9.7-21.1 3.6-5.4 8.3-10.1 13.9-13.5 6.2-3.9 13.6-5.9 21-5.5 2.3.1 4.9.2 6.8-1.2 1.7-1.3 2.3-3.6 2.3-5.7 0-3.8.4-7.5.7-11.3.5-5.9 1-11.8 1.8-17.6 1.7-14.6 4.7-29 8.6-43.1 2-7.1 4.6-14.3 9.1-20.3 1.9-2.7 4.2-5.3 7.2-6.9 2.9-1.7 6.6-1.6 9.7-.7 4 1.2 6.6 5 8.2 8.6 2.9 7.1 2.1 15 1.5 22.5-.8 11.8-3.6 23.4-6 35-2.1 10.2-3.8 20.5-5.7 30.7-2.6 14-5.1 28.1-7.7 42.1-2.2 11.5-4.7 23.2-3.3 35 .4 3.1.8 6.5 2.9 8.9 1.5 1.7 4 2.1 6 1.4 2.7-.9 4.6-3.3 6-5.7 3.3-5.6 6.2-11.5 9.1-17.4 4.2-8.2 8.4-16.7 9.8-25.9 2.2-14 3.7-28.2 5.7-42.3 1.6-10.5 3.4-21 5.1-31.4 2.1-13.1 4.5-26.1 8.2-38.8 1.8-6 4.2-11.9 8.4-16.6 3.8-3.8 8.3-6.5 13.3-7zM478 487.8c-2 .6-3.6 2.2-4.9 3.8-2.9 3.7-5.1 7.9-6.6 12.4-1.6 4.8-3.1 9.8-2.5 14.8.1 1.5 1.6 2.6 3 2.6 2.7.1 5.1-1.4 7.2-3 4.7-3.3 7.7-8.4 9.8-13.6 1.3-3.3 2.2-6.9 1.9-10.5-.2-2.4-1.4-4.9-3.5-6.1-1.3-.8-3-.9-4.4-.4zm85.7 11.2c-5.6 1-10.6 4.3-14.2 8.7-3.9 4.7-6.6 10.4-8 16.4-2.1 8.5-2.3 17.5 0 26 .7 2.6 1.9 5.2 3.9 7.1 1.3 1.3 3.1 2 4.9 2.1 4.7.7 9.1-1.9 12.7-4.6 4.5-3.3 7.4-8.2 9.2-13.4 1.1-3.2.4-6.6.1-9.9-.5-6.7-.5-13.4-.1-20.1.1-2.3.8-4.5.8-6.8 0-1.8-.7-3.8-2.4-4.8-2.1-1.3-4.6-1.1-6.9-.7zm133.7 119.6c-4.8.3-9.6 1.3-14.1 3.2-4.9 2-9.1 5.7-11.2 10.5-1.4 3-2 6.6-.5 9.6 1.5 3.1 4.3 5.4 7.4 6.8 4.3 1.9 9.1 2.2 13.6 1.7 14.2-1.6 27.7-8.9 36.7-20 1.8-2.2 3.2-4.7 4.7-7.1.4-.8 1-2.1.1-2.8-1.1-.8-2.5-.5-3.7-.5-5.1-.3-10.2-.8-15.3-1-5.9-.3-11.8-.8-17.7-.4z"/></svg>
-						</a>
+			<div class="grid grid-cols-12 gap-8 lg:gap-16">
+					<div class="col-span-12 lg:col-span-7">
+						<div class="flex flex-col gap-8 mb-12">
+							<p class="font-serif text-xl md:text-3xl leading-relaxed text-brand-text-main italic" id="description-text">
+								{t.description}
+							</p>
+						</div>
+						
+						<div class="flex flex-wrap gap-8 items-center border-t border-brand-border pt-12">
+							<div class="visitor-counter flex items-center gap-2">
+								<span class="font-mono text-[10px] text-brand-text-muted uppercase tracking-widest flex items-center gap-2">
+									<span class="inline-block w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.8)] animate-pulse"></span>
+									<span id="visitor-count" class="text-brand-text-main font-bold text-glow">...</span>
+									<span id="visitors-label-text">{t.visitorsLabel}</span>
+								</span>
+							</div>
+
+							{latestPost && (
+								<div class="latest-update flex items-center gap-4">
+									<div class="h-[1px] w-4 bg-brand-border"></div>
+									<a href={`/blog/${latestPost.slug}`} class="font-mono text-[10px] tracking-[0.2em] text-brand-text-main uppercase hover:text-brand-accent transition-colors group">
+										<span id="latest-update-label" class="text-brand-text-muted mr-2">{t.latestUpdate}:</span>
+										<span id="latest-post-title" class="group-hover:underline underline-offset-4"
+											data-title-en={latestPost.data.title.en}
+											data-title-es={latestPost.data.title.es}>
+											{latestPost.data.title[currentLang]}
+										</span>
+									</a>
+								</div>
+							)}
+						</div>
+					</div>
+
+					<div class="col-span-12 lg:col-span-5">
+						<div class="card-dark p-8 border-l-2 border-l-brand-accent/50">
+							<h3 class="font-mono text-[10px] tracking-[0.3em] uppercase text-brand-text-main mb-8 flex items-center gap-3 font-bold" id="core-title-text">
+								<span class="h-px w-6 bg-brand-accent/40"></span> {t.coreTitle}
+							</h3>
+							<div class="space-y-2">
+								<div class="sidebar-item flex justify-between items-center">
+									<span class="text-[9px] text-brand-accent/70 tracking-[0.2em] font-bold uppercase">Java</span>
+									<span class="font-serif text-lg italic text-brand-text-main" id="core-java-text">{t.coreJava}</span>
+								</div>
+								<div class="sidebar-item flex justify-between items-center">
+									<span class="text-[9px] text-brand-accent/70 tracking-[0.2em] font-bold uppercase">Go</span>
+									<span class="font-serif text-lg italic text-brand-text-main" id="core-go-text">{t.coreGo}</span>
+								</div>
+								<div class="sidebar-item flex justify-between items-center">
+									<span class="text-[9px] text-brand-accent/70 tracking-[0.2em] font-bold uppercase">Kubernetes</span>
+									<span class="font-serif text-lg italic text-brand-text-main" id="core-k8s-text">{t.coreK8s}</span>
+								</div>
+								<div class="sidebar-item flex justify-between items-center">
+									<span class="text-[9px] text-brand-accent/70 tracking-[0.2em] font-bold uppercase">AWS</span>
+									<span class="font-serif text-lg italic text-brand-text-main" id="core-aws-text">{t.coreAws}</span>
+								</div>
+							</div>
+							<a href="#certifications" class="mt-8 block text-center border border-brand-accent/30 py-4 font-mono text-[10px] tracking-[0.25em] uppercase hover:bg-brand-accent hover:text-brand-bg transition-all duration-300 font-bold text-brand-accent" id="view-certs-text">
+								{t.viewCerts}
+							</a>
+						</div>
 					</div>
 				</div>
 			</div>
-			<div class="logo-row">
-				<div class="logo-item">
-					<img src="https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg" alt="AWS Solutions Architect Professional" class="aws-logo" />
-					<span class="tooltip" id="cert1-text">{t.cert1}</span>
+
+			<!-- Demos Section -->
+			<section id="demos" class="mt-32 border-t border-brand-border pt-20">
+				<h2 class="font-mono text-[13px] tracking-[0.4em] text-brand-text-muted uppercase mb-12 font-bold" id="demos-title-text">{t.demosTitle}</h2>
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+					{demos.map(demo => (
+						<div class="card-dark p-8 group hover:border-brand-accent/50 transition-all duration-500">
+							<div class="flex items-start justify-between mb-6">
+								<div class="flex items-center gap-4">
+									<Icon name={demo.icon} class="text-brand-accent group-hover:scale-110 transition-transform" size={24} />
+									<h3 class="text-xs tracking-[0.2em] uppercase font-bold text-brand-text-main" id={`${demo.id}-title-text`}>{t[`${demo.id}Title`]}</h3>
+								</div>
+								<div class="flex gap-4">
+									<a href={demo.liveUrl} target="_blank" class="text-[9px] tracking-widest text-brand-text-muted hover:text-brand-accent uppercase transition-colors">
+										<span class="lang-en">{translations.en.liveBtn}</span>
+										<span class="lang-es hidden">{translations.es.liveBtn}</span>
+									</a>
+									<a href={demo.blogUrl} class="text-[9px] tracking-widest text-brand-text-muted hover:text-brand-accent uppercase transition-colors">
+										<span class="lang-en">{translations.en.detailsBtn}</span>
+										<span class="lang-es hidden">{translations.es.detailsBtn}</span>
+									</a>
+								</div>
+							</div>
+							<p class="text-[11px] leading-relaxed text-brand-text-muted uppercase tracking-widest" id={`${demo.id}-desc-text`}>
+								{t[`${demo.id}Desc`]}
+							</p>
+						</div>
+					))}
 				</div>
-				<div class="logo-item">
-					<img src="https://upload.wikimedia.org/wikipedia/commons/3/39/Kubernetes_logo_without_workmark.svg" alt="CKAD" />
-					<span class="tooltip" id="cert2-text">{t.cert2}</span>
+			</section>
+
+			<!-- Tech Stack Section -->
+			<section id="tech-stack" class="mt-32 border-t border-brand-border pt-20">
+				<h2 class="font-mono text-[13px] tracking-[0.4em] text-brand-text-muted uppercase mb-16 font-bold" id="tech-title-text">{t.techTitle}</h2>
+				<div class="grid grid-cols-1 md:grid-cols-3 gap-16 md:gap-8">
+					{techStack.map(tech => (
+						<div class="group border-l border-brand-border/30 pl-8 hover:border-brand-accent transition-all duration-500">
+							<Icon name={tech.icon} class="text-brand-accent/40 mb-6 group-hover:text-brand-accent transition-colors" size={24} />
+							<h3 class="font-serif text-xl mb-4 italic text-brand-text-main" id={`${tech.id}-title-text`}>{t[`${tech.id}Title`]}</h3>
+							<p class="font-mono text-[11px] text-brand-text-muted leading-relaxed uppercase tracking-wider" id={`${tech.id}-desc-text`}>
+								{t[`${tech.id}Desc`]}
+							</p>
+						</div>
+					))}
 				</div>
-				<div class="logo-item">
-					<img src="https://upload.wikimedia.org/wikipedia/en/3/30/Java_programming_language_logo.svg" alt="Java OCP" />
-					<span class="tooltip" id="cert3-text">{t.cert3}</span>
+			</section>
+
+			<!-- Certifications Section -->
+			<section id="certifications" class="mt-32 border-t border-brand-border pt-20 pb-20">
+				<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-12">
+					<h2 class="font-mono text-[13px] tracking-[0.4em] text-brand-text-muted uppercase font-bold" id="cert-title-text">{t.certificationsTitle}</h2>
+					<div class="flex items-center gap-6">
+						<span class="text-[9px] text-brand-text-muted uppercase tracking-widest" id="view-profile-text">{t.viewProfile}</span>
+						<a href="https://www.credly.com/users/enrique-m-talavera/badges#credly" target="_blank" class="text-[9px] tracking-widest text-brand-accent hover:text-brand-text-main uppercase transition-colors">CREDLY</a>
+					</div>
 				</div>
-				<div class="logo-item">
-					<a href="https://www.credly.com/users/enrique-m-talavera/badges#credly" target="_blank" rel="noopener noreferrer" style="display: flex; width: 100%; height: 100%; justify-content: center; align-items: center;">
-						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="currentColor" class="credly-logo" style="width: 100%; height: 100%;"><path d="M671.2 371.6h3c3.7.3 7.4 2.1 9.7 5 3.4 4.2 4.3 9.8 4.6 15.1.8 16.1-2.7 32.1-7.3 47.5-5.9 20.4-14.2 40-21 60.1-1.2 3.5-2.4 7.1-3.3 10.7-1.5 6-1.3 12.3-1.5 18.5-.2 5.8.2 11.6 1.3 17.3.6 3.1 1.9 6.4 4.3 8.6 2.2 2 5.4 2.9 8.3 2 3.9-1.2 7-4.2 9.8-7.1 3.9-4.3 7.6-8.7 10.3-13.8 3.8-6.8 6-14.3 7.1-22 1.5-11.6 2.7-23.4 6.9-34.4 1.6-4.2 3.6-8.5 7.4-11.1 5.1-3.6 12.8-2.1 16.7 2.7 1.9 2.4 2.4 5.5 2.4 8.4-.2 3.9-1 7.8-2.3 11.5-4.5 13.2-7.1 27.1-6.6 41.1.1 3.2.4 6.6 2.1 9.5 1.4 2.4 3.8 4.3 6.6 4.3 3.2 0 6-1.9 8-4.2 3.1-3.5 5.6-7.5 7.6-11.7 4-8.5 5.9-17.8 7.6-27 1.4-7.8 2.8-15.6 5-23.2 1.2-3.9 2.7-7.8 5.6-10.8 1.9-2.1 4.8-2.9 7.5-2.9 2.8.1 5.4 1.7 7.3 3.8 2.6 2.9 3.1 6.9 2.8 10.6-2.8 22.1-5.9 44.2-8.4 66.3-1.8 13.8-3.4 27.6-4.6 41.4-.1 1.5 1.7 2.4 2.7 1.4 7.2-6.9 14.3-14.1 19.7-22.5 2.5-3.8 4.3-7.9 6.7-11.7 1-1.7 2.2-3.4 4.1-4 2.9-1.4 6.6-1 9.1 1 1.9 1.4 2.9 3.7 3.2 6v2.7c-.6 4.6-3.3 8.5-5.3 12.5-5.5 11-13.1 21-22.6 28.9-6.8 5.8-14.8 10.2-23.2 13.2-.5.2-1.3.3-1.4 1-3.1 12.7-10 24.4-19.3 33.5-10.3 10.2-23.6 17.2-37.7 20.5-7.7 1.7-15.8 2.4-23.6 1-8-1.5-15.8-5.2-21.5-11-5.2-5.2-8.7-12.1-9.3-19.5-.6-6.7 1.1-13.5 4.3-19.4 3.7-6.7 9.3-12.3 15.9-16.2 6.3-3.8 13.5-5.6 20.6-6.5 8.1-.9 16.4-.9 24.6-.2 5.1.4 10.2.9 15.3 1.3 2.8.2 5.9 1.2 8.6-.2 1.9-.9 2.5-3.2 2.8-5.1 1.2-9 3-18.1 1.9-27.3-.2-1.2-.5-3-2-3.1-1.8.8-2.7 2.7-3.7 4.3-3.1 6-8.9 10.6-15.6 11.9-6.7 1.3-14-2.1-17.1-8.1-1.5-2.5-2.2-5.5-4.4-7.6-1.5-1.4-3.7-1.4-5.5-.6-3.2 1.4-5.3 4.3-7.9 6.5-6.8 6.1-15.4 10.7-24.7 11.2-10.8.7-21.9-5.4-26.4-15.4-.6-1.4-1.1-3.4-2.9-3.6-2-.3-3.5 1.3-4.6 2.7-5.3 6.7-10.3 13.9-17.3 18.9-4.5 3.2-9.9 5.4-15.5 5.3-5.9-.1-11.8-3.3-14.6-8.5-1.3-2.3-1.8-5.2-3.9-7-1.6-1.4-4.1-1.2-5.8-.1-2.6 1.5-4.1 4.2-6.2 6.3-5.8 5.8-14.2 8.7-22.3 7.9-9.8-1-18.7-7.8-22.3-17-.5-1.3-1.2-2.8-2.6-3.2-1.1-.4-2 .4-2.7 1.1-5.4 5-10.8 10.1-17.3 13.6-6.6 3.5-13.9 5.8-21.4 5.6-7.9.1-15.8-2.3-22.2-6.8-5.4-3.7-9.7-8.9-12.2-15-.7-1.6-1.6-3.4-3.4-3.8-1.6-.4-3 .8-3.9 2-2.7 3.8-6.2 7.1-10.1 9.6-6 3.9-13 6.6-20.3 6.6-5.6 0-11.2-2.1-15.2-6-4.3-4.2-6.6-10.1-7.5-16-1.1-7.7.5-15.5 2.7-22.8 1.4-4.8 3.2-9.4 4.3-14.3.6-2.5.8-5.2-.3-7.5-.9-1.8-2.8-2.9-4.6-3.7-2-.8-4.1.3-5.5 1.6-1.4 1.3-2.1 3-2.9 4.7-4.9 11.8-11.5 22.9-19.6 32.8-7.8 9.6-17.1 17.9-27.1 25.2-11.4 8.1-24.5 14-38.4 15.9-10.1 1.4-20.6.6-30.4-2.3-5.8-1.7-11.5-4.1-16.5-7.6-8.6-6-15.5-14.3-20.4-23.5-3.8-7.1-6.7-14.7-8.8-22.5-2.9-11.1-3.9-22.5-4.4-33.9v-7.8c.2-8.4 1-16.8 2.7-25 3-14.9 8.4-29.2 15.7-42.5 5.8-10.4 12.7-20.2 21.4-28.3 9.5-8.9 21-15.8 33.7-18.6 12.1-2.7 25.1-2 36.4 3.2 3.4 1.5 6.4 3.7 10 4.8 2.5.8 5.4.5 7.5-1.1 3.2-2.5 4.7-6.5 7.4-9.5 3.4-3.7 8.9-5.2 13.7-3.8 4.5 1.3 8 5.2 9.1 9.7.7 3 .3 6.1-.6 9-1.4 4.1-3.7 7.8-5.9 11.5-7.3 12.6-12.8 26.2-16.3 40.3-1.1 4.3-2 8.8-3.7 12.9-1.6 3.9-4.1 7.6-7.7 10-3.1 2.1-7.2 3.1-10.9 2-3.4-1-6-3.8-7.4-7-1.6-3.4-2.1-7.3-1.6-11.1 1-8.9 5.9-17 6.1-26.1.2-5.1-1.5-10.4-5.5-13.7-5.6-4.8-13.5-6.1-20.6-5.1-8.4 1.1-16.3 5.1-22.5 10.8-6.7 6.2-11.7 14-15.7 22.1-11.6 23.2-16.7 49.8-13.7 75.6 1 8.4 3 16.8 7 24.4 2.5 4.8 5.8 9.1 9.9 12.5 5.3 4.4 11.7 7.4 18.5 8.7 9.7 1.9 19.9.6 29-2.9 12.2-4.7 22.8-13.1 31.2-23 4.5-5.1 8.4-10.7 12.2-16.4 3.8-5.3 7.8-10.9 9.3-17.4 1-4.3.1-8.7-.9-12.9-.7-5.8 1.5-11.7 5.3-16 2.4-2.5 5.4-4.8 8.9-5.5 3.3-.6 7 0 9.8 2.1 3.1 2.2 4.7 6.4 3.6 10.1-.7 2.4-1.5 4.9-.8 7.4.7 2.1 2.8 3.4 4.9 3.5 4.8.4 9.8-.5 14.4 1.1 5.4 2.1 10.2 6.4 12 12.1 1.2 3.8 1.6 8.1.4 11.9-2.1 7.4-4.7 14.7-6.1 22.3-.4 2.5-.8 5.1-.1 7.6.4 1.8 2 3.4 3.9 3.5 3.3.3 6.3-1.5 8.6-3.7 4.7-4.7 7.8-10.7 10-16.9 2.7-7.5 4.1-15.4 6.1-23.1 2.1-7.9 5.3-15.6 10.3-22.1 7.4-9.8 19.4-16.1 31.8-15.8 6.9.1 13.7 2.8 18.6 7.8 4.1 4.2 6.3 9.9 7.2 15.7 1.5 9.8-.3 20.1-4.8 29-6.2 12.2-18.9 20.9-32.6 22-2 .2-4.3.1-5.8 1.6-1.3 1.3-1.2 3.3-1 5 .5 4.6 2 9.3 5.1 12.9 3.6 3.7 9 6.3 14.3 5.1 6.1-1.3 11.3-5.2 15.6-9.4 4.1-4.1 7.7-8.7 11-13.5 4.6-6.6 7.4-14.2 10.2-21.6 2.7-7.3 5.2-14.7 9.7-21.1 3.6-5.4 8.3-10.1 13.9-13.5 6.2-3.9 13.6-5.9 21-5.5 2.3.1 4.9.2 6.8-1.2 1.7-1.3 2.3-3.6 2.3-5.7 0-3.8.4-7.5.7-11.3.5-5.9 1-11.8 1.8-17.6 1.7-14.6 4.7-29 8.6-43.1 2-7.1 4.6-14.3 9.1-20.3 1.9-2.7 4.2-5.3 7.2-6.9 2.9-1.7 6.6-1.6 9.7-.7 4 1.2 6.6 5 8.2 8.6 2.9 7.1 2.1 15 1.5 22.5-.8 11.8-3.6 23.4-6 35-2.1 10.2-3.8 20.5-5.7 30.7-2.6 14-5.1 28.1-7.7 42.1-2.2 11.5-4.7 23.2-3.3 35 .4 3.1.8 6.5 2.9 8.9 1.5 1.7 4 2.1 6 1.4 2.7-.9 4.6-3.3 6-5.7 3.3-5.6 6.2-11.5 9.1-17.4 4.2-8.2 8.4-16.7 9.8-25.9 2.2-14 3.7-28.2 5.7-42.3 1.6-10.5 3.4-21 5.1-31.4 2.1-13.1 4.5-26.1 8.2-38.8 1.8-6 4.2-11.9 8.4-16.6 3.8-3.8 8.3-6.5 13.3-7zM478 487.8c-2 .6-3.6 2.2-4.9 3.8-2.9 3.7-5.1 7.9-6.6 12.4-1.6 4.8-3.1 9.8-2.5 14.8.1 1.5 1.6 2.6 3 2.6 2.7.1 5.1-1.4 7.2-3 4.7-3.3 7.7-8.4 9.8-13.6 1.3-3.3 2.2-6.9 1.9-10.5-.2-2.4-1.4-4.9-3.5-6.1-1.3-.8-3-.9-4.4-.4zm85.7 11.2c-5.6 1-10.6 4.3-14.2 8.7-3.9 4.7-6.6 10.4-8 16.4-2.1 8.5-2.3 17.5 0 26 .7 2.6 1.9 5.2 3.9 7.1 1.3 1.3 3.1 2 4.9 2.1 4.7.7 9.1-1.9 12.7-4.6 4.5-3.3 7.4-8.2 9.2-13.4 1.1-3.2.4-6.6.1-9.9-.5-6.7-.5-13.4-.1-20.1.1-2.3.8-4.5.8-6.8 0-1.8-.7-3.8-2.4-4.8-2.1-1.3-4.6-1.1-6.9-.7zm133.7 119.6c-4.8.3-9.6 1.3-14.1 3.2-4.9 2-9.1 5.7-11.2 10.5-1.4 3-2 6.6-.5 9.6 1.5 3.1 4.3 5.4 7.4 6.8 4.3 1.9 9.1 2.2 13.6 1.7 14.2-1.6 27.7-8.9 36.7-20 1.8-2.2 3.2-4.7 4.7-7.1.4-.8 1-2.1.1-2.8-1.1-.8-2.5-.5-3.7-.5-5.1-.3-10.2-.8-15.3-1-5.9-.3-11.8-.8-17.7-.4z"/></svg>
+				
+				<div class="grid grid-cols-2 md:grid-cols-4 gap-12">
+					<div class="flex flex-col gap-6 group">
+						<div class="flex items-center justify-between">
+							<span class="text-[9px] text-brand-accent/40 uppercase tracking-[0.2em] font-mono">01</span>
+							<div class="w-12 h-12 relative overflow-hidden group-hover:drop-shadow-[0_0_15px_rgba(96,165,250,0.5)] transition-all duration-500">
+								<img src="https://images.credly.com/size/340x340/images/2d84e428-9078-49b6-a804-13c15383d0de/image.png" alt="AWS SAP" class="w-full h-full object-contain transition-all duration-500" />
+							</div>
+						</div>
+						<span class="text-[11px] tracking-[0.1em] uppercase leading-relaxed text-brand-text-main font-bold group-hover:font-black group-hover:underline underline-offset-8 transition-all duration-500 decoration-brand-accent/40 group-hover:bg-brand-accent/5 px-2 py-1 -mx-2" id="cert1-text">{t.cert1}</span>
+					</div>
+					<div class="flex flex-col gap-6 group">
+						<div class="flex items-center justify-between">
+							<span class="text-[9px] text-brand-accent/40 uppercase tracking-[0.2em] font-mono">02</span>
+							<div class="w-12 h-12 relative overflow-hidden group-hover:drop-shadow-[0_0_15px_rgba(96,165,250,0.5)] transition-all duration-500">
+								<img src="https://images.credly.com/size/340x340/images/cc8adc83-1dc6-4d57-8e20-22171247e052/blob" alt="CKAD" class="w-full h-full object-contain transition-all duration-500" />
+							</div>
+						</div>
+						<span class="text-[11px] tracking-[0.1em] uppercase leading-relaxed text-brand-text-main font-bold group-hover:font-black group-hover:underline underline-offset-8 transition-all duration-500 decoration-brand-accent/40 group-hover:bg-brand-accent/5 px-2 py-1 -mx-2" id="cert2-text">{t.cert2}</span>
+					</div>
+					<div class="flex flex-col gap-6 group">
+						<div class="flex items-center justify-between">
+							<span class="text-[9px] text-brand-accent/40 uppercase tracking-[0.2em] font-mono">03</span>
+							<div class="w-12 h-12 relative overflow-hidden group-hover:drop-shadow-[0_0_15px_rgba(96,165,250,0.5)] transition-all duration-500">
+								<img src="https://images.credly.com/size/340x340/images/3661e48f-ee1c-47fc-a474-b84fca370a19/Oracle-Certification-badge_OC-Professional600X600.png" alt="Oracle Java" class="w-full h-full object-contain transition-all duration-500" />
+							</div>
+						</div>
+						<span class="text-[11px] tracking-[0.1em] uppercase leading-relaxed text-brand-text-main font-bold group-hover:font-black group-hover:underline underline-offset-8 transition-all duration-500 decoration-brand-accent/40 group-hover:bg-brand-accent/5 px-2 py-1 -mx-2" id="cert3-text">{t.cert3}</span>
+					</div>
+					<a href="https://www.credly.com/users/enrique-m-talavera/badges#credly" target="_blank" class="flex flex-col gap-6 group">
+						<div class="flex items-center justify-between">
+							<span class="text-[9px] text-brand-accent/40 uppercase tracking-[0.2em] font-mono">04</span>
+							<div class="w-12 h-12 flex items-center justify-center text-brand-accent/20 group-hover:text-brand-accent transition-all duration-500">
+								<Icon name="ph:medal-bold" size={32} />
+							</div>
+						</div>
+						<span class="text-[11px] tracking-[0.1em] uppercase leading-relaxed text-brand-text-main font-bold group-hover:font-black group-hover:underline underline-offset-8 transition-all duration-500 decoration-brand-accent/40 group-hover:bg-brand-accent/5 px-2 py-1 -mx-2" id="cert-credly-text">{t.certCredly}</span>
 					</a>
-					<span class="tooltip" id="cert-credly-text">{t.certCredly}</span>
 				</div>
-			</div>
-		</section>
+			</section>
+		</div>
 	</main>
 </Layout>
 
-<script define:vars={{ translations, demos }}>
+<script define:vars={{ translations, demos, techStack }}>
 	// Fetch visitor count
 	fetch('https://counter-visitors.kiquetal.workers.dev')
 		.then(res => res.json())
 		.then(data => {
-			document.getElementById('visitor-count').textContent = data.visitors;
+			const countEl = document.getElementById('visitor-count');
+			if (countEl) countEl.textContent = data.visitors;
 		})
 		.catch(() => {
-			document.getElementById('visitor-count').textContent = '—';
+			const countEl = document.getElementById('visitor-count');
+			if (countEl) countEl.textContent = '—';
 		});
 
 	function setLanguage(lang) {
 		const t = translations[lang];
 
 		// Update text content
-		document.getElementById('role-text').textContent = t.role;
-		document.getElementById('role-suffix-text').textContent = t.roleSuffix;
-		document.getElementById('description-text').textContent = t.description;
-		document.getElementById('cta-text').textContent = t.cta;
-		document.getElementById('contact-text').textContent = t.contact;
+		const heroTitle = document.getElementById('hero-title');
+		if (heroTitle) heroTitle.textContent = t.heroTitle;
+		
+		const heroTitleItalic = document.getElementById('hero-title-italic');
+		if (heroTitleItalic) heroTitleItalic.textContent = t.heroTitleItalic;
+
+		const heroTitleSuffix = document.getElementById('hero-title-suffix');
+		if (heroTitleSuffix) heroTitleSuffix.textContent = t.heroTitleSuffix;
+
+		const descriptionText = document.getElementById('description-text');
+		if (descriptionText) descriptionText.textContent = t.description;
+
+		const manifestoText = document.getElementById('manifesto-text');
+		if (manifestoText) manifestoText.textContent = t.manifesto;
 
 		const latestUpdateLabel = document.getElementById('latest-update-label');
-		if (latestUpdateLabel) latestUpdateLabel.textContent = t.latestUpdate;
+		if (latestUpdateLabel) latestUpdateLabel.textContent = t.latestUpdate + ':';
 
 		const latestPostTitle = document.getElementById('latest-post-title');
 		if (latestPostTitle) {
 			latestPostTitle.textContent = lang === 'en' ? latestPostTitle.dataset.titleEn : latestPostTitle.dataset.titleEs;
 		}
 
-		document.getElementById('demos-title-text').textContent = t.demosTitle;
+		const demosTitleText = document.getElementById('demos-title-text');
+		if (demosTitleText) demosTitleText.textContent = t.demosTitle;
+
+		const techTitleText = document.getElementById('tech-title-text');
+		if (techTitleText) techTitleText.textContent = t.techTitle;
+
+		const coreTitleText = document.getElementById('core-title-text');
+		if (coreTitleText) {
+			const span = coreTitleText.querySelector('span');
+			coreTitleText.textContent = t.coreTitle;
+			if (span) coreTitleText.prepend(span);
+		}
+
+		const coreJavaText = document.getElementById('core-java-text');
+		if (coreJavaText) coreJavaText.textContent = t.coreJava;
+
+		const coreGoText = document.getElementById('core-go-text');
+		if (coreGoText) coreGoText.textContent = t.coreGo;
+
+		const coreK8sText = document.getElementById('core-k8s-text');
+		if (coreK8sText) coreK8sText.textContent = t.coreK8s;
+
+		const coreAwsText = document.getElementById('core-aws-text');
+		if (coreAwsText) coreAwsText.textContent = t.coreAws;
+
+		const viewCertsText = document.getElementById('view-certs-text');
+		if (viewCertsText) viewCertsText.textContent = t.viewCerts;
 
 		// Dynamic update for demos
 		demos.forEach(demo => {
-			document.getElementById(`${demo.id}-title-text`).textContent = t[`${demo.id}Title`];
-			document.getElementById(`${demo.id}-desc-text`).textContent = t[`${demo.id}Desc`];
+			const titleEl = document.getElementById(`${demo.id}-title-text`);
+			if (titleEl) titleEl.textContent = t[`${demo.id}Title`];
+			
+			const descEl = document.getElementById(`${demo.id}-desc-text`);
+			if (descEl) descEl.textContent = t[`${demo.id}Desc`];
 		});
 
-		document.querySelectorAll('.demo-label').forEach(el => el.textContent = t.demoLabel);
-		document.querySelectorAll('.blog-label').forEach(el => el.textContent = t.blogLabel);
+		// Dynamic update for tech stack
+		techStack.forEach(tech => {
+			const titleEl = document.getElementById(`${tech.id}-title-text`);
+			if (titleEl) titleEl.textContent = t[`${tech.id}Title`];
+			
+			const descEl = document.getElementById(`${tech.id}-desc-text`);
+			if (descEl) descEl.textContent = t[`${tech.id}Desc`];
+		});
 
-		document.getElementById('cert-title-text').textContent = t.certificationsTitle;
-		document.getElementById('view-profile-text').textContent = t.viewProfile;
-		document.getElementById('cert1-text').textContent = t.cert1;
-		document.getElementById('cert2-text').textContent = t.cert2;
-		document.getElementById('cert3-text').textContent = t.cert3;
-		const certCredly = document.getElementById('cert-credly-text');
-		if (certCredly) certCredly.textContent = t.certCredly;
+		const certTitleText = document.getElementById('cert-title-text');
+		if (certTitleText) certTitleText.textContent = t.certificationsTitle;
+
+		const viewProfileText = document.getElementById('view-profile-text');
+		if (viewProfileText) viewProfileText.textContent = t.viewProfile;
+
+		const cert1Text = document.getElementById('cert1-text');
+		if (cert1Text) cert1Text.textContent = t.cert1;
+
+		const cert2Text = document.getElementById('cert2-text');
+		if (cert2Text) cert2Text.textContent = t.cert2;
+
+		const cert3Text = document.getElementById('cert3-text');
+		if (cert3Text) cert3Text.textContent = t.cert3;
+
+		const certCredlyText = document.getElementById('cert-credly-text');
+		if (certCredlyText) certCredlyText.textContent = t.certCredly;
 		
-		document.getElementById('visitors-label-text').textContent = t.visitorsLabel;
+		const visitorsLabelText = document.getElementById('visitors-label-text');
+		if (visitorsLabelText) visitorsLabelText.textContent = t.visitorsLabel;
 	}
 
 	// Listen to header language change
@@ -245,441 +457,3 @@ const t = translations[currentLang];
 		setLanguage(savedLang);
 	}
 </script>
-
-<style>
-	main {
-		margin: auto;
-		padding: 6rem 2rem 4rem;
-		width: 100%;
-		max-width: 1200px;
-		color: var(--text-secondary);
-		font-size: 18px;
-		line-height: 1.8;
-		position: relative;
-	}
-
-	.hero {
-		display: flex;
-		flex-direction: column-reverse;
-		gap: 4rem;
-		margin-bottom: 4rem;
-		align-items: center;
-		min-height: 60vh;
-		justify-content: center;
-	}
-
-	@media (min-width: 900px) {
-		.hero {
-			flex-direction: row;
-			text-align: left;
-		}
-		.hero-content {
-			flex: 1;
-			padding-right: 2rem;
-		}
-		.hero-image {
-			flex: 1;
-		}
-	}
-
-	.hero-content h1 {
-		font-size: clamp(2.5rem, 5vw, 3.5rem);
-		font-weight: 700;
-		line-height: 1.1;
-		margin-bottom: 1.5rem;
-		letter-spacing: -0.02em;
-		animation: fadeSlideUp 0.6s ease both;
-	}
-
-	.text-gradient {
-		background-image: var(--accent-gradient);
-		-webkit-background-clip: text;
-		-webkit-text-fill-color: transparent;
-		background-size: 400%;
-		background-position: 0%;
-	}
-
-	.career-description {
-		font-size: 1.25rem;
-		color: var(--text-muted);
-		margin-bottom: 2.5rem;
-		max-width: 600px;
-		animation: fadeSlideUp 0.6s ease 0.1s both;
-	}
-
-	.cta-container {
-		display: flex;
-		gap: 1rem;
-		flex-wrap: wrap;
-		animation: fadeSlideUp 0.6s ease 0.2s both;
-	}
-
-	.cta-link {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.5rem;
-		padding: 0.8rem 1.6rem;
-		background: rgb(var(--accent));
-		color: white;
-		text-decoration: none;
-		border-radius: var(--radius-md);
-		font-weight: 600;
-		transition: all var(--transition-base);
-		box-shadow: 0 4px 14px 0 rgba(var(--accent), 0.3);
-		border: 1px solid transparent;
-	}
-
-	.cta-link:hover {
-		background: rgb(var(--accent-dark));
-		transform: translateY(-2px);
-		box-shadow: 0 6px 20px rgba(var(--accent), 0.2);
-	}
-
-	.cta-link:nth-child(2) {
-		background: transparent;
-		border: 1px solid rgba(var(--accent), 0.4);
-		color: rgb(var(--accent));
-		box-shadow: none;
-	}
-
-	.cta-link:nth-child(2):hover {
-		background: rgba(var(--accent), 0.1);
-		border-color: rgb(var(--accent));
-		box-shadow: none;
-	}
-
-	.btn-icon {
-		font-size: 1.2rem;
-		line-height: 1;
-	}
-
-	.latest-update-container {
-		margin-top: 2rem;
-		display: flex;
-		align-items: center;
-		gap: 1rem;
-		font-size: 0.9rem;
-		background: var(--surface-2);
-		padding: 0.5rem 1rem;
-		border-radius: var(--radius-full);
-		width: fit-content;
-		border: 1px solid var(--border-default);
-		animation: fadeSlideUp 0.6s ease 0.3s both;
-	}
-
-	.update-badge {
-		background: #00ab41;
-		color: white;
-		padding: 0.2rem 0.6rem;
-		border-radius: var(--radius-full);
-		font-size: 0.75rem;
-		font-weight: 700;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		animation: pulse 2s ease-in-out infinite;
-	}
-
-	.latest-update-link {
-		color: var(--text-secondary);
-		text-decoration: none;
-		font-weight: 500;
-		transition: color var(--transition-fast);
-	}
-
-	.latest-update-link:hover {
-		color: rgb(var(--accent));
-	}
-
-	@keyframes float {
-		0%, 100% { transform: translateY(0); }
-		50% { transform: translateY(-8px); }
-	}
-
-	.hero-image {
-		animation: fadeSlideUp 0.6s ease 0.15s both;
-	}
-
-	.hero-image img {
-		width: 100%;
-		height: auto;
-		border-radius: var(--radius-lg);
-		box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5);
-		animation: float 6s ease-in-out infinite;
-	}
-
-	.demos {
-		margin-bottom: 8rem;
-		padding: 2rem 2rem 4rem;
-		background: radial-gradient(circle at center, rgba(var(--accent), 0.05) 0%, transparent 70%);
-		border-radius: var(--radius-lg);
-		margin-left: -2rem;
-		margin-right: -2rem;
-	}
-
-	.demos h2 {
-		text-align: center;
-		font-size: clamp(1.75rem, 4vw, 2.5rem);
-		margin-bottom: 4rem;
-		color: var(--text-primary);
-		font-weight: 700;
-		letter-spacing: -0.02em;
-	}
-
-	.demos-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-		column-gap: 3rem;
-		row-gap: 6rem;
-		max-width: 900px;
-		margin: 3rem auto 0;
-	}
-
-	.demo-card {
-		position: relative;
-		background: var(--surface-1);
-		border: 1px solid var(--border-default);
-		padding: 1.5rem;
-		border-radius: var(--radius-md);
-		transition: all var(--transition-base);
-		display: flex;
-		flex-direction: column;
-		height: 100%;
-		overflow: hidden;
-	}
-
-	.demo-card::before {
-		content: '';
-		position: absolute;
-		inset: 0;
-		border-radius: var(--radius-md);
-		padding: 1px;
-		background: linear-gradient(135deg, rgba(var(--accent), 0.3), rgba(139, 92, 246, 0.3));
-		-webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-		-webkit-mask-composite: xor;
-		mask-composite: exclude;
-		opacity: 0;
-		transition: opacity var(--transition-base);
-		pointer-events: none;
-	}
-
-	.demo-card:hover {
-		box-shadow: var(--shadow-glow);
-		transform: translateY(-2px);
-	}
-
-	.demo-card:hover::before {
-		opacity: 1;
-	}
-
-	.demo-header {
-		display: flex;
-		align-items: center;
-		gap: 0.75rem;
-		margin-bottom: 0.75rem;
-	}
-
-	.demo-icon {
-		font-size: 1.5rem;
-		line-height: 1;
-		color: rgb(var(--accent));
-	}
-
-	.demo-card h3 {
-		color: var(--text-primary);
-		font-size: 1.1rem;
-		margin: 0;
-		font-weight: 700;
-	}
-
-	.demo-card p {
-		color: var(--text-muted);
-		font-size: 0.9rem;
-		margin-bottom: 1.25rem;
-		line-height: 1.5;
-		flex-grow: 1;
-	}
-
-	.demo-links {
-		display: flex;
-		gap: 1.25rem;
-		flex-wrap: wrap;
-		width: 100%;
-	}
-
-	.demo-link, .blog-link {
-		font-size: 0.8rem;
-		font-weight: 600;
-		text-decoration: none;
-		transition: color var(--transition-fast);
-	}
-
-	.demo-link {
-		color: rgb(var(--accent));
-	}
-
-	.demo-link:hover {
-		color: rgb(var(--accent-light));
-	}
-
-	.blog-link {
-		color: var(--text-muted);
-	}
-
-	.blog-link:hover {
-		color: var(--text-primary);
-	}
-
-	.certifications {
-		padding: 4rem 0;
-		border-top: 1px solid var(--border-subtle);
-	}
-
-	.cert-header {
-		display: flex;
-		flex-direction: row;
-		justify-content: center;
-		align-items: center;
-		gap: 1.5rem;
-		margin-bottom: 3rem;
-		flex-wrap: wrap;
-	}
-
-	.certifications h2 {
-		text-align: center;
-		font-size: 2rem;
-		margin: 0;
-		color: var(--text-primary);
-		font-weight: 700;
-	}
-
-	.social-profile-links {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		color: var(--text-muted);
-		font-size: 1rem;
-	}
-
-	.social-icons {
-		display: flex;
-		align-items: center;
-		gap: 0.75rem;
-	}
-
-	.social-profile-link {
-		display: flex;
-		align-items: center;
-		color: var(--text-muted);
-		text-decoration: none;
-		transition: color var(--transition-fast);
-	}
-
-	.social-profile-link:hover {
-		color: rgb(var(--accent));
-	}
-
-	.logo-row {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		gap: 4rem;
-		flex-wrap: wrap;
-	}
-
-	.logo-item {
-		position: relative;
-		width: 100px;
-		height: 100px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		background: var(--surface-1);
-		border-radius: var(--radius-lg);
-		padding: 1.5rem;
-		transition: all var(--transition-base);
-		cursor: pointer;
-	}
-
-	.logo-item:hover {
-		background: var(--surface-hover);
-		transform: translateY(-5px);
-		box-shadow: var(--shadow-glow);
-	}
-
-	.logo-item img {
-		width: 100%;
-		height: 100%;
-		object-fit: contain;
-		filter: grayscale(100%) brightness(200%);
-		transition: filter var(--transition-base);
-	}
-
-	.logo-item:hover img {
-		filter: grayscale(0%) brightness(100%);
-	}
-
-	.logo-item img.aws-logo {
-		filter: grayscale(100%) brightness(200%);
-	}
-
-	.logo-item:hover img.aws-logo {
-		filter: invert(1) hue-rotate(180deg);
-	}
-
-	.logo-item .credly-logo {
-		color: var(--text-muted);
-		transition: all var(--transition-base);
-	}
-
-	.logo-item:hover .credly-logo {
-		color: #F36C21;
-	}
-
-	.tooltip {
-		position: absolute;
-		top: -40px;
-		left: 50%;
-		transform: translateX(-50%);
-		background: rgba(0, 0, 0, 0.9);
-		color: white;
-		padding: 0.5rem 1rem;
-		border-radius: var(--radius-sm);
-		font-size: 0.875rem;
-		white-space: nowrap;
-		opacity: 0;
-		visibility: hidden;
-		transition: all var(--transition-fast);
-		pointer-events: none;
-		z-index: 1000;
-	}
-
-	.logo-item:hover .tooltip {
-		opacity: 1;
-		visibility: visible;
-		top: -50px;
-	}
-
-	.visitor-counter {
-		margin-top: 1.5rem;
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		font-size: 0.9rem;
-		color: var(--text-muted);
-		animation: fadeSlideUp 0.6s ease 0.4s both;
-	}
-
-	.visitor-icon {
-		font-size: 1.1rem;
-	}
-
-	#visitor-count {
-		font-weight: 700;
-		color: rgb(var(--accent));
-		font-size: 1rem;
-	}
-
-	.visitor-label {
-		font-size: 0.85rem;
-	}
-</style>
