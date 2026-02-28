@@ -77,15 +77,15 @@ const t = translations[currentLang];
 				</header>
 
 				{post.data.draft && (
-					<div class="mb-12 border border-brand-border/50 bg-brand-surface/30 p-6 rounded-sm">
+					<div class="mb-12 border border-yellow-500/30 bg-yellow-500/5 p-6 rounded-sm">
 						<div class="flex items-center gap-4 mb-2">
-							<div class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse shadow-[0_0_8px_rgba(59,130,246,0.8)]"></div>
-							<span class="font-mono text-[9px] tracking-[0.3em] text-brand-text-main uppercase font-bold">
-								<span class="lang-en">{t.underDevelopment}</span>
-								<span class="lang-es hidden">{translations.es.underDevelopment}</span>
+							<div class="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse shadow-[0_0_8px_rgba(234,179,8,0.8)]"></div>
+							<span class="font-mono text-[10px] tracking-[0.3em] text-yellow-500 uppercase font-bold">
+								<span class="lang-en">In Progress / Under Development</span>
+								<span class="lang-es hidden">En Progreso / Bajo Desarrollo</span>
 							</span>
 						</div>
-						<p class="font-mono text-[10px] tracking-wider text-brand-text-muted uppercase">
+						<p class="font-mono text-[11px] tracking-wider text-yellow-500/70 uppercase">
 							<span class="lang-en">{t.draftWarning}</span>
 							<span class="lang-es hidden">{translations.es.draftWarning}</span>
 						</p>
