@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Istio Egress Gateway Flow</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Crimson+Text:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #F5E6D3;
+            font-family: 'Crimson Text', serif;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .infographic {
+            position: relative;
+            width: 900px;
+            background: linear-gradient(135deg, #F5E6D3 0%, #E8D5C4 100%);
+            border: 6px solid #8B7355;
+            padding: 32px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            border-radius: 4px;
+        }
+        .infographic::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: repeating-linear-gradient(0deg, rgba(139,115,85,0.03) 0px, transparent 1px, transparent 2px, rgba(139,115,85,0.03) 3px);
+            pointer-events: none;
+        }
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 42px;
+            color: #5C4A3A;
+            text-align: center;
+            letter-spacing: 0.1em;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+        .subtitle {
+            text-align: center;
+            color: #8B7355;
+            font-size: 16px;
+            letter-spacing: 0.15em;
+            margin-bottom: 28px;
+            font-style: italic;
+        }
+        .divider {
+            text-align: center;
+            color: #8B7355;
+            font-size: 20px;
+            margin: 20px 0;
+            letter-spacing: 0.5em;
+        }
+        .flow-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin: 24px 0;
+        }
+        .step {
+            background: rgba(232, 213, 196, 0.6);
+            border: 3px solid #8B7355;
+            border-radius: 4px;
+            padding: 20px;
+            position: relative;
+        }
+        .step-number {
+            position: absolute;
+            top: -15px;
+            left: 20px;
+            background: #5C4A3A;
+            color: #F5E6D3;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .step-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            color: #5C4A3A;
+            margin-bottom: 8px;
+            letter-spacing: 0.05em;
+        }
+        .step-desc {
+            color: #8B7355;
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+        .code-block {
+            background: rgba(92, 74, 58, 0.1);
+            border-left: 3px solid #8B7355;
+            padding: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #5C4A3A;
+            margin-top: 8px;
+            overflow-x: auto;
+        }
+        .arrow {
+            text-align: center;
+            color: #8B7355;
+            font-size: 28px;
+            margin: -8px 0;
+        }
+        .component-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin: 24px 0;
+        }
+        .component {
+            background: rgba(232, 213, 196, 0.6);
+            border: 3px solid #8B7355;
+            border-radius: 4px;
+            padding: 16px;
+            text-align: center;
+        }
+        .component-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 18px;
+            color: #5C4A3A;
+            margin-bottom: 8px;
+            letter-spacing: 0.05em;
+        }
+        .component-desc {
+            color: #8B7355;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .kiquetal-ribbon {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #f5f5f5;
+            text-align: center;
+            padding: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            letter-spacing: 0.15em;
+            border-top: 1px solid #444;
+            opacity: 0.85;
+            z-index: 9999;
+        }
+        .kiquetal-ribbon::before { content: '✦'; margin-right: 8px; color: #888; }
+        .kiquetal-ribbon::after { content: '✦'; margin-left: 8px; color: #888; }
+    </style>
+</head>
+<body>
+    <div class="infographic">
+        <h1>Istio Egress Gateway</h1>
+        <div class="subtitle">Routing External Traffic to cnn.com</div>
+        <div class="divider">✦ ❦ ✦</div>
+
+        <div class="component-grid">
+            <div class="component">
+                <div class="component-title">ServiceEntry</div>
+                <div class="component-desc">Registers external service in Istio's service registry</div>
+            </div>
+            <div class="component">
+                <div class="component-title">Virtual Service</div>
+                <div class="component-desc">Routes traffic through egress gateway</div>
+            </div>
+            <div class="component">
+                <div class="component-title">Destination Rule</div>
+                <div class="component-desc">Applies TLS and connection policies</div>
+            </div>
+        </div>
+
+        <div class="divider">✦</div>
+
+        <div class="flow-container">
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-title">ServiceEntry: Register External Service</div>
+                <div class="step-desc">Tell Istio about cnn.com so it knows this external service exists</div>
+                <div class="code-block">apiVersion: networking.istio.io/v1beta1
+kind: ServiceEntry
+metadata:
+  name: cnn-external
+spec:
+  hosts:
+  - edition.cnn.com
+  ports:
+  - number: 443
+    name: https
+    protocol: HTTPS
+  location: MESH_EXTERNAL
+  resolution: DNS</div>
+            </div>
+
+            <div class="arrow">↓</div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-title">Gateway: Define Egress Gateway</div>
+                <div class="step-desc">Configure the egress gateway to allow HTTPS traffic out</div>
+                <div class="code-block">apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: istio-egressgateway
+spec:
+  selector:
+    istio: egressgateway
+  servers:
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    hosts:
+    - edition.cnn.com
+    tls:
+      mode: PASSTHROUGH</div>
+            </div>
+
+            <div class="arrow">↓</div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-title">Virtual Service: Route to Gateway</div>
+                <div class="step-desc">Direct traffic from pods → egress gateway → external service</div>
+                <div class="code-block">apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: direct-cnn-through-egress
+spec:
+  hosts:
+  - edition.cnn.com
+  gateways:
+  - mesh
+  - istio-egressgateway
+  http:
+  - match:
+    - gateways:
+      - mesh
+      port: 443
+    route:
+    - destination:
+        host: istio-egressgateway.istio-system.svc.cluster.local
+        port:
+          number: 443
+  - match:
+    - gateways:
+      - istio-egressgateway
+      port: 443
+    route:
+    - destination:
+        host: edition.cnn.com
+        port:
+          number: 443</div>
+            </div>
+
+            <div class="arrow">↓</div>
+
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-title">Destination Rule: Apply Policies</div>
+                <div class="step-desc">Configure TLS settings and connection pool policies</div>
+                <div class="code-block">apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: cnn-destination
+spec:
+  host: edition.cnn.com
+  trafficPolicy:
+    tls:
+      mode: SIMPLE</div>
+            </div>
+        </div>
+
+        <div class="divider">✦ ❦ ✦</div>
+
+        <div style="text-align: center; color: #8B7355; font-size: 15px; font-style: italic; margin-top: 20px; padding-bottom: 40px;">
+            Execution Order: ServiceEntry → Gateway → VirtualService → DestinationRule
+        </div>
+
+        <div class="kiquetal-ribbon">co-designed by kiquetal</div>
+    </div>
+</body>
+</html>
