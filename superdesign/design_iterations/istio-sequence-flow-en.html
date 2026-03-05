@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Istio Egress Sequence Flow</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Crimson+Text:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #F5E6D3;
+            font-family: 'Crimson Text', serif;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .infographic {
+            position: relative;
+            width: 1000px;
+            background: linear-gradient(135deg, #F5E6D3 0%, #E8D5C4 100%);
+            border: 6px solid #8B7355;
+            padding: 32px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            border-radius: 4px;
+        }
+        .infographic::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: repeating-linear-gradient(0deg, rgba(139,115,85,0.03) 0px, transparent 1px, transparent 2px, rgba(139,115,85,0.03) 3px);
+            pointer-events: none;
+        }
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 38px;
+            color: #5C4A3A;
+            text-align: center;
+            letter-spacing: 0.1em;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #8B7355;
+            font-size: 15px;
+            letter-spacing: 0.15em;
+            margin-bottom: 24px;
+            font-style: italic;
+        }
+        .divider {
+            text-align: center;
+            color: #8B7355;
+            font-size: 18px;
+            margin: 16px 0;
+            letter-spacing: 0.5em;
+        }
+        .sequence {
+            display: flex;
+            justify-content: space-between;
+            margin: 24px 0;
+            position: relative;
+        }
+        .actor {
+            flex: 1;
+            text-align: center;
+        }
+        .actor-box {
+            background: rgba(92, 74, 58, 0.15);
+            border: 3px solid #8B7355;
+            border-radius: 4px;
+            padding: 12px 8px;
+            font-family: 'Playfair Display', serif;
+            font-size: 14px;
+            color: #5C4A3A;
+            font-weight: bold;
+            margin-bottom: 16px;
+        }
+        .lifeline {
+            width: 2px;
+            background: #8B7355;
+            height: 600px;
+            margin: 0 auto;
+            position: relative;
+        }
+        .messages {
+            position: absolute;
+            top: 80px;
+            left: 0;
+            right: 0;
+        }
+        .message {
+            position: relative;
+            height: 60px;
+            margin-bottom: 20px;
+        }
+        .arrow {
+            position: absolute;
+            height: 2px;
+            background: #8B7355;
+            top: 20px;
+        }
+        .arrow::after {
+            content: '▶';
+            position: absolute;
+            right: -8px;
+            top: -9px;
+            color: #8B7355;
+            font-size: 16px;
+        }
+        .arrow-label {
+            position: absolute;
+            top: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #F5E6D3;
+            padding: 2px 8px;
+            font-size: 13px;
+            color: #5C4A3A;
+            white-space: nowrap;
+            border: 1px solid #8B7355;
+            border-radius: 2px;
+        }
+        .note {
+            position: absolute;
+            background: rgba(232, 213, 196, 0.8);
+            border: 2px solid #8B7355;
+            border-radius: 3px;
+            padding: 8px;
+            font-size: 12px;
+            color: #5C4A3A;
+            max-width: 180px;
+            line-height: 1.4;
+        }
+        .step-num {
+            display: inline-block;
+            background: #5C4A3A;
+            color: #F5E6D3;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 4px;
+        }
+        .kiquetal-ribbon {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #f5f5f5;
+            text-align: center;
+            padding: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            letter-spacing: 0.15em;
+            border-top: 1px solid #444;
+            opacity: 0.85;
+            z-index: 9999;
+        }
+        .kiquetal-ribbon::before { content: '✦'; margin-right: 8px; color: #888; }
+        .kiquetal-ribbon::after { content: '✦'; margin-left: 8px; color: #888; }
+    </style>
+</head>
+<body>
+    <div class="infographic">
+        <h1>Runtime Request Flow</h1>
+        <div class="subtitle">How a Pod Request Reaches cnn.com via Egress Gateway</div>
+        <div class="divider">✦ ❦ ✦</div>
+
+        <div class="sequence">
+            <div class="actor">
+                <div class="actor-box">Pod/App</div>
+                <div class="lifeline"></div>
+            </div>
+            <div class="actor">
+                <div class="actor-box">Envoy<br/>Sidecar</div>
+                <div class="lifeline"></div>
+            </div>
+            <div class="actor">
+                <div class="actor-box">Virtual<br/>Service</div>
+                <div class="lifeline"></div>
+            </div>
+            <div class="actor">
+                <div class="actor-box">Egress<br/>Gateway</div>
+                <div class="lifeline"></div>
+            </div>
+            <div class="actor">
+                <div class="actor-box">Destination<br/>Rule</div>
+                <div class="lifeline"></div>
+            </div>
+            <div class="actor">
+                <div class="actor-box">cnn.com</div>
+                <div class="lifeline"></div>
+            </div>
+        </div>
+
+        <div class="messages">
+            <!-- Step 1 -->
+            <div class="message" style="top: 0;">
+                <div class="arrow" style="left: 16.6%; width: 16.6%;"></div>
+                <div class="arrow-label"><span class="step-num">1</span>GET https://edition.cnn.com</div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="message" style="top: 60px;">
+                <div class="arrow" style="left: 33.2%; width: 16.6%;"></div>
+                <div class="arrow-label"><span class="step-num">2</span>Match routing rules</div>
+                <div class="note" style="left: 50%; top: 30px;">
+                    Check: gateway="mesh"<br/>
+                    port=443<br/>
+                    host=edition.cnn.com<br/>
+                    ✓ Match Rule 1
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="message" style="top: 160px;">
+                <div class="arrow" style="left: 33.2%; width: 33.2%;"></div>
+                <div class="arrow-label"><span class="step-num">3</span>Route to egress gateway</div>
+                <div class="note" style="left: 40%; top: 30px;">
+                    Destination:<br/>
+                    istio-egressgateway:443
+                </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="message" style="top: 240px;">
+                <div class="arrow" style="left: 66.4%; width: -16.6%; right: 49.8%;"></div>
+                <div class="arrow-label"><span class="step-num">4</span>Match routing rules again</div>
+                <div class="note" style="left: 50%; top: 30px;">
+                    Check: gateway="istio-egressgateway"<br/>
+                    port=443<br/>
+                    ✓ Match Rule 2
+                </div>
+            </div>
+
+            <!-- Step 5 -->
+            <div class="message" style="top: 340px;">
+                <div class="arrow" style="left: 66.4%; width: 16.6%;"></div>
+                <div class="arrow-label"><span class="step-num">5</span>Apply traffic policy</div>
+                <div class="note" style="left: 83%; top: 30px;">
+                    TLS mode: SIMPLE<br/>
+                    Connection pool
+                </div>
+            </div>
+
+            <!-- Step 6 -->
+            <div class="message" style="top: 420px;">
+                <div class="arrow" style="left: 66.4%; width: 33.2%;"></div>
+                <div class="arrow-label"><span class="step-num">6</span>HTTPS request to external</div>
+            </div>
+
+            <!-- Response -->
+            <div class="message" style="top: 500px;">
+                <div class="arrow" style="left: 99.6%; width: -83%; right: 0; background: #D2B48C;"></div>
+                <div class="arrow-label" style="background: #E8D5C4;">Response flows back</div>
+            </div>
+        </div>
+
+        <div style="height: 620px;"></div>
+
+        <div class="divider">✦ ❦ ✦</div>
+        <div style="text-align: center; color: #8B7355; font-size: 14px; font-style: italic; padding-bottom: 40px;">
+            Key: VirtualService is evaluated twice - once at sidecar (mesh gateway) and once at egress gateway
+        </div>
+
+        <div class="kiquetal-ribbon">co-designed by kiquetal</div>
+    </div>
+</body>
+</html>
