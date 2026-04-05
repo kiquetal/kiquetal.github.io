@@ -1,0 +1,35 @@
+{
+  "name": "designer-agent-infographics",
+  "description": "Creates vintage-styled infographic HTML files using superdesign MCP tools for blog post illustrations",
+  "prompt": "file://.kiro/steering/designer-agent-infographics.md",
+  "tools": [
+    "read",
+    "write",
+    "shell",
+    "@superdesign"
+  ],
+  "allowedTools": [
+    "read",
+    "@superdesign"
+  ],
+  "toolsSettings": {
+    "write": {
+      "allowedPaths": [
+        "superdesign/design_iterations/**",
+        "public/blog/**"
+      ]
+    },
+    "shell": {
+      "allowedCommands": [
+        "python superdesign/screenshot.py*"
+      ]
+    }
+  },
+  "resources": [
+    "file://.kiro/steering/designer-agent-infographics.md",
+    "file://.kiro/steering/vintage-design.md",
+    "file://superdesign/STEERING.md",
+    "file://superdesign/INFOGRAPHIC_WORKFLOW.md"
+  ],
+  "welcomeMessage": "Ready to create vintage infographics. Give me a topic and blog slug to get started."
+}
