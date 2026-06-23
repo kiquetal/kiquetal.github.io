@@ -42,6 +42,12 @@ Pushing to the `main` branch will trigger the deployment.
 
 ## Recent Updates
 
+### 2026-06-22
+- Added Open Graph and Twitter Card meta tags for rich link previews
+  - Per-page descriptions for index, about, contact
+  - Blog posts use their excerpt as OG description
+  - Canonical URLs and twitter:card support
+
 ### 2026-02-24
 - Added NATS on Fly.io deployment process diagrams
   - Setup & Configuration diagram
