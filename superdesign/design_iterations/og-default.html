@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+.og-card {
+    width: 1200px;
+    height: 630px;
+    background: #0A0C10;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+.og-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 50%, #111827 0%, #0A0C10 100%);
+}
+.og-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border: 1px solid rgba(31, 41, 55, 0.6);
+    margin: 24px;
+}
+.content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+}
+.name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    letter-spacing: 0.5em;
+    color: #9CA3AF;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+.title {
+    font-family: 'Playfair Display', serif;
+    font-size: 56px;
+    color: #E5E7EB;
+    font-style: italic;
+    font-weight: 700;
+    text-align: center;
+    line-height: 1.2;
+    max-width: 900px;
+}
+.accent {
+    color: #60A5FA;
+}
+.subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.3em;
+    color: #6B7280;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.dot {
+    width: 6px;
+    height: 6px;
+    background: #60A5FA;
+    border-radius: 50%;
+}
+.url {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    letter-spacing: 0.2em;
+    color: #60A5FA;
+    margin-top: 16px;
+}
+.corner-tl, .corner-tr, .corner-bl, .corner-br {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    z-index: 2;
+}
+.corner-tl { top: 24px; left: 24px; border-top: 2px solid #60A5FA; border-left: 2px solid #60A5FA; }
+.corner-tr { top: 24px; right: 24px; border-top: 2px solid #60A5FA; border-right: 2px solid #60A5FA; }
+.corner-bl { bottom: 24px; left: 24px; border-bottom: 2px solid #60A5FA; border-left: 2px solid #60A5FA; }
+.corner-br { bottom: 24px; right: 24px; border-bottom: 2px solid #60A5FA; border-right: 2px solid #60A5FA; }
+</style>
+</head>
+<body>
+<div class="og-card">
+    <div class="corner-tl"></div>
+    <div class="corner-tr"></div>
+    <div class="corner-bl"></div>
+    <div class="corner-br"></div>
+    <div class="content">
+        <span class="name">kiquetal</span>
+        <h1 class="title">Resilience as a <span class="accent">First-Class</span> Citizen.</h1>
+        <div class="subtitle">
+            <span>System Engineer</span>
+            <div class="dot"></div>
+            <span>Cloud Architect</span>
+            <div class="dot"></div>
+            <span>🇵🇾</span>
+        </div>
+        <span class="url">kiquetal.dev</span>
+    </div>
+</div>
+</body>
+</html>
