@@ -62,9 +62,9 @@ const t = translations[currentLang];
 						{post.data.updated && (
 							<>
 								<div class="h-[1px] w-4 bg-brand-border"></div>
-								<span class="font-mono text-[9px] text-brand-text-muted uppercase tracking-[0.2em] italic">
-									<span class="lang-en">{t.updated}: {post.data.updated.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}</span>
-									<span class="lang-es hidden">{translations.es.updated}: {post.data.updated.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}</span>
+								<span class="font-mono text-[9px] text-brand-accent/80 uppercase tracking-[0.2em] border border-brand-accent/30 px-3 py-1 rounded-full">
+									<span class="lang-en">Updated: {post.data.updated.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' })}</span>
+									<span class="lang-es hidden">Actualizado: {post.data.updated.toLocaleDateString('es-ES', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' })}</span>
 								</span>
 							</>
 						)}
