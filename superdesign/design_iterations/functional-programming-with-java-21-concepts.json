@@ -1,0 +1,69 @@
+{
+  "title": {
+    "en": "Java 21 Functional Core Concepts",
+    "es": "Conceptos Clave de Java 21 Funcional"
+  },
+  "subtitle": {
+    "en": "The three pillars of modern functional architecture in Java 21",
+    "es": "Los tres pilares de la arquitectura funcional moderna en Java 21"
+  },
+  "layout": "sections",
+  "style": "blueprint",
+  "width": 800,
+  "sections": [
+    {
+      "title": {
+        "en": "Immutability & Data Carriers (Records)",
+        "es": "Inmutabilidad y Portadores de Datos (Records)"
+      },
+      "points": {
+        "en": [
+          "Records provide a concise, boilerplate-free syntax for immutable data carriers.",
+          "Automatically generates fields, accessors, equals(), hashCode(), and toString().",
+          "Immutability by default eliminates side-effects and concurrent access state-bugs."
+        ],
+        "es": [
+          "Los Records ofrecen una sintaxis concisa y sin código repetitivo para portadores de datos inmutables.",
+          "Genera automáticamente campos, métodos de acceso, equals(), hashCode() y toString().",
+          "La inmutabilidad por defecto elimina efectos secundarios y errores de estado en accesos concurrentes."
+        ]
+      }
+    },
+    {
+      "title": {
+        "en": "Algebraic Data Types (Sealed Interfaces)",
+        "es": "Tipos de Datos Algebraicos (Interfaces Selladas)"
+      },
+      "points": {
+        "en": [
+          "Sealed interfaces and classes permit a restricted, explicitly declared set of subtypes.",
+          "Models sum types and hierarchies clearly, preventing unauthorized external extensions.",
+          "Enables the compiler to guarantee exhaustiveness in switch expressions, removing default cases."
+        ],
+        "es": [
+          "Las interfaces y clases selladas permiten un conjunto restringido y declarado explícitamente de subtipos.",
+          "Modela tipos suma y jerarquías de forma clara, evitando extensiones externas no autorizadas.",
+          "Permite al compilador garantizar la exhaustividad en expresiones switch, eliminando casos por defecto."
+        ]
+      }
+    },
+    {
+      "title": {
+        "en": "Exhaustive Pattern Matching",
+        "es": "Coincidencia de Patrones Exhaustiva (Pattern Matching)"
+      },
+      "points": {
+        "en": [
+          "Pattern matching for switch expressions lets you destructure and match records directly.",
+          "Avoids ugly, deeply nested instanceof checks and manual class casts.",
+          "Type-safety is validated at compile-time: any unhandled subtype triggers a compilation error."
+        ],
+        "es": [
+          "La coincidencia de patrones para expresiones switch permite desestructurar y evaluar registros directamente.",
+          "Evita comprobaciones instanceof feas y anidadas junto con conversiones manuales de clases.",
+          "La seguridad de tipos se valida en compilación: cualquier subtipo no manejado genera error."
+        ]
+      }
+    }
+  ]
+}

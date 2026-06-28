@@ -1,0 +1,102 @@
+{
+  "title": {
+    "en": "Java 21 Functional Pipeline (Tubería)",
+    "es": "Tubería Funcional en Java 21"
+  },
+  "subtitle": {
+    "en": "An improved, step-by-step pipeline from immutable input to safe outcome",
+    "es": "Un flujo mejorado paso a paso, desde la entrada inmutable al resultado seguro"
+  },
+  "layout": "sections",
+  "style": "blueprint",
+  "width": 800,
+  "sections": [
+    {
+      "title": {
+        "en": "Phase 1: Safe Ingestion (The Immutable Input)",
+        "es": "Fase 1: Ingesta Segura (La Entrada Inmutable)"
+      },
+      "points": {
+        "en": [
+          "Data enters the pipeline wrapped inside a lightweight, immutable Java 21 Record.",
+          "Guarantees that state remains frozen, preventing concurrent data races and mutation bugs."
+        ],
+        "es": [
+          "Los datos entran a la tubería envueltos en un Record de Java 21 inmutable y liviano.",
+          "Garantiza que el estado permanezca congelado, evitando colisiones de hilos y mutaciones."
+        ]
+      }
+    },
+    {
+      "title": {
+        "en": "Phase 2: Type Routing (The Sealed ADT Guard)",
+        "es": "Fase 2: Enrutamiento de Tipos (El Guardián Sellado)"
+      },
+      "points": {
+        "en": [
+          "The pipeline routes the record through a restricted sum-type hierarchy (sealed interface).",
+          "Limits subclassing strictly to authorized types, establishing a compile-time boundary."
+        ],
+        "es": [
+          "La tubería enruta el registro a través de una jerarquía restringida (sealed interface).",
+          "Limita la creación de subclases a tipos autorizados, estableciendo límites en compilación."
+        ]
+      }
+    },
+    {
+      "title": {
+        "en": "Phase 3: Clean Extraction (Pattern Deconstruction)",
+        "es": "Fase 3: Extracción Limpia (Desestructuración de Patrones)"
+      },
+      "points": {
+        "en": [
+          "Switch expression matches the specific type and automatically extracts inner parameters.",
+          "Eliminates manual type casting or tedious helper getter boilerplate completely."
+        ],
+        "es": [
+          "Una expresión switch evalúa el tipo de record específico y extrae sus campos internos.",
+          "Elimina por completo conversiones manuales de tipos o código repetitivo de capturas."
+        ]
+      }
+    },
+    {
+      "title": {
+        "en": "Phase 4: Pure Mapping (The Safe Transformation)",
+        "es": "Fase 4: Mapeo Puro (La Transformación Segura)"
+      },
+      "points": {
+        "en": [
+          "Stateless lambda functions compute the values and map them to the final result.",
+          "Compile-time checking guarantees 100% exhaustiveness; no raw exceptions can slip through."
+        ],
+        "es": [
+          "Funciones lambda sin estado procesan los valores mapeándolos al resultado final.",
+          "La validación en compilación garantiza exhaustividad total; no se escapan excepciones."
+        ]
+      }
+    }
+  ],
+  "flow": {
+    "direction": "vertical",
+    "title": {
+      "en": "Improved Pipeline Execution Sequence",
+      "es": "Secuencia Mejorada de Ejecución de Tubería"
+    },
+    "steps": {
+      "en": [
+        "1. Input (Record)",
+        "2. Guard (Sealed ADT)",
+        "3. Match (Switch)",
+        "4. Extract (Deconstruction)",
+        "5. Output (Pure Lambda)"
+      ],
+      "es": [
+        "1. Entrada (Record)",
+        "2. Filtro (ADT Sellado)",
+        "3. Coincidencia (Switch)",
+        "4. Extracción (Desestructurar)",
+        "5. Resultado (Lambda Pura)"
+      ]
+    }
+  }
+}

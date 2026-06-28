@@ -1,0 +1,75 @@
+{
+  "title": {
+    "en": "Java 21 Functional Paradigm & Pipeline",
+    "es": "Paradigma y Tubería Funcional en Java 21"
+  },
+  "subtitle": {
+    "en": "Understanding the core concepts and the step-by-step transformation flow",
+    "es": "Entendiendo los conceptos clave y el flujo de transformación paso a paso"
+  },
+  "layout": "sections",
+  "style": "blueprint",
+  "width": 800,
+  "sections": [
+    {
+      "title": {
+        "en": "Core Pillars (Foundational Concepts)",
+        "es": "Pilares Fundacionales (Conceptos Clave)"
+      },
+      "points": {
+        "en": [
+          "Records: Boilerplate-free, immutable data carriers eliminating state mutability.",
+          "Sealed Types: Restricted class hierarchies representing sum types / ADTs clearly.",
+          "Pattern Matching: Direct switch matching and record parameter deconstruction."
+        ],
+        "es": [
+          "Records: Portadores de datos inmutables y sin código repetitivo que eliminan la mutabilidad.",
+          "Tipos Sellados: Jerarquías restringidas que representan de forma clara tipos suma / ADTs.",
+          "Pattern Matching: Evaluación directa en switch y desestructuración de parámetros de records."
+        ]
+      }
+    },
+    {
+      "title": {
+        "en": "Step-by-Step Processing Pipeline (Tubería)",
+        "es": "Procesamiento de Tubería Paso a Paso (Tubería)"
+      },
+      "points": {
+        "en": [
+          "1. Immutable Input: Data enters the pipeline wrapped inside a lightweight Record.",
+          "2. Sealed Matching: Checked against a restricted sealed interface for strict safety.",
+          "3. Pattern Deconstruction: Auto-destructured in a switch expression extracting inner fields.",
+          "4. Pure Transformation: Stateless lambda functions map values to the final successful outcome."
+        ],
+        "es": [
+          "1. Entrada Inmutable: Los datos entran a la tubería envueltos en un Record ligero.",
+          "2. Coincidencia Sellada: Evaluada contra una interfaz sellada para seguridad estricta.",
+          "3. Desestructuración de Patrones: Auto-desestructurada en switch extrayendo campos internos.",
+          "4. Transformación Pura: Funciones lambda sin estado mapean valores al resultado final exitoso."
+        ]
+      }
+    }
+  ],
+  "flow": {
+    "title": {
+      "en": "Simplified Execution Sequence",
+      "es": "Secuencia de Ejecución Simplificada"
+    },
+    "steps": {
+      "en": [
+        "1. Input Record",
+        "2. Sealed ADT",
+        "3. Pattern Match",
+        "4. Record Deconstruct",
+        "5. Pure Transformation"
+      ],
+      "es": [
+        "1. Registro de Entrada",
+        "2. ADT Sellado",
+        "3. Match de Patrones",
+        "4. Desestructuración",
+        "5. Transformación Pura"
+      ]
+    }
+  }
+}

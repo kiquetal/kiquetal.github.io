@@ -1,0 +1,58 @@
+{
+  "title": {
+    "en": "AES-GCM-256 Protocol",
+    "es": "Cifrado AES-GCM-256"
+  },
+  "subtitle": {
+    "en": "Standardized cryptographic security flow for web applications",
+    "es": "Flujo de seguridad criptográfica estándar para aplicaciones web"
+  },
+  "layout": "sections",
+  "width": 800,
+  "sections": [
+    {
+      "title": {
+        "en": "Initialization Vector (IV)",
+        "es": "Vector de Inicialización (IV)"
+      },
+      "points": {
+        "en": [
+          "96-bit (12 bytes) recommended size to prevent collision",
+          "Must be unique for each separate encryption operation",
+          "Generated using cryptographically secure random numbers"
+        ],
+        "es": [
+          "Tamaño recomendado de 96 bits (12 bytes) para evitar colisiones",
+          "Debe ser único para cada operación de cifrado independiente",
+          "Generado mediante números aleatorios criptográficamente seguros"
+        ]
+      }
+    },
+    {
+      "title": {
+        "en": "Key Derivation (PBKDF2)",
+        "es": "Derivación de Clave (PBKDF2)"
+      },
+      "points": {
+        "en": [
+          "Converts user passwords into strong encryption keys",
+          "Utilizes secure salt and 100,000+ hashing iterations"
+        ],
+        "es": [
+          "Convierte contraseñas de usuario en claves de cifrado robustas",
+          "Utiliza una sal segura y más de 100,000 iteraciones de hashing"
+        ]
+      }
+    }
+  ],
+  "flow": {
+    "title": {
+      "en": "Cryptographic Sequence",
+      "es": "Secuencia Criptográfica"
+    },
+    "steps": {
+      "en": ["User Password", "PBKDF2", "256-bit Key", "AES-GCM (+ IV)", "Authenticated Ciphertext"],
+      "es": ["Contraseña", "PBKDF2", "Clave de 256-bit", "AES-GCM (+ IV)", "Texto Cifrado Autenticado"]
+    }
+  }
+}

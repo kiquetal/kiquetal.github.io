@@ -1,0 +1,91 @@
+{
+  "title": {
+    "en": "Either<T, E> in Railway Oriented Programming",
+    "es": "Either<T, E> en Programación Orientada a Vías"
+  },
+  "subtitle": {
+    "en": "Java 21 sealed interfaces representing two-track failure-bypass logic",
+    "es": "Interfaces selladas de Java 21 que representan la lógica de omisión de fallos en dos vías"
+  },
+  "layout": "sections",
+  "style": "excalidraw",
+  "width": 800,
+  "sections": [
+    {
+      "title": {
+        "en": "The Either<T, E> Sealed Interface",
+        "es": "La Interfaz Sellada Either<T, E>"
+      },
+      "points": {
+        "en": [
+          "Defined as a 'sealed interface' permitting only nested 'Right' and 'Left' records.",
+          "Forces exhaustive compile-time checking in Java 'switch' expressions without default branches.",
+          "Eliminates raw exception throws, modeling errors as standard return values instead."
+        ],
+        "es": [
+          "Definida como una 'sealed interface' que permite solo registros 'Right' y 'Left' anidados.",
+          "Obliga a realizar comprobaciones exhaustivas en tiempo de compilación en las expresiones 'switch' de Java sin ramas predeterminadas.",
+          "Elimina el lanzamiento de excepciones sin procesar, modelando los errores como valores de retorno estándar."
+        ]
+      }
+    },
+    {
+      "title": {
+        "en": "Left<T, E> Record (The Failure Path)",
+        "es": "Registro Left<T, E> (El Camino del Fallo)"
+      },
+      "points": {
+        "en": [
+          "Holds the error payload of generic type E (e.g. ValidationError, DatabaseError).",
+          "Its map() and flatMap() methods immediately bypass operations, returning 'this' casted.",
+          "Acts as a failure track bypass: once a step fails, all remaining steps are skipped."
+        ],
+        "es": [
+          "Contiene la carga útil del error de tipo genérico E (p. ej. ValidationError, DatabaseError).",
+          "Sus métodos map() y flatMap() desvían las operaciones de inmediato, devolviendo 'this' con conversión.",
+          "Actúa como un desvío de la vía de fallo: una vez que un paso falla, se omiten todos los pasos restantes."
+        ]
+      }
+    },
+    {
+      "title": {
+        "en": "Right<T, E> Record (The Success Path)",
+        "es": "Registro Right<T, E> (El Camino del Éxito)"
+      },
+      "points": {
+        "en": [
+          "Holds the successful computation value of generic type T (e.g. User, Account).",
+          "Its map() method transforms the value into a new Right instance using the mapper function.",
+          "Its flatMap() method chains another operation that returns an Either, potentially switching tracks on failure."
+        ],
+        "es": [
+          "Contiene la carga útil de la computación exitosa de tipo genérico T (p. ej. User, Account).",
+          "Su método map() transforma el valor en una nueva instancia de Right utilizando la función mapeadora.",
+          "Su método flatMap() encadena otra operación que devuelve un Either, cambiando potencialmente de vía en caso de fallo."
+        ]
+      }
+    }
+  ],
+  "flow": {
+    "title": {
+      "en": "Either<T, E> Two-Track Execution Flow",
+      "es": "Flujo de Ejecución de Dos Vías Either<T, E>"
+    },
+    "steps": {
+      "en": [
+        "Either<T, E> Input",
+        "flatMap(validate)\n(Left/Right)",
+        "flatMap(fetchFromDb)\n(Left/Right)",
+        "map(transformResult)\n(Right track)",
+        "Final Either<U, E> Outcome"
+      ],
+      "es": [
+        "Entrada Either<T, E>",
+        "flatMap(validate)\n(Left/Right)",
+        "flatMap(fetchFromDb)\n(Left/Right)",
+        "map(transformResult)\n(Vía Right)",
+        "Resultado Either<U, E>"
+      ]
+    }
+  }
+}
