@@ -42,7 +42,7 @@ Here is a visual representation of how the `Result` container acts as a box hold
 
 ![The Monadic Result Container](/blog/2026-06-27-functional-programming-with-java-21/result_box.png)
 
-Here, we represent the result as a `sealed interface`. This forces us to always handle and evaluate both cases exhaustively.
+Representing this container as a `sealed interface` forces us to always handle and evaluate both `Result` cases exhaustively.
 
 In addition to the Railway Pattern, we need to create a context for a specific use case. We will use the example of a `LendingService` for a bookstore.
 
