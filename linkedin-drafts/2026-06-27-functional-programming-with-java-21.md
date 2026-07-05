@@ -1,5 +1,10 @@
 # LinkedIn Drafts: Functional Programming with Java 21
 
+> 📷 **Image Recommendation**: Attach the image `public/blog/2026-06-27-functional-programming-with-java-21/map_flatmap.png` to this post. It shows the visual difference of map vs flatMap railway tracks and is highly engaging!
+> Or upload all 4 diagrams from that folder as a PDF document to create a swipeable LinkedIn Carousel!
+
+---
+
 ## English Version 🇺🇸
 
 Can we write robust, compile-time safe, and exception-free business pipelines in Java 21? 
@@ -22,7 +27,9 @@ Inside my latest blog post, I walk through:
 • How to use exhaustive pattern-matching switches in your REST controllers to guarantee every single business rule is handled at compile time.
 
 Read my full journey, see the handwritten architectural diagrams, and check out the implementation code here:
-👉 [Link to kiquetal.dev / kiquetal.github.io]
+👉 https://kiquetal.dev/blog/2026-06-27-functional-programming-with-java-21
+
+*(Check out the diagram for a visual breakdown of the Map vs FlatMap railway tracks: https://kiquetal.dev/blog/2026-06-27-functional-programming-with-java-21/map_flatmap.png 🗺️👇)*
 
 What are your thoughts on using Railway Oriented Programming in Java? Do you prefer it over traditional exceptions? Let's discuss in the comments! 👇
 
@@ -31,6 +38,9 @@ What are your thoughts on using Railway Oriented Programming in Java? Do you pre
 ---
 
 ## Versión en Español 🇪🇸
+
+> 📷 **Recomendación de Imagen**: Adjunta la imagen `public/blog/2026-06-27-functional-programming-with-java-21/map_flatmap.png` a esta publicación. ¡Muestra la diferencia visual de las vías ferroviarias de map vs flatMap y es muy llamativa!
+> ¡O sube los 4 diagramas de esa carpeta en un documento PDF para crear un Carrusel deslizable en LinkedIn!
 
 ¿Podemos construir tuberías de negocio robustas, seguras en tiempo de compilación y libres de excepciones en Java 21? 
 
@@ -52,7 +62,9 @@ En mi último artículo del blog, analizo detalladamente:
 • Cómo usar expresiones `switch` exhaustivas en tus controladores REST para garantizar que cada regla de negocio se maneje obligatoriamente en tiempo de compilación.
 
 Lee todo mi viaje de aprendizaje, mira los diagramas dibujados a mano y revisa el código de implementación completo aquí:
-👉 [Enlace a kiquetal.dev / kiquetal.github.io]
+👉 https://kiquetal.dev/blog/2026-06-27-functional-programming-with-java-21
+
+*(¡Mira el diagrama para ver un desglose visual de las vías del tren de Map vs FlatMap: https://kiquetal.dev/blog/2026-06-27-functional-programming-with-java-21/map_flatmap.png! 🗺️👇)*
 
 ¿Qué opinas sobre aplicar la Programación Orientada a Vías en Java? ¿La prefieres antes que las excepciones tradicionales? ¡Hablemos en los comentarios! 👇
 
