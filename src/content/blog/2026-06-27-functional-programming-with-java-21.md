@@ -329,7 +329,7 @@ La distinción **no radica en cómo manejan un error existente, sino en si puede
 2. **`flatMap` es un Operador de 2 Vías (Falible en Éxito)**:
    - La función que pasas (`Function<T, Result<U, E>>`) devuelve otro `Result`.
    - **Puede fallar**.
-   - Incluso si `flatMap` recibe un `Ok`, al aplicar tu función podría retornar un `Err<E>`. ¡Así es como un paso de la tubería (como verificar libros vencidos) **cambia tu viaje de la vía verde (Éxito) a la vía roja (Fallo)**!
+   - Incluso si `flatMap` recibe un `Ok`, al aplicar tu función podría retornar un `Err<E>`. ¡Así es como un paso del pipeline (como verificar libros vencidos) **cambia tu viaje de la vía verde (Éxito) a la vía roja (Fallo)**!
 
 Por lo tanto, mientras que ambos simplemente dejan pasar los errores sin cambios, solo `flatMap` tiene el poder de desviar un éxito hacia la vía ferroviaria de errores basándose en una decisión de negocio.
 
@@ -339,13 +339,13 @@ Por lo tanto, mientras que ambos simplemente dejan pasar los errores sin cambios
 
 Una pregunta común es: *"¿Por qué no usar el `Optional` integrado de Java?"*
 
-Aunque `Optional` es excelente para representar la *ausencia* de un valor, tiene un fallo fatal para las tuberías de negocio: **no puede llevar una carga útil de error (error payload)**. Si una operación falla, `Optional.empty()` no te dirá *por qué* (por ejemplo, si el miembro no fue encontrado o si tenía libros vencidos). `Result<T, E>` mantiene los errores como ciudadanos de primera clase, preservando cargas útiles de error enriquecidas y específicas del dominio.
+Aunque `Optional` es excelente para representar la *ausencia* de un valor, tiene un fallo fatal para los pipelines de negocio: **no puede llevar una carga útil de error (error payload)**. Si una operación falla, `Optional.empty()` no te dirá *por qué* (por ejemplo, si el miembro no fue encontrado o si tenía libros vencidos). `Result<T, E>` mantiene los errores como ciudadanos de primera clase, preservando cargas útiles de error enriquecidas y específicas del dominio.
 
 ---
 
 ### Visualizando el Flujo de la Vía (Railway Flow)
 
-Así es como fluye la petición a través de nuestra tubería. Puedes ver cómo cada paso avanza en caso de éxito o se desvía hacia su resultado específico de `LendingResult` (nuestros errores personalizados) en caso de fallo:
+Así es como fluye la petición a través de nuestro pipeline. Puedes ver cómo cada paso avanza en caso de éxito o se desvía hacia su resultado específico de `LendingResult` (nuestros errores personalizados) en caso de fallo:
 
 ![Diagrama del Flujo de Préstamo](/blog/2026-06-27-functional-programming-with-java-21/lending_flow_handwritten.png)
 
@@ -369,7 +369,7 @@ Aquí, cada paso devuelve un `Result` (o `Either`). Si algún paso falla, el cá
 
 ### Evaluando cada posibilidad: La Capa del Controlador REST
 
-La tubería funcional completa su viaje en el límite de la API. Al utilizar el potente patrón de coincidencia de patrones de interfaces selladas de Java 21 (sealed interface record pattern matching), podemos evaluar cada posible resultado de dominio de `LendingResult` en una única y limpia expresión `switch` dentro de nuestro recurso/controlador REST:
+El pipeline funcional completa su viaje en el límite de la API. Al utilizar el potente patrón de coincidencia de patrones de interfaces selladas de Java 21 (sealed interface record pattern matching), podemos evaluar cada posible resultado de dominio de `LendingResult` en una única y limpia expresión `switch` dentro de nuestro recurso/controlador REST:
 
 ```java
 @POST
@@ -417,7 +417,7 @@ Aquí hay un desglose visual de cómo la coincidencia de patrones de registros d
 
 ### Conclusión
 
-Al traer los conceptos de Programación Orientada a Vías (Railway Oriented Programming) a Java 21, podemos construir tuberías de negocio robustas, altamente legibles y seguras en tiempo de compilación. Combinado con interfaces selladas, patrones de registro y expresiones switch exhaustivas, Java realmente ha evolucionado hacia un lenguaje moderno que soporta arquitecturas funcionales elegantes.
+Al traer los conceptos de Programación Orientada a Vías (Railway Oriented Programming) a Java 21, podemos construir pipelines de negocio robustos, altamente legibles y seguros en tiempo de compilación. Combinado con interfaces selladas, patrones de registro y expresiones switch exhaustivas, Java realmente ha evolucionado hacia un lenguaje moderno que soporta arquitecturas funcionales elegantes.
 
 Si quieres profundizar más, consulta la implementación completa en el [Repositorio de GitHub](https://github.com/kiquetal/java21-workout).
 
