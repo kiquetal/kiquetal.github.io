@@ -42,7 +42,7 @@ What are your thoughts on using Railway Oriented Programming in Java? Do you pre
 > 📷 **Recomendación de Imagen**: Adjunta la imagen `public/blog/2026-06-27-functional-programming-with-java-21/map_flatmap.png` a esta publicación. ¡Muestra la diferencia visual de las vías ferroviarias de map vs flatMap y es muy llamativa!
 > ¡O sube los 4 diagramas de esa carpeta en un documento PDF para crear un Carrusel deslizable en LinkedIn!
 
-¿Podemos construir tuberías de negocio robustas, seguras en tiempo de compilación y libres de excepciones en Java 21? 
+¿Podemos construir pipelines de negocio robustos, seguros en tiempo de compilación y libres de excepciones en Java 21? 
 
 Totalmente. Y podemos mirar hacia lenguajes funcionales como F# para ver cómo lograrlo. 💻✨
 
