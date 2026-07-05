@@ -218,6 +218,206 @@ If you want to dive deeper, check out the complete implementation in the [GitHub
 
 <div class="lang-es hidden">
 
-TODO
+He estado programando bastante en F# últimamente y quería intentar replicar esa mentalidad en Java 21.
+
+##### El Patrón Railway (Railway Pattern)
+
+Podemos modelar el tipo `Result<'T, 'E>` en F#, que consiste en empaquetar (box) dos escenarios posibles: `Ok` y `Err`.
+
+En F#, podemos modelarlo de la siguiente manera:
+
+```fsharp
+type Result<'T,'E> =
+ | Ok of 'T
+ | Err of 'E
+```
+
+El tipo `Result` es la clave del Patrón Railway, que es una forma de modelar cálculos (computations).
+
+Podemos replicar esto en Java 21 con lo siguiente:
+
+```java
+sealed interface Result<T, E> {
+
+    record Ok<T, E>(T value) implements Result<T, E> {}
+    record Err<T, E>(E error) implements Result<T, E> {}
+}
+```
+
+Aquí hay una representación visual de cómo el contenedor `Result` actúa como una caja que contiene un camino de éxito (`Ok`) o de fallo (`Err`):
+
+![El Contenedor Monádico Result](/blog/2026-06-27-functional-programming-with-java-21/result_box.png)
+
+Representar este contenedor como una `sealed interface` nos obliga a manejar y evaluar ambos casos de `Result` de manera exhaustiva.
+
+Además del Patrón Railway, necesitamos crear un contexto para un caso de uso específico. Utilizaremos el ejemplo de un `LendingService` para una librería.
+
+Si queremos aislar los posibles resultados de este caso de uso específico, podemos crear un conjunto de resultados para cada escenario.
+
+En Java 21, podemos modelarlo de la siguiente manera:
+
+```java
+interface LendingResult {
+    record Success(BookLending lending) implements LendingResult {}
+    record MemberNotFound(MemberId memberId) implements LendingResult {}
+    record MemberHasOverdueBooks(MemberId memberId) implements LendingResult {}
+    record BookItemNotAvailable(BookItemId bookItemId) implements LendingResult {}
+}
+```
+
+Aquí definimos todos los posibles resultados del `LendingService`. Luego necesitamos una forma de componer nuestras operaciones; por ejemplo: primero validar al usuario, luego buscar el libro y finalmente procesar el préstamo.
+
+- **flatMap**: Lo utilizamos para componer resultados. La diferencia con `map` es que `flatMap` recibe una función que devuelve un `Result<U, E>`, en lugar de empaquetar un valor directo.
+- **map**: Lo utilizamos para transformar el tipo de éxito del resultado. Siempre empaqueta el valor retornado en un nuevo contenedor `Ok`.
+- **fold**: Lo utilizamos para resolver ambos resultados posibles en un único tipo final (en nuestro escenario, lo usamos para mapear cualquier lado a un `LendingResult` final). En programación funcional, esto también se conoce como catamorfismo.
+
+Aquí hay un desglose visual de cómo se comportan **map** y **flatMap** en nuestras vías ferroviarias:
+
+![Diagrama Map vs FlatMap](/blog/2026-06-27-functional-programming-with-java-21/map_flatmap.png)
+
+Podemos implementar `flatMap`, `map` y `fold` directamente en nuestra interfaz `Result` de Java 21 de la siguiente manera:
+
+```java
+sealed interface Result<T, E> {
+
+    record Ok<T, E>(T value) implements Result<T, E> {}
+    record Err<T, E>(E error) implements Result<T, E> {}
+
+    default <U> Result<U, E> flatMap(Function<T, Result<U, E>> mapper) {
+        return switch (this) {
+            case Ok<T, E> ok -> mapper.apply(ok.value());
+            case Err<T, E> err -> new Err<>(err.error());
+        };
+    }
+
+    default <U> Result<U, E> map(Function<T, U> mapper) {
+        return switch (this) {
+            case Ok<T, E> ok -> new Ok<>(mapper.apply(ok.value()));
+            case Err<T, E> err -> new Err<>(err.error());
+        };
+    }
+
+    default <U> U fold(Function<T, U> onSuccess, Function<E, U> onFailure) {
+        return switch (this) {
+            case Ok<T, E> ok -> onSuccess.apply(ok.value());
+            case Err<T, E> err -> onFailure.apply(err.error());
+        };
+    }
+}
+```
+
+La parte más importante aquí es la firma: necesitamos operar en el lado *derecho* (éxito) del resultado y luego aplicar la función que devuelve un nuevo tipo.
+
+### 💡 Una Revelación Clave: ¿Por qué `map` y `flatMap` manejan `Err` de forma idéntica?
+
+Si observas detenidamente la implementación en Java de ambos métodos, notarás un detalle fascinante. El bloque de código para manejar un error existente es **exactamente idéntico** en ambos:
+
+```java
+case Err<T, E> err -> new Err<>(err.error());
+```
+
+Si hacen exactamente lo mismo con los errores, ¿por qué necesitamos dos operadores diferentes?
+
+La distinción **no radica en cómo manejan un error existente, sino en si pueden *producir* un nuevo error a partir de un éxito**:
+
+1. **`map` es un Operador de 1 Vía (Infalible en Éxito)**:
+   - La función que pasas (`Function<T, U>`) devuelve un valor simple `U`.
+   - **No puede fallar**.
+   - Si `map` recibe un `Ok`, aplica tu función y *siempre* envuelve el resultado dentro de un `new Ok<>(...)`. Tienes la garantía de permanecer en la vía verde del éxito.
+
+2. **`flatMap` es un Operador de 2 Vías (Falible en Éxito)**:
+   - La función que pasas (`Function<T, Result<U, E>>`) devuelve otro `Result`.
+   - **Puede fallar**.
+   - Incluso si `flatMap` recibe un `Ok`, al aplicar tu función podría retornar un `Err<E>`. ¡Así es como un paso de la tubería (como verificar libros vencidos) **cambia tu viaje de la vía verde (Éxito) a la vía roja (Fallo)**!
+
+Por lo tanto, mientras que ambos simplemente dejan pasar los errores sin cambios, solo `flatMap` tiene el poder de desviar un éxito hacia la vía ferroviaria de errores basándose en una decisión de negocio.
+
+---
+
+### Espera, ¿Por qué no usar Optional?
+
+Una pregunta común es: *"¿Por qué no usar el `Optional` integrado de Java?"*
+
+Aunque `Optional` es excelente para representar la *ausencia* de un valor, tiene un fallo fatal para las tuberías de negocio: **no puede llevar una carga útil de error (error payload)**. Si una operación falla, `Optional.empty()` no te dirá *por qué* (por ejemplo, si el miembro no fue encontrado o si tenía libros vencidos). `Result<T, E>` mantiene los errores como ciudadanos de primera clase, preservando cargas útiles de error enriquecidas y específicas del dominio.
+
+---
+
+### Visualizando el Flujo de la Vía (Railway Flow)
+
+Así es como fluye la petición a través de nuestra tubería. Puedes ver cómo cada paso avanza en caso de éxito o se desvía hacia su resultado específico de `LendingResult` (nuestros errores personalizados) en caso de fallo:
+
+![Diagrama del Flujo de Préstamo](/blog/2026-06-27-functional-programming-with-java-21/lending_flow_handwritten.png)
+
+---
+
+Así es como podemos componer múltiples pasos en el `LendingService` para formar una vía completa:
+
+```java
+@Transactional
+public LendingResult lend(LendCommand lendCommand) {
+    return findMember(lendCommand)
+            .flatMap(this::checkOverdue)
+            .flatMap(this::checkMaximumLentNumber)
+            .flatMap(m -> findBookItemAndMember(lendCommand, m))
+            .flatMap(this::checkIfAlreadyLent)
+            .fold(err -> err, this::persistAndReturnResult);
+}
+```
+
+Aquí, cada paso devuelve un `Result` (o `Either`). Si algún paso falla, el cálculo cambia inmediatamente a la "vía de error" (Left / Err), saltándose todos los pasos siguientes. Si todos los pasos tienen éxito, ejecuta la vía de éxito final (Right / Ok), registrando el préstamo y devolviendo el resultado exitoso.
+
+### Evaluando cada posibilidad: La Capa del Controlador REST
+
+La tubería funcional completa su viaje en el límite de la API. Al utilizar el potente patrón de coincidencia de patrones de interfaces selladas de Java 21 (sealed interface record pattern matching), podemos evaluar cada posible resultado de dominio de `LendingResult` en una única y limpia expresión `switch` dentro de nuestro recurso/controlador REST:
+
+```java
+@POST
+public Response register(@Valid LendRequest request) {
+    var command = new LendCommand(
+        new BookItemId(request.bookId()),
+        new MemberId(request.memberId())
+    );
+
+    var result = lendingService.lend(command);
+
+    return switch (result) {
+        case LendingResult.Success(var detail) -> 
+            Response.ok(detail).build();
+            
+        case LendingResult.AlreadyLent(var detail) -> 
+            Response.status(409).entity(new ErrorResponse("Book already lent")).build();
+            
+        case LendingResult.MemberNotFound(var id) -> 
+            Response.status(404).entity(new ErrorResponse("Member not found: " + id.value())).build();
+            
+        case LendingResult.BookNotFound(var id) -> 
+            Response.status(404).entity(new ErrorResponse("Book item not found: " + id)).build();
+            
+        case LendingResult.MemberHasOverdueBooks(var id, var books) -> 
+            Response.status(403).entity(new ErrorResponse("Member has overdue books")).build();
+            
+        case LendingResult.MaximumLimitReached(var id) -> 
+            Response.status(403).entity(new ErrorResponse("Maximum lending limit reached")).build();
+    };
+}
+```
+
+Aquí hay un desglose visual de cómo la coincidencia de patrones de registros de interfaces selladas deconstruye las opciones y las dirige directamente a los estados HTTP:
+
+![Diagrama de Coincidencia de Switch de Interfaz Sellada](/blog/2026-06-27-functional-programming-with-java-21/sealed_switch.png)
+
+#### ¿Por qué es esto tan potente?
+
+1. **Garantía de Exhaustividad**: Debido a que `LendingResult` es una jerarquía sellada, el compilador nos obliga a manejar **cada escenario posible**. Si añadimos una nueva regla de negocio (por ejemplo, `MemberIsSuspended`), el código no compilará hasta que manejemos explícitamente ese error en nuestra capa de recursos. ¡Se acabaron los manejadores de excepciones olvidados o los errores internos del servidor sin tipo!
+2. **Legibilidad**: Todo el flujo de negocio se mapea a respuestas REST estándar (`200 OK`, `409 Conflict`, `404 Not Found`, `403 Forbidden`) en una estructura limpia y tabular que se lee como un documento de especificación.
+3. **Sin Efectos Secundarios**: No hay excepciones ocultas que se lancen o capturen. Todo es un flujo puro y predecible de datos desde la consulta a la base de datos hasta el código de estado HTTP.
+
+---
+
+### Conclusión
+
+Al traer los conceptos de Programación Orientada a Vías (Railway Oriented Programming) a Java 21, podemos construir tuberías de negocio robustas, altamente legibles y seguras en tiempo de compilación. Combinado con interfaces selladas, patrones de registro y expresiones switch exhaustivas, Java realmente ha evolucionado hacia un lenguaje moderno que soporta arquitecturas funcionales elegantes.
+
+Si quieres profundizar más, consulta la implementación completa en el [Repositorio de GitHub](https://github.com/kiquetal/java21-workout).
 
 </div>
