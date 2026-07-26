@@ -1,0 +1,76 @@
+{
+  "title": {
+    "en": "Istio Path-Based JWT Verification",
+    "es": "Verificación de JWT basada en Ruta con Istio"
+  },
+  "subtitle": {
+    "en": "Securing Multi-Tenant resource paths using external authorizers",
+    "es": "Asegurando rutas multitenant utilizando un autorizador externo"
+  },
+  "layout": "sections",
+  "width": 850,
+  "sections": [
+    {
+      "title": {
+        "en": "1. Request Interception",
+        "es": "1. Intercepción de la Petición"
+      },
+      "points": {
+        "en": [
+          "Envoy sidecar intercepts the incoming client request",
+          "Forwards the URL path and the 'Authorization' header to the external authorizer"
+        ],
+        "es": [
+          "El sidecar Envoy intercepta la petición entrante del cliente",
+          "Reenvía la ruta de la URL y la cabecera 'Authorization' al autorizador externo"
+        ]
+      }
+    },
+    {
+      "title": {
+        "en": "2. Dynamic Verification",
+        "es": "2. Verificación Dinámica"
+      },
+      "points": {
+        "en": [
+          "Go Authorizer parses the MSISDN directly from the request path",
+          "Decodes the Bearer token (JWT payload) without signature verification overhead",
+          "Ensures the user's token MSISDN matches the requested path resource"
+        ],
+        "es": [
+          "El autorizador de Go extrae el MSISDN directamente de la ruta de la solicitud",
+          "Decodifica el Bearer token (payload JWT) sin sobrecarga de validación de firma",
+          "Garantiza que el MSISDN del token del usuario coincida con el recurso solicitado"
+        ]
+      }
+    },
+    {
+      "title": {
+        "en": "3. Enforcement & Audit",
+        "es": "3. Aplicación y Auditoría"
+      },
+      "points": {
+        "en": [
+          "Allows request (200 OK) and injects upstream metadata (X-Auth-User, X-Auth-Email)",
+          "Denies access (403 Forbidden) and returns custom structured JSON error",
+          "Logs security event with SPIFFE ID & traces for SIEM / anomaly detection"
+        ],
+        "es": [
+          "Permite la petición (200 OK) e inyecta metadatos aguas arriba (X-Auth-User, X-Auth-Email)",
+          "Deniega el acceso (403 Forbidden) y devuelve un error JSON estructurado personalizado",
+          "Registra el evento de seguridad con SPIFFE ID y trazas para detección de anomalías SIEM"
+        ]
+      }
+    }
+  ],
+  "flow": {
+    "title": {
+      "en": "Authorization Flow Chain",
+      "es": "Cadena de Flujo de Autorización"
+    },
+    "steps": {
+      "en": ["GET /v1/customer/{id}", "Envoy Sidecar", "Go Ext-Auth Server", "JWT & Path Check", "200 OK (Allowed) / 403 Forbidden"],
+      "es": ["GET /v1/customer/{id}", "Envoy Sidecar", "Servidor Ext-Auth Go", "Chequeo de JWT y Ruta", "200 OK (Permitido) / 403 Forbidden"]
+    }
+  }
+}
