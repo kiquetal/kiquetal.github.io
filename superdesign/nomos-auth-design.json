@@ -1,0 +1,109 @@
+{
+  "title": {
+    "en": "Nomos Graph Authorization Model",
+    "es": "Modelo de Autorización de Grafo Nomos"
+  },
+  "subtitle": {
+    "en": "Centralized rule storage mapping token identity to resource access policies",
+    "es": "Almacenamiento de reglas centralizado mapeando identidad de token a políticas de acceso"
+  },
+  "layout": "grid",
+  "style": "excalidraw",
+  "width": 900,
+  "grid": [
+    {
+      "title": {
+        "en": "1. Identity & Routing",
+        "es": "1. Identidad y Enrutamiento"
+      },
+      "points": {
+        "en": [
+          "App node represents your application workspace",
+          "IDP node models JWT token issuers (Auth0, Keycloak)",
+          "USES_IDP relationship associates App to IDP via 'aud' (audience) claim"
+        ],
+        "es": [
+          "El nodo App representa el espacio de trabajo de tu aplicación",
+          "El nodo IDP modela los emisores de tokens JWT (Auth0, Keycloak)",
+          "La relación USES_IDP asocia la App al IDP mediante la clave 'aud' (audiencia)"
+        ]
+      }
+    },
+    {
+      "title": {
+        "en": "2. Gateway Access Control",
+        "es": "2. Control de Acceso del Gateway"
+      },
+      "points": {
+        "en": [
+          "APIProxy node represents the backend microservices",
+          "ACCESS_PROXY connects App to APIProxy based on specific token audience",
+          "If no rule matches, fallback to APIProxy defaultPolicy (allow/deny)"
+        ],
+        "es": [
+          "El nodo APIProxy representa los microservicios backend",
+          "ACCESS_PROXY conecta la App al APIProxy basándose en una audiencia de token específica",
+          "Si ninguna regla coincide, se recurre a la defaultPolicy de APIProxy (allow/deny)"
+        ]
+      }
+    },
+    {
+      "title": {
+        "en": "3. Rule Validation",
+        "es": "3. Validación de Reglas"
+      },
+      "points": {
+        "en": [
+          "Rule pathPattern matches incoming HTTP paths (e.g. /{country}/accounts/{msisdn})",
+          "Validation nodes extract path parameters and match against JWT claims (jsonPath)",
+          "Level 1 validations handle country access, Level 2 validates resource ownership"
+        ],
+        "es": [
+          "El pathPattern de la regla coincide con rutas HTTP entrantes (ej. /{country}/accounts/{msisdn})",
+          "Los nodos de Validación extraen parámetros de ruta y los comparan con reclamos JWT (jsonPath)",
+          "Las validaciones de Nivel 1 manejan acceso a país, Nivel 2 valida propiedad de recursos"
+        ]
+      }
+    },
+    {
+      "title": {
+        "en": "4. Data Enrichment",
+        "es": "4. Enriquecimiento de Datos"
+      },
+      "points": {
+        "en": [
+          "Enrichment node defines third-party API calls when JWT claims are missing",
+          "Fetches allowed values from external endpoints (e.g., /users/me)",
+          "Caches enriched data locally in the middleware (configurable TTL)"
+        ],
+        "es": [
+          "El nodo Enrichment define llamadas API a terceros cuando faltan reclamos JWT",
+          "Obtiene valores permitidos desde endpoints externos (ej., /users/me)",
+          "Almacena en caché local los datos enriquecidos en el middleware (TTL configurable)"
+        ]
+      }
+    }
+  ],
+  "flow": {
+    "title": {
+      "en": "Runtime Resolution Flow",
+      "es": "Flujo de Resolución en Tiempo de Ejecución"
+    },
+    "steps": {
+      "en": [
+        "Client JWT",
+        "Envoy Gateway",
+        "Middleware-Nomos (Go)",
+        "Nomos Graph (Java/Neo4j)",
+        "Allow/Deny (200 OK / 403)"
+      ],
+      "es": [
+        "Client JWT",
+        "Envoy Gateway",
+        "Middleware-Nomos (Go)",
+        "Nomos Graph (Java/Neo4j)",
+        "Permitir/Denegar (200 OK / 403)"
+      ]
+    }
+  }
+}
