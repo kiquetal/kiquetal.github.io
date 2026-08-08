@@ -29,6 +29,8 @@ Here is how Istio interacts with our external authorizer middleware:
    - **Allowed (HTTP 200)**: The request continues to the backend container.
    - **Denied (HTTP 403 / 401)**: Envoy short-circuits the request and returns the error directly to the client.
 
+<div style="background-color: white; padding: 20px; border-radius: 8px; margin: 1.5rem 0;">
+
 ```mermaid
 C4Container
   title Container Diagram: Istio Request Interception & Ext Authz
@@ -52,6 +54,11 @@ C4Container
   Rel(middleware, sidecar, "Returns ALLOW (200 OK) / DENY", "HTTP Status")
   Rel(sidecar, backend, "Forwards authorized request", "Loopback HTTP")
 ```
+
+</div>
+
+> [!TIP]
+> You can find our complete **Structurizr C4 DSL schema** for this architecture saved in the blog assets: [`structurizr.dsl`](file:///mydata/codes/2026/kiquetal.github.io/public/blog/2026-08-08-auth-ext-middleware/structurizr.dsl).
 
 ---
 
@@ -139,6 +146,8 @@ Así interactúa Istio con nuestro middleware autorizador externo:
    - **Permitido (HTTP 200)**: La solicitud continúa hacia el contenedor del backend.
    - **Denegado (HTTP 403 / 401)**: Envoy corta la solicitud de inmediato y devuelve el error directamente al cliente.
 
+<div style="background-color: white; padding: 20px; border-radius: 8px; margin: 1.5rem 0;">
+
 ```mermaid
 C4Container
   title Diagrama de Contenedores: Interceptación de Solicitudes y Ext Authz de Istio
@@ -162,6 +171,11 @@ C4Container
   Rel(middleware, sidecar, "Retorna ALLOW (200 OK) o DENY", "HTTP Status")
   Rel(sidecar, backend, "Reenvía la petición autorizada", "Loopback HTTP")
 ```
+
+</div>
+
+> [!TIP]
+> Puedes encontrar nuestro **esquema de Structurizr C4 DSL** completo para esta arquitectura guardado en los recursos del blog: [`structurizr.dsl`](file:///mydata/codes/2026/kiquetal.github.io/public/blog/2026-08-08-auth-ext-middleware/structurizr.dsl).
 
 ---
 

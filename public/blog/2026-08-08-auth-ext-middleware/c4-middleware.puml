@@ -1,0 +1,24 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/release/1-0/C4_Container.puml
+
+
+Person(client, "Client", "A user or application making API requests.")
+
+System_Boundary(mesh, "Kubernetes / Istio Service Mesh") {
+    Container(gateway, "API Gateway", "KrakenD", "Stamps logical target service destination headers (X-Target-Service).")
+
+    System_Boundary(pod, "Target Service Pod (K8s Pod)") {
+        Container(sidecar, "Envoy Sidecar", "Envoy Proxy", "Intercepts and holds inbound traffic at pod level.")
+        Container(backend, "billing-service", "nodejs", "Handles billing operations and API requests.")
+    }
+
+    Container(middleware, "Auth Middleware", "Go Service", "Handles token decoding, validation, and rule evaluation.")
+}
+
+Rel(client, gateway, "Sends API Request", "HTTPS")
+Rel(gateway, sidecar, "Routes request", "HTTP")
+Rel(sidecar, middleware, "Delegates authorization (/check)", "HTTP/gRPC")
+Rel(middleware, sidecar, "Returns ALLOW (200 OK) / DENY", "HTTP Status")
+Rel(sidecar, backend, "Forwards authorized request", "Localhost HTTP")
+
+@enduml
