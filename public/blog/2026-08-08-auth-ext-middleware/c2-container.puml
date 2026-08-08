@@ -1,12 +1,33 @@
 @startuml
 !include <C4/C4_Container>
 
-skinparam backgroundcolor #F5E6D3
+skinparam backgroundcolor #F0F4F8
 skinparam DefaultFontName "Courier New"
 
-UpdateElementStyle("person", $bgColor="#5C4A3A", $fontColor="#F5E6D3", $borderColor="#8B7355")
-UpdateElementStyle("container", $bgColor="#D2B48C", $fontColor="#5C4A3A", $borderColor="#8B7355")
-UpdateRelStyle($lineColor="#8B7355", $textColor="#5C4A3A")
+skinparam rectangle<<person>> {
+    BackgroundColor #0F2C59
+    FontColor #FFFFFF
+    BorderColor #1A5F7A
+}
+skinparam rectangle<<external_person>> {
+    BackgroundColor #3E4A56
+    FontColor #FFFFFF
+    BorderColor #2F3A44
+}
+skinparam rectangle<<container>> {
+    BackgroundColor #1D5D9B
+    FontColor #FFFFFF
+    BorderColor #143F6B
+}
+skinparam rectangle<<external_system>> {
+    BackgroundColor #3E4A56
+    FontColor #FFFFFF
+    BorderColor #2F3A44
+}
+skinparam arrow {
+    Color #1D5D9B
+    FontColor #0F2C59
+}
 
 Person(client, "Client", "A user or application making API requests.")
 

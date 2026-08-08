@@ -95,6 +95,7 @@ C4Component
 
   Container(sidecar, "Envoy Sidecar", "Envoy Proxy", "Intercepts traffic, delegates auth checks via ext_authz, and forwards authorized requests.")
   Container(backend, "Billing Service", "Go / Microservice", "Executes secure billing-related business logic on localhost.")
+  Container_Ext(ext_backend, "External Backend", "External System", "External payment gateway or third-party transaction systems.")
 
   Container_Boundary(middleware, "Auth Middleware Go Container") {
     Component(router, "Main Control", "Go http.Handler", "Exposes /check; validates config properties: audience, iss, and apiproxy_name.")
@@ -117,6 +118,7 @@ C4Component
   Rel(router, sidecar, "Returns ALLOW (200 OK) / DENY", "HTTP Status")
   Rel(sidecar, backend, "Forwards authorized request", "Localhost HTTP")
   Rel(router, sync, "Spawns background worker", "Go Routine")
+  Rel(backend, ext_backend, "Hits transaction APIs", "HTTPS")
 ```
 
 </div>
@@ -279,6 +281,7 @@ C4Component
 
   Container(sidecar, "Envoy Sidecar", "Envoy Proxy", "Intercepta el tráfico, delega verificaciones de autorización vía ext_authz, y reenvía solicitudes autorizadas.")
   Container(backend, "Servicio Billing", "Go / Microservicio", "Ejecuta la lógica de negocio de facturación segura en localhost.")
+  Container_Ext(ext_backend, "External Backend", "Sistema Externo", "Pasarela de pago externa o sistemas transaccionales de terceros.")
 
   Container_Boundary(middleware, "Contenedor Go de Middleware de Autorización") {
     Component(router, "Main Control", "Go http.Handler", "Expone /check; valida propiedades de configuración: audience, iss y apiproxy_name.")
@@ -301,6 +304,7 @@ C4Component
   Rel(router, sidecar, "Retorna ALLOW (200 OK) / DENY", "HTTP Status")
   Rel(sidecar, backend, "Reenvía la petición autorizada", "Localhost HTTP")
   Rel(router, sync, "Dispara worker en segundo plano", "Go Routine")
+  Rel(backend, ext_backend, "Consulta API de transacciones externas", "HTTPS")
 ```
 
 </div>

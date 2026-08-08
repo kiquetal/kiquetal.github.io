@@ -1,17 +1,42 @@
 @startuml
 !include <C4/C4_Component>
 
-skinparam backgroundcolor #F5E6D3
+skinparam backgroundcolor #F0F4F8
 skinparam DefaultFontName "Courier New"
 
-UpdateElementStyle("person", $bgColor="#5C4A3A", $fontColor="#F5E6D3", $borderColor="#8B7355")
-UpdateElementStyle("container", $bgColor="#D2B48C", $fontColor="#5C4A3A", $borderColor="#8B7355")
-UpdateElementStyle("component", $bgColor="#E8D5C4", $fontColor="#5C4A3A", $borderColor="#8B7355")
-UpdateRelStyle($lineColor="#8B7355", $textColor="#5C4A3A")
+skinparam rectangle<<person>> {
+    BackgroundColor #0F2C59
+    FontColor #FFFFFF
+    BorderColor #1A5F7A
+}
+skinparam rectangle<<external_person>> {
+    BackgroundColor #3E4A56
+    FontColor #FFFFFF
+    BorderColor #2F3A44
+}
+skinparam rectangle<<container>> {
+    BackgroundColor #1D5D9B
+    FontColor #FFFFFF
+    BorderColor #143F6B
+}
+skinparam rectangle<<external_container>> {
+    BackgroundColor #3E4A56
+    FontColor #FFFFFF
+    BorderColor #2F3A44
+}
+skinparam rectangle<<component>> {
+    BackgroundColor #1A5F7A
+    FontColor #FFFFFF
+    BorderColor #0D3E46
+}
+skinparam arrow {
+    Color #1D5D9B
+    FontColor #0F2C59
+}
 
 Container(sidecar, "Envoy Sidecar", "Envoy Proxy", "Intercepts traffic, delegates auth checks via ext_authz, and forwards authorized requests.")
 Container(backend, "Billing Service", "Go / Microservice", "Executes secure billing-related business logic on localhost.")
-Container(ext_backend, "External Backend", "External System", "External payment gateway or third-party transaction systems.")
+Container_Ext(ext_backend, "External Backend", "External System", "External payment gateway or third-party transaction systems.")
 
 Container_Boundary(middleware, "Auth Middleware Go Container") {
     Component(router, "Main Control", "Go http.Handler", "Exposes /check, extracts and parses incoming headers.")
