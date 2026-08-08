@@ -192,9 +192,30 @@ func isValidToken(token string) bool {
 
 ---
 
-## Your Turn: Add your custom notes and implementation details
+We have found the problem to give limited access to a specific principal, the infrastructure where our services were running was Kubernetes with Istio. 
 
-[TODO: Add details here about how your specific middleware handles authorization, any caching strategies, or design patterns you implemented to keep it lightweight.]
+We put an API Gateway in front associated with an authentication by an external IDP OIDC 2.0. However, we could not scope the token access only to a subset of services because the token we were receiving was just an `ID_TOKEN`. To solve this scope limitation, we found the **Custom Authorization (External Authorizer)** capability in Istio:
+
+* Official Documentation: [Istio Custom Authorization (ext_authz)](https://istio.io/latest/docs/tasks/security/authorization/authz-custom/)
+
+### Registering the Custom External Authorizer in Istio
+
+Before applying authorization policies, we must register our custom authorizer middleware inside the Istio `MeshConfig` configuration (usually in your `istio-system` configmap or via your IstioOperator):
+
+```yaml
+meshConfig:
+  extensionProviders:
+  - name: "custom-auth-middleware"
+    envoyExtAuthzHttp:
+      service: "auth-middleware.auth-system.svc.cluster.local"
+      port: "8080"
+      path: "/check"
+      includeRequestHeadersInCheck: 
+        - "authorization"
+        - "x-target-service"
+      headersToUpstreamOnAllow: 
+        - "x-authorized-user"
+```
 
 </div>
 
@@ -380,8 +401,31 @@ func isValidToken(token string) bool {
 
 ---
 
-## Tu turno: Agrega tus notas personalizadas y detalles de implementación
+## Resolviendo el Alcance del Token con Istio ext_authz
 
-[TODO: Agrega detalles aquí sobre cómo tu middleware específico maneja la autorización, cualquier estrategia de caché o patrones de diseño que implementaste para mantenerlo ligero.]
+Identificamos el problema al intentar dar acceso limitado a un principal específico en nuestra infraestructura corriendo sobre Kubernetes con Istio. 
+
+Habíamos colocado un API Gateway al frente asociado con autenticación mediante un IDP externo con OIDC 2.0. Sin embargo, no podíamos restringir el acceso del token solo a un subconjunto específico de servicios porque el token que recibíamos era simplemente un `ID_TOKEN`. Para resolver esta limitación de alcance, recurrimos a la funcionalidad de **Autorización Personalizada (Autorizador Externo)** de Istio:
+
+* Documentación Oficial: [Istio Custom Authorization (ext_authz)](https://istio.io/latest/docs/tasks/security/authorization/authz-custom/)
+
+### Registrando el Autorizador Externo en Istio
+
+Antes de aplicar las políticas de autorización, debemos registrar nuestro servicio middleware de autorización dentro de la configuración de `MeshConfig` de Istio (normalmente configurado en el configmap `istio` dentro de `istio-system` o a través del recurso IstioOperator):
+
+```yaml
+meshConfig:
+  extensionProviders:
+  - name: "custom-auth-middleware"
+    envoyExtAuthzHttp:
+      service: "auth-middleware.auth-system.svc.cluster.local"
+      port: "8080"
+      path: "/check"
+      includeRequestHeadersInCheck: 
+        - "authorization"
+        - "x-target-service"
+      headersToUpstreamOnAllow: 
+        - "x-authorized-user"
+```
 
 </div>
