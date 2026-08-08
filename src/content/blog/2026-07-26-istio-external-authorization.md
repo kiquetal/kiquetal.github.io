@@ -171,11 +171,11 @@ By default, Istio injects **SPIFFE identities** (Secure Production Identity Fram
 
 ## Conclusion
 
-Offloading fine-grained authorization to Istio External Authorization transforms how you approach application security. Your microservices remain 100% lightweight, focusing solely on clean business operations. Security is kept central, declarative, and enforced transparently by high-performance sidecar proxies standing guard at your pod's front door.
+*(Check out our visual architecture overview and step-by-step verification diagram below!)*
 
-*(Check out our visual architecture overview below to see the complete sequence in action!)*
+![Istio External Authorization Sequence](/blog/2026-07-26-istio-external-authorization/architecture.png)
 
-![Fine-Grained Tenant Isolation with Istio External Authorization Hero](/blog/2026-07-26-istio-external-authorization/architecture.png)
+![Istio Path-Based JWT Verification Diagram](/blog/2026-07-26-istio-external-authorization/istio_ext_authz_diagram-en.png)
 
 </div>
 
@@ -342,8 +342,10 @@ Por defecto, Istio inyecta identidades **SPIFFE** (Secure Production Identity Fr
 
 Delegar la autorización de grano fino a la Autorización Externa de Istio transforma cómo abordas la seguridad de tus aplicaciones. Tus microservicios se mantienen 100% ligeros, centrándose exclusivamente en la lógica de negocio. La seguridad se mantiene central, declarativa y aplicada de manera transparente por proxies sidecar de alto rendimiento que montan guardia en la puerta principal de tus pods.
 
-*(¡Revisa nuestro diagrama de flujo de arquitectura a continuación para ver la secuencia completa en acción!)*
+*(¡Revisa nuestro diagrama de flujo de arquitectura y el diagrama de verificación paso a paso a continuación!)*
 
-![Fine-Grained Tenant Isolation with Istio External Authorization Hero](/blog/2026-07-26-istio-external-authorization/architecture.png)
+![Secuencia de Autorización Externa con Istio](/blog/2026-07-26-istio-external-authorization/architecture.png)
+
+![Diagrama de Verificación de JWT Basado en Ruta](/blog/2026-07-26-istio-external-authorization/istio_ext_authz_diagram-es.png)
 
 </div>
