@@ -1,8 +1,6 @@
 @startuml
 !includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/release/1-0/C4_Component.puml
 
-LAYOUT_LEFT_RIGHT()
-
 Container(sidecar, "Envoy Sidecar", "Envoy Proxy", "Intercepts traffic and delegates auth checks via ext_authz.")
 
 Container_Boundary(middleware, "Auth Middleware Go Container") {
