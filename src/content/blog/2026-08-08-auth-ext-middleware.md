@@ -60,7 +60,7 @@ C4Container
     
     System_Boundary(pod, "Billing Service Pod (K8s Pod)") {
         Container(sidecar, "Envoy Sidecar", "Envoy Proxy", "Intercepts inbound traffic for billing-service; delegates check via ext_authz.")
-        Container(backend, "Billing Service", "Go / Microservice", "Executes secure billing-related business logic on localhost.")
+        Container(backend, "Billing Service", "Go API Service", "API containing the logic for this service.")
     }
     
     Container(middleware, "Auth Middleware", "Go Service", "Handles token decoding, validation, and rule evaluation.")
@@ -72,7 +72,7 @@ C4Container
   Rel(gateway, sidecar, "Routes request", "HTTP")
   Rel(sidecar, middleware, "Delegates authorization (via Istio ext_authz)", "HTTP/gRPC")
   Rel(middleware, sidecar, "Returns ALLOW (200 OK) / DENY", "HTTP Status")
-  Rel(sidecar, backend, "Forwards authorized request", "Localhost HTTP")
+  Rel(sidecar, backend, "Forwards authorized request", "HTTP")
   Rel(backend, ext_backend, "Hits external transaction APIs", "HTTPS")
 ```
 
@@ -94,7 +94,7 @@ C4Component
   title Component Diagram: Custom Auth Middleware Go Container
 
   Container(sidecar, "Envoy Sidecar", "Envoy Proxy", "Intercepts traffic, delegates auth checks via ext_authz, and forwards authorized requests.")
-  Container(backend, "Billing Service", "Go / Microservice", "Executes secure billing-related business logic on localhost.")
+  Container(backend, "Billing Service", "Go API Service", "API containing the logic for this service.")
   Container_Ext(ext_backend, "External Backend", "External System", "External payment gateway or third-party transaction systems.")
 
   Container_Boundary(middleware, "Auth Middleware Go Container") {
@@ -116,7 +116,7 @@ C4Component
   Rel(sync, l1, "Refreshes local rules", "Memory Write")
   Rel(sync, redis, "Updates shared rules", "Redis protocol")
   Rel(router, sidecar, "Returns ALLOW (200 OK) / DENY", "HTTP Status")
-  Rel(sidecar, backend, "Forwards authorized request", "Localhost HTTP")
+  Rel(sidecar, backend, "Forwards authorized request", "HTTP")
   Rel(router, sync, "Spawns background worker", "Go Routine")
   Rel(backend, ext_backend, "Hits transaction APIs", "HTTPS")
 ```
@@ -246,7 +246,7 @@ C4Container
     
     System_Boundary(pod, "Pod del Servicio Billing (K8s Pod)") {
         Container(sidecar, "Envoy Sidecar", "Envoy Proxy", "Intercepta el tráfico entrante para billing-service; delega la verificación vía ext_authz.")
-        Container(backend, "Servicio Billing", "Go / Microservicio", "Ejecuta la lógica de negocio de facturación segura en localhost.")
+        Container(backend, "Servicio Billing", "Go API Service", "API que contiene la lógica de este servicio.")
     }
     
     Container(middleware, "Auth Middleware", "Servicio en Go", "Maneja decodificación de tokens, validación y evaluación de reglas.")
@@ -258,7 +258,7 @@ C4Container
   Rel(gateway, sidecar, "Enruta la petición", "HTTP")
   Rel(sidecar, middleware, "Delega la autorización (vía Istio ext_authz)", "HTTP/gRPC")
   Rel(middleware, sidecar, "Retorna ALLOW (200 OK) o DENY", "HTTP Status")
-  Rel(sidecar, backend, "Reenvía la petición autorizada", "Loopback HTTP")
+  Rel(sidecar, backend, "Reenvía la petición autorizada", "HTTP")
   Rel(backend, ext_backend, "Consulta API de transacciones externas", "HTTPS")
 ```
 
@@ -280,7 +280,7 @@ C4Component
   title Diagrama de Componentes: Contenedor Go de Middleware de Autorización
 
   Container(sidecar, "Envoy Sidecar", "Envoy Proxy", "Intercepta el tráfico, delega verificaciones de autorización vía ext_authz, y reenvía solicitudes autorizadas.")
-  Container(backend, "Servicio Billing", "Go / Microservicio", "Ejecuta la lógica de negocio de facturación segura en localhost.")
+  Container(backend, "Servicio Billing", "Go API Service", "API que contiene la lógica de este servicio.")
   Container_Ext(ext_backend, "External Backend", "Sistema Externo", "Pasarela de pago externa o sistemas transaccionales de terceros.")
 
   Container_Boundary(middleware, "Contenedor Go de Middleware de Autorización") {
@@ -302,7 +302,7 @@ C4Component
   Rel(sync, l1, "Actualiza reglas locales", "Escritura en Memoria")
   Rel(sync, redis, "Actualiza reglas compartidas", "Protocolo Redis")
   Rel(router, sidecar, "Retorna ALLOW (200 OK) / DENY", "HTTP Status")
-  Rel(sidecar, backend, "Reenvía la petición autorizada", "Localhost HTTP")
+  Rel(sidecar, backend, "Reenvía la petición autorizada", "HTTP")
   Rel(router, sync, "Dispara worker en segundo plano", "Go Routine")
   Rel(backend, ext_backend, "Consulta API de transacciones externas", "HTTPS")
 ```
