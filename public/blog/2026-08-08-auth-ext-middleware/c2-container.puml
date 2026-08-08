@@ -36,7 +36,7 @@ System_Boundary(mesh, "Kubernetes / Istio Service Mesh") {
     
     System_Boundary(pod, "Billing Service Pod (K8s Pod)") {
         Container(sidecar, "Envoy Sidecar", "Envoy Proxy", "Intercepts inbound traffic for billing-service; delegates check via ext_authz.")
-        Container(backend, "Billing Service", "Go / Microservice", "Executes secure billing-related business logic on localhost.")
+        Container(backend, "Billing Service", "Go API Service", "API containing the logic for this service.")
     }
     
     Container(middleware, "Auth Middleware", "Go Service", "Handles token decoding, validation, and rule evaluation.")
@@ -48,7 +48,7 @@ Rel(client, gateway, "Sends API Request", "HTTPS")
 Rel(gateway, sidecar, "Routes request", "HTTP")
 Rel(sidecar, middleware, "Delegates authorization (via Istio ext_authz)", "HTTP/gRPC")
 Rel(middleware, sidecar, "Returns ALLOW (200 OK) / DENY", "HTTP Status")
-Rel(sidecar, backend, "Forwards authorized request", "Localhost HTTP")
+Rel(sidecar, backend, "Forwards authorized request", "HTTP")
 Rel(backend, ext_backend, "Hits external transaction APIs", "HTTPS")
 
 @enduml

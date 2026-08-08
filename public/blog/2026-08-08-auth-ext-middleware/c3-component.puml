@@ -35,7 +35,7 @@ skinparam arrow {
 }
 
 Container(sidecar, "Envoy Sidecar", "Envoy Proxy", "Intercepts traffic, delegates auth checks via ext_authz, and forwards authorized requests.")
-Container(backend, "Billing Service", "Go / Microservice", "Executes secure billing-related business logic on localhost.")
+Container(backend, "Billing Service", "Go API Service", "API containing the logic for this service.")
 Container_Ext(ext_backend, "External Backend", "External System", "External payment gateway or third-party transaction systems.")
 
 Container_Boundary(middleware, "Auth Middleware Go Container") {
@@ -64,7 +64,7 @@ Rel(nomos_api, sync, "Returns active rules", "HTTP JSON Response")
 Rel(sync, l1, "Refreshes local rules", "Memory Write")
 Rel(sync, redis, "Updates shared rules", "Redis protocol")
 Rel(router, sidecar, "Returns ALLOW (200 OK) / DENY", "HTTP Status")
-Rel(sidecar, backend, "Forwards authorized request", "Localhost HTTP")
+Rel(sidecar, backend, "Forwards authorized request", "HTTP")
 Rel(router, sync, "Spawns background worker", "Go Routine")
 Rel(backend, ext_backend, "Hits transaction APIs", "HTTPS")
 
