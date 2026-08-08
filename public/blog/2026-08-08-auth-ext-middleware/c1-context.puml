@@ -19,6 +19,11 @@ skinparam rectangle<<system>> {
     FontColor #FFFFFF
     BorderColor #143F6B
 }
+skinparam rectangle<<external_system>> {
+    BackgroundColor #3E4A56
+    FontColor #FFFFFF
+    BorderColor #2F3A44
+}
 skinparam arrow {
     Color #1D5D9B
     FontColor #0F2C59
@@ -26,7 +31,9 @@ skinparam arrow {
 
 Person(client, "Client", "A user or application making API requests.")
 System(api_system, "API & Service Mesh System", "Intercepts, validates, routes, and executes secure business transactions.")
+System_Ext(ext_backend, "External Backend", "External payment gateway or third-party transaction systems.")
 
 Rel(client, api_system, "Sends requests & queries resources", "HTTPS")
+Rel(api_system, ext_backend, "Hits external transaction APIs", "HTTPS")
 
 @enduml
