@@ -107,11 +107,13 @@ C4Component
   Rel(router, l1, "Queries local rules", "Memory Read")
   Rel(router, l2_client, "Queries shared rules (on L1 miss)", "Go Function")
   Rel(l2_client, redis, "Fetches from Redis", "Redis protocol")
-  Rel(sync, nomos_api, "Pulls rule updates", "HTTP")
+  Rel(sync, nomos_api, "Pulls rule updates", "HTTP Request")
+  Rel(nomos_api, sync, "Returns active rules", "HTTP JSON Response")
   Rel(sync, l1, "Refreshes local rules", "Memory Write")
   Rel(sync, redis, "Updates shared rules", "Redis protocol")
   Rel(router, sidecar, "Returns ALLOW (200 OK) / DENY", "HTTP Status")
   Rel(sidecar, backend, "Forwards authorized request", "Localhost HTTP")
+  Rel(router, sync, "Spawns background worker", "Go Routine")
 ```
 
 </div>
@@ -286,11 +288,13 @@ C4Component
   Rel(router, l1, "Consulta reglas locales", "Lectura de Memoria")
   Rel(router, l2_client, "Consulta reglas compartidas (si falla L1)", "Función Go")
   Rel(l2_client, redis, "Trae datos de Redis", "Protocolo Redis")
-  Rel(sync, nomos_api, "Tira de actualizaciones de reglas", "HTTP")
+  Rel(sync, nomos_api, "Tira de actualizaciones de reglas", "Petición HTTP")
+  Rel(nomos_api, sync, "Retorna reglas activas", "Respuesta JSON HTTP")
   Rel(sync, l1, "Actualiza reglas locales", "Escritura en Memoria")
   Rel(sync, redis, "Actualiza reglas compartidas", "Protocolo Redis")
   Rel(router, sidecar, "Retorna ALLOW (200 OK) / DENY", "HTTP Status")
   Rel(sidecar, backend, "Reenvía la petición autorizada", "Localhost HTTP")
+  Rel(router, sync, "Dispara worker en segundo plano", "Go Routine")
 ```
 
 </div>

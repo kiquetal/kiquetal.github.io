@@ -25,10 +25,12 @@ Rel(sidecar, router, "Sends check request", "HTTP")
 Rel(router, l1, "Queries local rules", "Memory Read")
 Rel(router, l2_client, "Queries shared rules (on L1 miss)", "Go Function")
 Rel(l2_client, redis, "Fetches from Redis", "Redis protocol")
-Rel(sync, nomos_api, "Pulls rule updates", "HTTP")
+Rel(sync, nomos_api, "Pulls rule updates", "HTTP Request")
+Rel(nomos_api, sync, "Returns active rules", "HTTP JSON Response")
 Rel(sync, l1, "Refreshes local rules", "Memory Write")
 Rel(sync, redis, "Updates shared rules", "Redis protocol")
 Rel(router, sidecar, "Returns ALLOW (200 OK) / DENY", "HTTP Status")
 Rel(sidecar, backend, "Forwards authorized request", "Localhost HTTP")
+Rel(router, sync, "Spawns background worker", "Go Routine")
 
 @enduml
