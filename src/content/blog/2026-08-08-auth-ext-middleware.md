@@ -56,11 +56,11 @@ C4Container
   Person(client, "Client", "A user or application making API requests.")
   
   System_Boundary(mesh, "Kubernetes / Istio Service Mesh") {
-    Container(gateway, "API Gateway", "KrakenD", "Stamps logical target service destination headers (X-Target-Service).")
+    Container(gateway, "API Gateway", "KrakenD", "Stamps logical target service destination headers (X-Target-Service: billing-service).")
     
-    System_Boundary(pod, "Target Service Pod (K8s Pod)") {
-        Container(sidecar, "Envoy Sidecar", "Envoy Proxy", "Intercepts inbound traffic; uses Istio's ext_authz capability to delegate validation.")
-        Container(backend, "Business Microservice", "Quarkus / Go / Java", "Executes secure business logic on localhost.")
+    System_Boundary(pod, "Billing Service Pod (K8s Pod)") {
+        Container(sidecar, "Envoy Sidecar", "Envoy Proxy", "Intercepts inbound traffic for billing-service; delegates check via ext_authz.")
+        Container(backend, "Billing Service", "Go / Microservice", "Executes secure billing-related business logic on localhost.")
     }
     
     Container(middleware, "Auth Middleware", "Go Service", "Handles token decoding, validation, and rule evaluation.")
@@ -90,10 +90,11 @@ Zooming in to Level 3 (Components) specifically for the **Auth Middleware** cont
 C4Component
   title Component Diagram: Custom Auth Middleware Go Container
 
-  Container(sidecar, "Envoy Sidecar", "Envoy Proxy", "Intercepts traffic and delegates auth checks via ext_authz.")
+  Container(sidecar, "Envoy Sidecar", "Envoy Proxy", "Intercepts traffic, delegates auth checks via ext_authz, and forwards authorized requests.")
+  Container(backend, "Billing Service", "Go / Microservice", "Executes secure billing-related business logic on localhost.")
 
   Container_Boundary(middleware, "Auth Middleware Go Container") {
-    Component(router, "Routing Controller", "Go http.Handler", "Exposes /check, extracts and parses incoming headers.")
+    Component(router, "Main Control", "Go http.Handler", "Exposes /check; validates config properties: audience, iss, and apiproxy_name.")
     Component(l1, "L1 Cache", "Go In-Memory Map", "Fastest local cache inside Go process memory for sub-millisecond lookups.")
     Component(l2_client, "L2 Client", "Go Redis Client", "Optional client that checks L2 cache on local cache miss.")
     Component(sync, "Sync Client", "Go Routine", "Periodically pulls rule updates in the background.")
@@ -110,6 +111,7 @@ C4Component
   Rel(sync, l1, "Refreshes local rules", "Memory Write")
   Rel(sync, redis, "Updates shared rules", "Redis protocol")
   Rel(router, sidecar, "Returns ALLOW (200 OK) / DENY", "HTTP Status")
+  Rel(sidecar, backend, "Forwards authorized request", "Localhost HTTP")
 ```
 
 </div>
@@ -233,11 +235,11 @@ C4Container
   Person(client, "Cliente", "Un usuario o aplicación que realiza peticiones a la API.")
   
   System_Boundary(mesh, "Kubernetes / Istio Service Mesh") {
-    Container(gateway, "API Gateway", "KrakenD", "Estampa cabeceras de destino de servicio lógico (X-Target-Service).")
+    Container(gateway, "API Gateway", "KrakenD", "Estampa cabeceras de destino de servicio lógico (X-Target-Service: billing-service).")
     
-    System_Boundary(pod, "Pod del Servicio Destino") {
-        Container(sidecar, "Envoy Sidecar", "Envoy Proxy", "Intercepta y retiene el tráfico entrante; usa ext_authz de Istio.")
-        Container(backend, "Microservicio de Negocio", "Quarkus / Go / Java", "Ejecuta la lógica de negocio segura en localhost.")
+    System_Boundary(pod, "Pod del Servicio Billing (K8s Pod)") {
+        Container(sidecar, "Envoy Sidecar", "Envoy Proxy", "Intercepta el tráfico entrante para billing-service; delega la verificación vía ext_authz.")
+        Container(backend, "Servicio Billing", "Go / Microservicio", "Ejecuta la lógica de negocio de facturación segura en localhost.")
     }
     
     Container(middleware, "Auth Middleware", "Servicio en Go", "Maneja decodificación de tokens, validación y evaluación de reglas.")
@@ -267,10 +269,11 @@ Haciendo zoom al Nivel 3 (Componentes) específicamente para el contenedor **Aut
 C4Component
   title Diagrama de Componentes: Contenedor Go de Middleware de Autorización
 
-  Container(sidecar, "Envoy Sidecar", "Envoy Proxy", "Intercepta tráfico y delega verificaciones de autorización vía ext_authz.")
+  Container(sidecar, "Envoy Sidecar", "Envoy Proxy", "Intercepta el tráfico, delega verificaciones de autorización vía ext_authz, y reenvía solicitudes autorizadas.")
+  Container(backend, "Servicio Billing", "Go / Microservicio", "Ejecuta la lógica de negocio de facturación segura en localhost.")
 
   Container_Boundary(middleware, "Contenedor Go de Middleware de Autorización") {
-    Component(router, "Controlador de Enrutamiento", "Go http.Handler", "Expone /check, extrae y analiza cabeceras entrantes.")
+    Component(router, "Main Control", "Go http.Handler", "Expone /check; valida propiedades de configuración: audience, iss y apiproxy_name.")
     Component(l1, "Caché L1", "Mapa en Memoria Go", "Caché local ultrarrápido dentro de la memoria del proceso Go para búsquedas en submilisegundos.")
     Component(l2_client, "Cliente L2", "Cliente Redis Go", "Cliente opcional que consulta el caché L2 en caso de fallo en el caché local.")
     Component(sync, "Cliente de Sincronización", "Go Routine", "Tira de actualizaciones periódicamente en segundo plano.")
@@ -287,6 +290,7 @@ C4Component
   Rel(sync, l1, "Actualiza reglas locales", "Escritura en Memoria")
   Rel(sync, redis, "Actualiza reglas compartidas", "Protocolo Redis")
   Rel(router, sidecar, "Retorna ALLOW (200 OK) / DENY", "HTTP Status")
+  Rel(sidecar, backend, "Reenvía la petición autorizada", "Localhost HTTP")
 ```
 
 </div>
