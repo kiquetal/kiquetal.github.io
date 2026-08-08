@@ -66,11 +66,14 @@ C4Container
     Container(middleware, "Auth Middleware", "Go Service", "Handles token decoding, validation, and rule evaluation.")
   }
 
+  System_Ext(ext_backend, "External Backend", "External payment gateway or third-party transaction systems.")
+
   Rel(client, gateway, "Sends API Request", "HTTPS")
   Rel(gateway, sidecar, "Routes request", "HTTP")
   Rel(sidecar, middleware, "Delegates authorization (via Istio ext_authz)", "HTTP/gRPC")
   Rel(middleware, sidecar, "Returns ALLOW (200 OK) / DENY", "HTTP Status")
   Rel(sidecar, backend, "Forwards authorized request", "Localhost HTTP")
+  Rel(backend, ext_backend, "Hits external transaction APIs", "HTTPS")
 ```
 
 </div>
@@ -247,11 +250,14 @@ C4Container
     Container(middleware, "Auth Middleware", "Servicio en Go", "Maneja decodificación de tokens, validación y evaluación de reglas.")
   }
 
+  System_Ext(ext_backend, "External Backend", "Pasarela de pago externa o sistemas transaccionales de terceros.")
+
   Rel(client, gateway, "Envía petición API", "HTTPS")
   Rel(gateway, sidecar, "Enruta la petición", "HTTP")
   Rel(sidecar, middleware, "Delega la autorización (vía Istio ext_authz)", "HTTP/gRPC")
   Rel(middleware, sidecar, "Retorna ALLOW (200 OK) o DENY", "HTTP Status")
   Rel(sidecar, backend, "Reenvía la petición autorizada", "Loopback HTTP")
+  Rel(backend, ext_backend, "Consulta API de transacciones externas", "HTTPS")
 ```
 
 </div>

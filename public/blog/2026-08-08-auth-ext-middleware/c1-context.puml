@@ -1,5 +1,12 @@
 @startuml
-!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/release/1-0/C4_Context.puml
+!include <C4/C4_Context>
+
+skinparam backgroundcolor #F5E6D3
+skinparam DefaultFontName "Courier New"
+
+UpdateElementStyle("person", $bgColor="#5C4A3A", $fontColor="#F5E6D3", $borderColor="#8B7355")
+UpdateElementStyle("system", $bgColor="#D2B48C", $fontColor="#5C4A3A", $borderColor="#8B7355")
+UpdateRelStyle($lineColor="#8B7355", $textColor="#5C4A3A")
 
 Person(client, "Client", "A user or application making API requests.")
 System(api_system, "API & Service Mesh System", "Intercepts, validates, routes, and executes secure business transactions.")
