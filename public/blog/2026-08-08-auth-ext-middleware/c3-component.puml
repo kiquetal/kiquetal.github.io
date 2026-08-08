@@ -11,6 +11,7 @@ UpdateRelStyle($lineColor="#8B7355", $textColor="#5C4A3A")
 
 Container(sidecar, "Envoy Sidecar", "Envoy Proxy", "Intercepts traffic, delegates auth checks via ext_authz, and forwards authorized requests.")
 Container(backend, "Billing Service", "Go / Microservice", "Executes secure billing-related business logic on localhost.")
+Container(ext_backend, "External Backend", "External System", "External payment gateway or third-party transaction systems.")
 
 Container_Boundary(middleware, "Auth Middleware Go Container") {
     Component(router, "Main Control", "Go http.Handler", "Exposes /check, extracts and parses incoming headers.")
@@ -40,5 +41,6 @@ Rel(sync, redis, "Updates shared rules", "Redis protocol")
 Rel(router, sidecar, "Returns ALLOW (200 OK) / DENY", "HTTP Status")
 Rel(sidecar, backend, "Forwards authorized request", "Localhost HTTP")
 Rel(router, sync, "Spawns background worker", "Go Routine")
+Rel(backend, ext_backend, "Hits transaction APIs", "HTTPS")
 
 @enduml
