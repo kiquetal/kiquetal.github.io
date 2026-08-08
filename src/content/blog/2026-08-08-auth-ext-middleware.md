@@ -32,8 +32,10 @@ C4Context
 
   Person(client, "Client", "A user or application making API requests.")
   System(api_system, "API & Service Mesh System", "Intercepts, validates, routes, and executes secure business transactions.")
+  System_Ext(ext_backend, "External Backend", "External payment gateway or third-party transaction systems.")
 
   Rel(client, api_system, "Sends requests & queries resources", "HTTPS")
+  Rel(api_system, ext_backend, "Hits external transaction APIs", "HTTPS")
 ```
 
 </div>
@@ -218,8 +220,10 @@ C4Context
 
   Person(client, "Cliente", "Un usuario o aplicación que realiza peticiones a la API.")
   System(api_system, "API & Service Mesh System", "Intercepta, valida, enruta y ejecuta transacciones de negocio seguras.")
+  System_Ext(ext_backend, "External Backend", "Pasarela de pago externa o sistemas transaccionales de terceros.")
 
   Rel(client, api_system, "Envía peticiones y consulta recursos", "HTTPS")
+  Rel(api_system, ext_backend, "Consulta API de transacciones externas", "HTTPS")
 ```
 
 </div>
