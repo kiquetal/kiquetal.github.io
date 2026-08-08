@@ -1,0 +1,27 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/release/1-0/C4_Component.puml
+
+LAYOUT_LEFT_RIGHT()
+
+Container(sidecar, "Envoy Sidecar", "Envoy Proxy", "Intercepts traffic and delegates auth checks via ext_authz.")
+
+Container_Boundary(middleware, "Auth Middleware Go Container") {
+    Component(router, "Routing Controller", "Go http.Handler", "Exposes /check, extracts and parses incoming headers.")
+    Component(l1, "L1 Cache", "Go In-Memory Map", "Fastest local cache inside Go process memory for sub-millisecond lookups.")
+    Component(l2_client, "L2 Client", "Go Redis Client", "Optional client that checks L2 cache on local cache miss.")
+    Component(sync, "Sync Client", "Go Routine", "Periodically pulls rule updates in the background.")
+}
+
+Container(redis, "L2 Cache (Optional)", "Redis Database", "Shared distributed memory cache across middleware replicas.")
+Container(nomos_api, "Nomos Central API", "HTTP Service", "Authoritative centralized rule storage.")
+
+Rel(sidecar, router, "Sends check request", "HTTP")
+Rel(router, l1, "Queries local rules", "Memory Read")
+Rel(router, l2_client, "Queries shared rules (on L1 miss)", "Go Function")
+Rel(l2_client, redis, "Fetches from Redis", "Redis protocol")
+Rel(sync, nomos_api, "Pulls rule updates", "HTTP")
+Rel(sync, l1, "Refreshes local rules", "Memory Write")
+Rel(sync, redis, "Updates shared rules", "Redis protocol")
+Rel(router, sidecar, "Returns ALLOW (200 OK) / DENY", "HTTP Status")
+
+@enduml

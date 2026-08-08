@@ -18,16 +18,34 @@ Modern architectures demand that we decouple security policies from business log
 
 By leveraging **Istio's CUSTOM External Authorization (`ext_authz`)**, we can intercept incoming requests right at the Envoy sidecar proxy level and delegate validation to a dedicated, high-performance middleware service.
 
-### The Interception Flow
+---
 
-Here is how Istio interacts with our external authorizer middleware:
+## C1: System Context Diagram
 
-1. **Request Inflow**: Client hits the service endpoint.
-2. **Envoy Interception**: The sidecar proxy catches the inbound request and pauses the connection.
-3. **Check Request**: Envoy extracts specified headers (e.g., `Authorization`, path, custom tracking headers) and forwards them to our custom external authorizer middleware via HTTP/gRPC.
-4. **Decision**:
-   - **Allowed (HTTP 200)**: The request continues to the backend container.
-   - **Denied (HTTP 403 / 401)**: Envoy short-circuits the request and returns the error directly to the client.
+At the highest level (System Context), we look at how the entire API and Service Mesh ecosystem interacts with the Client.
+
+<div style="background-color: white; padding: 20px; border-radius: 8px; margin: 1.5rem 0;">
+
+```mermaid
+C4Context
+  title System Context: External Authorization Flow
+
+  Person(client, "Client", "A user or application making API requests.")
+  System(api_system, "API & Service Mesh System", "Intercepts, validates, routes, and executes secure business transactions.")
+
+  Rel(client, api_system, "Sends requests & queries resources", "HTTPS")
+```
+
+</div>
+
+* Rendered Diagram: [c1-context.png](/blog/2026-08-08-auth-ext-middleware/c1-context.png)
+* Source File: [`c1-context.puml`](file:///mydata/codes/2026/kiquetal.github.io/public/blog/2026-08-08-auth-ext-middleware/c1-context.puml)
+
+---
+
+## C2: Container Diagram (Istio Interception)
+
+Zooming in to Level 2 (Containers), we see how our API and network proxy sidecars handle the incoming request and perform external delegation using Istio's built-in `ext_authz` capability.
 
 <div style="background-color: white; padding: 20px; border-radius: 8px; margin: 1.5rem 0;">
 
@@ -38,11 +56,11 @@ C4Container
   Person(client, "Client", "A user or application making API requests.")
   
   System_Boundary(mesh, "Kubernetes / Istio Service Mesh") {
-    Container(gateway, "API Gateway", "KrakenD", "Stamps target service destination headers (X-Target-Service).")
+    Container(gateway, "API Gateway", "KrakenD", "Stamps logical target service destination headers (X-Target-Service).")
     
-    System_Boundary(pod, "Target Service Pod") {
-        Container(sidecar, "Envoy Sidecar", "Envoy Proxy", "Intercepts and holds inbound traffic.")
-        Container(backend, "Business Microservice", "Quarkus / Go / Java", "Executes secure business logic.")
+    System_Boundary(pod, "Target Service Pod (K8s Pod)") {
+        Container(sidecar, "Envoy Sidecar", "Envoy Proxy", "Intercepts inbound traffic; uses Istio's ext_authz capability to delegate validation.")
+        Container(backend, "Business Microservice", "Quarkus / Go / Java", "Executes secure business logic on localhost.")
     }
     
     Container(middleware, "Auth Middleware", "Go Service", "Handles token decoding, validation, and rule evaluation.")
@@ -50,15 +68,57 @@ C4Container
 
   Rel(client, gateway, "Sends API Request", "HTTPS")
   Rel(gateway, sidecar, "Routes request", "HTTP")
-  Rel(sidecar, middleware, "Delegates authorization (/check)", "HTTP/gRPC")
+  Rel(sidecar, middleware, "Delegates authorization (via Istio ext_authz)", "HTTP/gRPC")
   Rel(middleware, sidecar, "Returns ALLOW (200 OK) / DENY", "HTTP Status")
-  Rel(sidecar, backend, "Forwards authorized request", "Loopback HTTP")
+  Rel(sidecar, backend, "Forwards authorized request", "Localhost HTTP")
 ```
 
 </div>
 
+* Rendered Diagram: [c2-container.png](/blog/2026-08-08-auth-ext-middleware/c2-container.png)
+* Source File: [`c2-container.puml`](file:///mydata/codes/2026/kiquetal.github.io/public/blog/2026-08-08-auth-ext-middleware/c2-container.puml)
+
+---
+
+## C3: Component Diagram (Auth Middleware Internal)
+
+Zooming in to Level 3 (Components) specifically for the **Auth Middleware** container, we see the decoupled internal design that ensures high performance and sub-millisecond validations.
+
+<div style="background-color: white; padding: 20px; border-radius: 8px; margin: 1.5rem 0;">
+
+```mermaid
+C4Component
+  title Component Diagram: Custom Auth Middleware Go Container
+
+  Container(sidecar, "Envoy Sidecar", "Envoy Proxy", "Intercepts traffic and delegates auth checks via ext_authz.")
+
+  Container_Boundary(middleware, "Auth Middleware Go Container") {
+    Component(router, "Routing Controller", "Go http.Handler", "Exposes /check, extracts and parses incoming headers.")
+    Component(l1, "L1 Cache", "Go In-Memory Map", "Fastest local cache inside Go process memory for sub-millisecond lookups.")
+    Component(l2_client, "L2 Client", "Go Redis Client", "Optional client that checks L2 cache on local cache miss.")
+    Component(sync, "Sync Client", "Go Routine", "Periodically pulls rule updates in the background.")
+  }
+
+  Container(redis, "L2 Cache (Optional)", "Redis Database", "Shared distributed memory cache across middleware replicas.")
+  Container(nomos_api, "Nomos Central API", "HTTP Service", "Authoritative centralized rule storage.")
+
+  Rel(sidecar, router, "Sends check request", "HTTP")
+  Rel(router, l1, "Queries local rules", "Memory Read")
+  Rel(router, l2_client, "Queries shared rules (on L1 miss)", "Go Function")
+  Rel(l2_client, redis, "Fetches from Redis", "Redis protocol")
+  Rel(sync, nomos_api, "Pulls rule updates", "HTTP")
+  Rel(sync, l1, "Refreshes local rules", "Memory Write")
+  Rel(sync, redis, "Updates shared rules", "Redis protocol")
+  Rel(router, sidecar, "Returns ALLOW (200 OK) / DENY", "HTTP Status")
+```
+
+</div>
+
+* Rendered Diagram: [c3-component.png](/blog/2026-08-08-auth-ext-middleware/c3-component.png)
+* Source File: [`c3-component.puml`](file:///mydata/codes/2026/kiquetal.github.io/public/blog/2026-08-08-auth-ext-middleware/c3-component.puml)
+
 > [!TIP]
-> You can find our complete **Structurizr C4 DSL schema** for this architecture saved in the blog assets: [`structurizr.dsl`](file:///mydata/codes/2026/kiquetal.github.io/public/blog/2026-08-08-auth-ext-middleware/structurizr.dsl).
+> You can also find our complete **Structurizr C4 DSL schema** for this architecture saved in the blog assets: [`structurizr.dsl`](file:///mydata/codes/2026/kiquetal.github.io/public/blog/2026-08-08-auth-ext-middleware/structurizr.dsl).
 
 ---
 
@@ -133,18 +193,36 @@ func isValidToken(token string) bool {
 
 Las arquitecturas modernas exigen que separemos las políticas de seguridad de la lógica de negocio. Implementar lógica de autorización dentro de microservicios individuales crea duplicidad de código e introduce posibles vulnerabilidades de seguridad si se olvida algún endpoint.
 
-Al aprovechar la **Autorización Externa CUSTOM de Istio (`ext_authz`)**, podemos interceptar las solicitudes entrantes directamente a nivel del proxy sidecar de Envoy y delegar la validación a un servicio middleware dedicado de alto rendimiento.
+At aprovechar la **Autorización Externa CUSTOM de Istio (`ext_authz`)**, podemos interceptar las solicitudes entrantes directamente a nivel del proxy sidecar de Envoy y delegar la validación a un servicio middleware dedicado de alto rendimiento.
 
-### El Flujo de Interceptación
+---
 
-Así interactúa Istio con nuestro middleware autorizador externo:
+## C1: Diagrama de Contexto de Sistema
 
-1. **Entrada de Solicitud**: El cliente realiza una petición al endpoint del servicio.
-2. **Interceptación de Envoy**: El proxy sidecar captura la solicitud entrante y pausa la conexión.
-3. **Solicitud de Verificación**: Envoy extrae cabeceras específicas (por ejemplo, `Authorization`, ruta, cabeceras de seguimiento personalizadas) y las envía a nuestro middleware autorizador externo a través de HTTP/gRPC.
-4. **Decisión**:
-   - **Permitido (HTTP 200)**: La solicitud continúa hacia el contenedor del backend.
-   - **Denegado (HTTP 403 / 401)**: Envoy corta la solicitud de inmediato y devuelve el error directamente al cliente.
+En el nivel más alto (Contexto de Sistema), observamos cómo todo el ecosistema de APIs y Service Mesh interactúa con el Cliente.
+
+<div style="background-color: white; padding: 20px; border-radius: 8px; margin: 1.5rem 0;">
+
+```mermaid
+C4Context
+  title Contexto de Sistema: Flujo de Autorización Externa
+
+  Person(client, "Cliente", "Un usuario o aplicación que realiza peticiones a la API.")
+  System(api_system, "API & Service Mesh System", "Intercepta, valida, enruta y ejecuta transacciones de negocio seguras.")
+
+  Rel(client, api_system, "Envía peticiones y consulta recursos", "HTTPS")
+```
+
+</div>
+
+* Diagrama Renderizado: [c1-context.png](/blog/2026-08-08-auth-ext-middleware/c1-context.png)
+* Archivo Fuente: [`c1-context.puml`](file:///mydata/codes/2026/kiquetal.github.io/public/blog/2026-08-08-auth-ext-middleware/c1-context.puml)
+
+---
+
+## C2: Diagrama de Contenedores (Interceptación de Istio)
+
+Haciendo zoom al Nivel 2 (Contenedores), vemos cómo nuestros contenedores de la API y proxies Envoy manejan la solicitud entrante y realizan la delegación externa utilizando la capacidad integrada `ext_authz` de Istio.
 
 <div style="background-color: white; padding: 20px; border-radius: 8px; margin: 1.5rem 0;">
 
@@ -158,8 +236,8 @@ C4Container
     Container(gateway, "API Gateway", "KrakenD", "Estampa cabeceras de destino de servicio lógico (X-Target-Service).")
     
     System_Boundary(pod, "Pod del Servicio Destino") {
-        Container(sidecar, "Envoy Sidecar", "Envoy Proxy", "Intercepta y retiene el tráfico entrante.")
-        Container(backend, "Microservicio de Negocio", "Quarkus / Go / Java", "Ejecuta la lógica de negocio segura.")
+        Container(sidecar, "Envoy Sidecar", "Envoy Proxy", "Intercepta y retiene el tráfico entrante; usa ext_authz de Istio.")
+        Container(backend, "Microservicio de Negocio", "Quarkus / Go / Java", "Ejecuta la lógica de negocio segura en localhost.")
     }
     
     Container(middleware, "Auth Middleware", "Servicio en Go", "Maneja decodificación de tokens, validación y evaluación de reglas.")
@@ -167,12 +245,54 @@ C4Container
 
   Rel(client, gateway, "Envía petición API", "HTTPS")
   Rel(gateway, sidecar, "Enruta la petición", "HTTP")
-  Rel(sidecar, middleware, "Delega la autorización (/check)", "HTTP/gRPC")
+  Rel(sidecar, middleware, "Delega la autorización (vía Istio ext_authz)", "HTTP/gRPC")
   Rel(middleware, sidecar, "Retorna ALLOW (200 OK) o DENY", "HTTP Status")
   Rel(sidecar, backend, "Reenvía la petición autorizada", "Loopback HTTP")
 ```
 
 </div>
+
+* Diagrama Renderizado: [c2-container.png](/blog/2026-08-08-auth-ext-middleware/c2-container.png)
+* Archivo Fuente: [`c2-container.puml`](file:///mydata/codes/2026/kiquetal.github.io/public/blog/2026-08-08-auth-ext-middleware/c2-container.puml)
+
+---
+
+## C3: Diagrama de Componentes (Interno del Auth Middleware)
+
+Haciendo zoom al Nivel 3 (Componentes) específicamente para el contenedor **Auth Middleware**, vemos el diseño interno desacoplado que garantiza validaciones en submilisegundos.
+
+<div style="background-color: white; padding: 20px; border-radius: 8px; margin: 1.5rem 0;">
+
+```mermaid
+C4Component
+  title Diagrama de Componentes: Contenedor Go de Middleware de Autorización
+
+  Container(sidecar, "Envoy Sidecar", "Envoy Proxy", "Intercepta tráfico y delega verificaciones de autorización vía ext_authz.")
+
+  Container_Boundary(middleware, "Contenedor Go de Middleware de Autorización") {
+    Component(router, "Controlador de Enrutamiento", "Go http.Handler", "Expone /check, extrae y analiza cabeceras entrantes.")
+    Component(l1, "Caché L1", "Mapa en Memoria Go", "Caché local ultrarrápido dentro de la memoria del proceso Go para búsquedas en submilisegundos.")
+    Component(l2_client, "Cliente L2", "Cliente Redis Go", "Cliente opcional que consulta el caché L2 en caso de fallo en el caché local.")
+    Component(sync, "Cliente de Sincronización", "Go Routine", "Tira de actualizaciones periódicamente en segundo plano.")
+  }
+
+  Container(redis, "Caché L2 (Opcional)", "Base de Datos Redis", "Caché de memoria compartida distribuida entre réplicas de middleware.")
+  Container(nomos_api, "API Central de Nomos", "Servicio HTTP", "Almacenamiento autoritativo centralizado de reglas.")
+
+  Rel(sidecar, router, "Envía petición de verificación", "HTTP")
+  Rel(router, l1, "Consulta reglas locales", "Lectura de Memoria")
+  Rel(router, l2_client, "Consulta reglas compartidas (si falla L1)", "Función Go")
+  Rel(l2_client, redis, "Trae datos de Redis", "Protocolo Redis")
+  Rel(sync, nomos_api, "Tira de actualizaciones de reglas", "HTTP")
+  Rel(sync, l1, "Actualiza reglas locales", "Escritura en Memoria")
+  Rel(sync, redis, "Actualiza reglas compartidas", "Protocolo Redis")
+  Rel(router, sidecar, "Retorna ALLOW (200 OK) / DENY", "HTTP Status")
+```
+
+</div>
+
+* Diagrama Renderizado: [c3-component.png](/blog/2026-08-08-auth-ext-middleware/c3-component.png)
+* Archivo Fuente: [`c3-component.puml`](file:///mydata/codes/2026/kiquetal.github.io/public/blog/2026-08-08-auth-ext-middleware/c3-component.puml)
 
 > [!TIP]
 > Puedes encontrar nuestro **esquema de Structurizr C4 DSL** completo para esta arquitectura guardado en los recursos del blog: [`structurizr.dsl`](file:///mydata/codes/2026/kiquetal.github.io/public/blog/2026-08-08-auth-ext-middleware/structurizr.dsl).
@@ -243,4 +363,3 @@ func isValidToken(token string) bool {
 [TODO: Agrega detalles aquí sobre cómo tu middleware específico maneja la autorización, cualquier estrategia de caché o patrones de diseño que implementaste para mantenerlo ligero.]
 
 </div>
-

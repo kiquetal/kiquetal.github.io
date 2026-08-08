@@ -1,0 +1,10 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/release/1-0/C4_Context.puml
+
+
+Person(client, "Client", "A user or application making API requests.")
+System(api_system, "API & Service Mesh System", "Intercepts, validates, routes, and executes secure business transactions.")
+
+Rel(client, api_system, "Sends requests & queries resources", "HTTPS")
+
+@enduml

@@ -8,7 +8,7 @@ System_Boundary(mesh, "Kubernetes / Istio Service Mesh") {
 
     System_Boundary(pod, "Target Service Pod (K8s Pod)") {
         Container(sidecar, "Envoy Sidecar", "Envoy Proxy", "Intercepts inbound traffic; uses Istio's ext_authz capability to delegate validation.")
-        Container(backend, "billing-service", "nodejs", "Your API service that handles the request")
+        Container(backend, "Business Microservice", "Quarkus / Go", "Executes secure business logic on localhost.")
     }
 
     Container(middleware, "Auth Middleware", "Go Service", "Handles token decoding, validation, and rule evaluation.")
