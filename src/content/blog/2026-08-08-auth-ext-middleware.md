@@ -84,7 +84,7 @@ spec:
 
 Go is an excellent choice for writing external authorizers due to its low memory footprint, rapid startup times, and rich networking capabilities. 
 
-![External Authorizer Middleware Component Architecture](/blog/2026-08-08-auth-ext-middleware/c2-container.png)
+<img src="/blog/2026-08-08-auth-ext-middleware/c2-container.png" alt="External Authorizer Middleware Container Architecture" width="650" style="display: block; margin: 1.5rem auto; max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" />
 
 Below is a complete example of an HTTP-based authorizer middleware designed for Istio:
 
@@ -352,7 +352,7 @@ spec:
 
 Go es una excelente opción para escribir autorizadores externos debido a su bajo consumo de memoria, tiempos de inicio rápidos y ricas capacidades de red. 
 
-![Arquitectura de Componentes del Middleware de Autorización](/blog/2026-08-08-auth-ext-middleware/c3-component.png)
+<img src="/blog/2026-08-08-auth-ext-middleware/c2-container.png" alt="Arquitectura de Contenedores del Middleware de Autorización" width="650" style="display: block; margin: 1.5rem auto; max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" />
 
 A continuación, se presenta un ejemplo completo de un autorizador basado en HTTP diseñado para Istio:
 
