@@ -192,6 +192,18 @@ Inside our `billing-service` Kubernetes Pod, we run **two separate containers** 
 # Note: The unauthorized request at 22:42:15 was blocked by Envoy and never reached this container!
 ```
 
+---
+
+## Conclusion: Decentralized Enforcement with Centralized Logic
+
+Offloading authorization validation to the service mesh layer represents a massive shift in how we secure distributed systems. By combining **Istio’s Custom Authorization** with a high-performance **Go middleware**, we achieve the best of both worlds:
+
+- **True Decoupling**: Application containers remain completely oblivious to token schemas, encryption details, and policy rules, allowing developers to focus 100% on business functionality.
+- **Fail-Fast Security**: Envoy drops unauthorized requests immediately at the pod perimeter. Security threats are neutralized *before* they can consume resources or generate telemetry noise inside your backend containers.
+- **High Performance**: Executing policy evaluations locally via a lightweight sidecar keeps network latency at a bare minimum while maintaining centralized control.
+
+Embracing mesh-level authorization is not just about keeping codebases clean—it's about building a robust, auditable, and resilient cloud-native security posture.
+
 </div>
 
 <div class="lang-es hidden">
@@ -373,5 +385,17 @@ Dentro de nuestro Pod de Kubernetes `billing-service`, ejecutamos **dos contened
 2026/08/09 01:00:16 Received request for path: /v1/customer/123456789
 # Nota: ¡La solicitud no autorizada de las 01:04:54 fue bloqueada por Envoy y nunca llegó a este contenedor!
 ```
+
+---
+
+## Conclusión: Aplicación Descentralizada con Lógica Centralizada
+
+Delegar la validación de autorización a la capa del service mesh representa un cambio masivo en la forma en que aseguramos sistemas distribuidos. Al combinar la **Autorización Personalizada de Istio** con un **middleware en Go** de alto rendimiento, logramos lo mejor de ambos mundos:
+
+- **Desacoplamiento Real**: Los contenedores de aplicación permanecen completamente ajenos a los esquemas de tokens, detalles de cifrado y reglas de políticas, permitiendo a los desarrolladores centrarse al 100% en la funcionalidad del negocio.
+- **Seguridad "Fail-Fast"**: Envoy descarta las solicitudes no autorizadas de inmediato en el perímetro del pod. Las amenazas de seguridad se neutralizan *antes* de que puedan consumir recursos o generar ruido de telemetría dentro de tus contenedores backend.
+- **Alto Rendimiento**: Ejecutar las evaluaciones de políticas localmente a través de un sidecar ligero mantiene la latencia de red al mínimo absoluto mientras se mantiene un control centralizado.
+
+Adoptar la autorización a nivel de mesh no se trata solo de mantener los repositorios de código limpios, sino de construir una postura de seguridad nativa de la nube robusta, auditable y resistente.
 
 </div>
