@@ -7,7 +7,7 @@ excerpt:
   es: 'Una guía paso a paso sobre cómo construir un middleware autorizador externo HTTP/gRPC altamente optimizado para Istio y asegurar tus servicios en la capa de mesh.'
 date: 2026-08-08
 tags: ['authorization', 'middleware', 'istio', 'go', 'security']
-draft: true
+draft: false
 ---
 
 <div class="lang-en">
