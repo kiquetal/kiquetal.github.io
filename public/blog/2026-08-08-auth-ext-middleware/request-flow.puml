@@ -33,13 +33,21 @@ Gateway -> Sidecar: Route to Billing Pod (with X-Target-Service header)
 note over Sidecar: Sidecar intercepts inbound request
 Sidecar -> Middleware: Envoy ext_authz HTTP Check
 note over Middleware: Decodes token & validates rules
-Middleware --> Sidecar: ALLOW 200 OK (with X-Authorized-User)
-Sidecar -> Backend: Forward Request (with X-Authorized-User header)
-note over Backend: Executes transaction logic
-Backend -> ExtBackend: Outbound charges (HTTPS)
-ExtBackend --> Backend: Transaction result (HTTPS)
-Backend --> Sidecar: Return response payload
-Sidecar --> Gateway: Return response payload
-Gateway --> Client: 200 OK API Response
+
+alt Success Flow (Authorized)
+    Middleware --> Sidecar: ALLOW 200 OK (with X-Authorized-User)
+    Sidecar -> Backend: Forward Request (with X-Authorized-User header)
+    note over Backend: Executes transaction logic
+    Backend -> ExtBackend: Outbound charges (HTTPS)
+    ExtBackend --> Backend: Transaction result (HTTPS)
+    Backend --> Sidecar: Return response payload
+    Sidecar --> Gateway: Return response payload
+    Gateway --> Client: 200 OK API Response
+else Failure Flow (Fail Fast - Unauthorized)
+    Middleware --> Sidecar: DENY 403 Forbidden
+    note over Sidecar: Sidecar drops request immediately\n(Fail Fast: Backend API is never hit!)
+    Sidecar --> Gateway: HTTP 403 Forbidden (UAEX)
+    Gateway --> Client: HTTP 403 Forbidden (UAEX)
+end
 
 @enduml
