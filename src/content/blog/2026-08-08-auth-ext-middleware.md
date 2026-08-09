@@ -183,10 +183,20 @@ Here are the real-time logs from a running cluster demonstrating Envoy sidecars 
 2026/08/08 22:42:15 Request unauthorized. Returning DENIED (403 Forbidden)
 ```
 
-### Envoy Sidecar Proxy logs (access logs with ext_authz filter):
+### Envoy Sidecar Proxy Logs (access logs with ext_authz filter):
 ```log
 [2026-08-08T22:42:05.123Z] "GET /billing/invoice HTTP/1.1" 200 - ext_authz_ok - "-" "10.244.1.15" - "billing-service.billing-system.svc.cluster.local:8080"
 [2026-08-08T22:42:15.456Z] "GET /billing/invoice HTTP/1.1" 403 - ext_authz_denied - "-" "10.244.1.15" - "-"
+```
+
+### Actual Billing Service Container Logs:
+> [!IMPORTANT]
+> Notice how the denied request at `22:42:15` **never** reaches the Billing Service! Envoy intercepts and terminates it instantly, meaning your application logs stay entirely clean of unauthorized noise:
+
+```log
+2026/08/08 22:42:05 [INFO] Processing payment. User Context: user-123. Path: /billing/invoice
+2026/08/08 22:42:05 [INFO] Charge successfully processed via external gateway. Status: SUCCESS
+# Note: The unauthorized request at 22:42:15 was blocked by Envoy and never reached here!
 ```
 
 </div>
@@ -368,6 +378,16 @@ Aquí se muestran los logs en tiempo real de un clúster en ejecución que demue
 ```log
 [2026-08-08T22:42:05.123Z] "GET /billing/invoice HTTP/1.1" 200 - ext_authz_ok - "-" "10.244.1.15" - "billing-service.billing-system.svc.cluster.local:8080"
 [2026-08-08T22:42:15.456Z] "GET /billing/invoice HTTP/1.1" 403 - ext_authz_denied - "-" "10.244.1.15" - "-"
+```
+
+### Logs Reales del Contenedor de la Aplicación (Servicio Billing):
+> [!IMPORTANT]
+> ¡Observa cómo la petición rechazada de las `22:42:15` **nunca** llega al Servicio Billing! Envoy la intercepta y bloquea al instante, lo que significa que los logs de tu aplicación quedan completamente libres del ruido de accesos no autorizados:
+
+```log
+2026/08/08 22:42:05 [INFO] Procesando pago. Contexto de Usuario: user-123. Ruta: /billing/invoice
+2026/08/08 22:42:05 [INFO] Cargo procesado con éxito en pasarela externa. Estado: SUCCESS
+# Nota: ¡La solicitud no autorizada de las 22:42:15 fue bloqueada por Envoy y nunca llegó aquí!
 ```
 
 </div>
