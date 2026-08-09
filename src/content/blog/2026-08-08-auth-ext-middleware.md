@@ -174,32 +174,46 @@ Inside our `billing-service` Kubernetes Pod, we run **two separate containers** 
 
 ### 1. Custom Auth Middleware Logs (External Service)
 ```log
-2026/08/08 22:42:00 Auth middleware listening on :8080...
-2026/08/08 22:42:05 Received check request for service: billing-service
-2026/08/08 22:42:05 Token decoded successfully. Subject: user-123. Path /billing/invoice
-2026/08/08 22:42:05 Request authorized for service billing-service. Returning ALLOW (200 OK)
-2026/08/08 22:42:15 Received check request for service: billing-service
-2026/08/08 22:42:15 Token validation failed (Expired or invalid signature).
-2026/08/08 22:42:15 Request unauthorized. Returning DENIED (401 Unauthorized)
+2026/08/09 01:04:54 Received request from 127.0.0.6:54943 | Method: GET | Host/Service: httpbin:8000 | Path: /headers
+2026/08/09 01:04:54 --- Incoming Headers ---
+2026/08/09 01:04:54 Content-Length: 0
+2026/08/09 01:04:54 X-Forwarded-Proto: https
+2026/08/09 01:04:54 X-Request-Id: daa4fae4-c062-4f15-9ae1-da522e5a6ece
+2026/08/09 01:04:54 X-Forwarded-Client-Cert: By=spiffe://cluster.local/ns/foo/sa/default;Hash=74f738d5be270b155a1ff5902fe0cc9a0d89fd10a6d1983c5f4c01a4f8f192a9;Subject="";URI=spiffe://cluster.local/ns/foo/sa/default
+2026/08/09 01:04:54 ------------------------
+2026/08/09 01:04:54 Action: DENY - Reason: missing-authorization-header | Message: The Authorization header is required.
+
+2026/08/09 01:07:44 Received request from 127.0.0.6:57649 | Method: GET | Host/Service: dummy-svc-app:8080 | Path: /v1/customer/123456789
+2026/08/09 01:07:44 --- Incoming Headers ---
+2026/08/09 01:07:44 Content-Length: 0
+2026/08/09 01:07:44 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiQWxpY2UiLCJtc2lzZG4iOiIxMjM0NTY3ODkifQ==.signature
+2026/08/09 01:07:44 X-Forwarded-Proto: https
+2026/08/09 01:07:44 X-Request-Id: afb37c6d-ef75-4e9a-8096-2c7be9f9f384
+2026/08/09 01:07:44 X-Forwarded-Client-Cert: By=spiffe://cluster.local/ns/foo/sa/default;Hash=74b7b906cb9435fcf73f37b08b7050cfa771105658b3a683faf0be0832eec256;Subject="";URI=spiffe://cluster.local/ns/foo/sa/default
+2026/08/09 01:07:44 ------------------------
+2026/08/09 01:07:44 Parsed JWT: Name=Alice, TokenMSISDN=123456789 | Requested Path MSISDN: 123456789
+2026/08/09 01:07:44 Action: ALLOW - Token MSISDN matches Path MSISDN! User=Alice
+
 ```
 
 ### 2. Envoy Sidecar Proxy Logs (Container 1 inside Billing Pod)
 > [!NOTE]
-> The Envoy Sidecar interceptor sees **all** requests. For the denied request, Envoy logs standard status code `401` with the custom response flag **`UAEX`**, indicating rejection by the external authorizer without hitting the downstream server:
-
+> The Envoy Sidecar interceptor sees **all** requests. For the denied request, Envoy logs standard status code `403` with the custom response flag **`UAEX`**, indicating rejection by the external authorizer without hitting the downstream server:
 ```log
 [2026-08-09T00:55:12.156Z] "GET /v1/customer/123456789 HTTP/1.1" 200 - via_upstream - "-" 0 634 21 12 "-" "curl/8.2.1" "8b8aedf5-e4e1-42af-a7e3-214c73b71d76" "dummy-svc-app:8080" "10.244.0.28:8080" inbound|8080|| 127.0.0.6:55597 10.244.0.28:8080 10.244.0.30:52152 outbound_.8080_._.dummy-svc-app.foo.svc.cluster.local default
 [2026-08-09T00:56:18.465Z] "GET /v1/customer/123456789 HTTP/1.1" 403 UAEX ext_authz_denied - "-" 0 125 11 - "-" "curl/8.2.1" "78adb6f2-1fad-4e0c-a786-03def12899ae" "dummy-svc-app:8080" "-" inbound|8080|| - 10.244.0.28:8080 10.244.0.30:36340 outbound_.8080_._.dummy-svc-app.foo.svc.cluster.local default
 [2026-08-09T00:56:21.195Z] "GET /v1/customer/3434234234 HTTP/1.1" 403 UAEX ext_authz_denied - "-" 0 142 1 - "-" "curl/8.2.1" "e0752295-01ae-4dae-9611-54656cb48ba1" "dummy-svc-app:8080" "-" inbound|8080|| - 10.244.0.28:8080 10.244.0.30:52152 outbound_.8080_._.dummy-svc-app.foo.svc.cluster.local default
 ```
 
+
+
 ### 3. Billing Service Logs (Container 2 inside Billing Pod)
 > [!IMPORTANT]
 > Because Envoy terminated the unauthorized request at `22:42:15`, **absolutely no request was made to our application container**! The Billing Service application logs only ever see successful traffic, remaining 100% clean of security noise:
 
 ```log
-2026/08/08 22:42:05 [INFO] Processing payment. User Context: user-123. Path: /billing/invoice
-2026/08/08 22:42:05 [INFO] Charge successfully processed via external gateway. Status: SUCCESS
+2026/08/09 00:55:12 Received request for path: /v1/customer/123456789
+2026/08/09 01:00:16 Received request for path: /v1/customer/123456789
 # Note: The unauthorized request at 22:42:15 was blocked by Envoy and never reached this container!
 ```
 
@@ -363,53 +377,51 @@ func isValidToken(token string) bool {
 
 ---
 
-## Logs de Kubernetes en Tiempo Real
-
-Aquí se muestran los logs en tiempo real de un clúster en ejecución que demuestran cómo los sidecars de Envoy interceptan solicitudes, delegan validaciones y aplican reglas:
-
-### Logs del Middleware Auth Personalizado:
-```log
-2026/08/08 22:42:00 Auth middleware listening on :8080...
-2026/08/08 22:42:05 Petición de verificación recibida para el servicio: billing-service
-2026/08/08 22:42:05 Token decodificado con éxito. Subject: user-123. Path /billing/invoice
-2026/08/08 22:42:05 Solicitud autorizada para billing-service. Retornando ALLOW (200 OK)
-2026/08/08 22:42:15 Petición de verificación recibida para el servicio: billing-service
-2026/08/08 22:42:15 Fallo de validación de token (Expirado o firma inválida).
-2026/08/08 22:42:15 Solicitud no autorizada. Retornando DENIED (401 Unauthorized)
-```
-
 ## Logs Reales en Kubernetes (La Historia de Dos Contenedores)
 
 Dentro de nuestro Pod de Kubernetes `billing-service`, ejecutamos **dos contenedores independientes** siguiendo un patrón sidecar. Así difieren sus logs, demostrando que el proxy sidecar gestiona los rechazos antes de que toquen el contenedor de nuestra aplicación:
 
 ### 1. Logs de Middleware Auth Personalizado (Servicio Externo)
 ```log
-2026/08/08 22:42:00 Auth middleware listening on :8080...
-2026/08/08 22:42:05 Petición de verificación recibida para el servicio: billing-service
-2026/08/08 22:42:05 Token decodificado con éxito. Subject: user-123. Path /billing/invoice
-2026/08/08 22:42:05 Solicitud autorizada para billing-service. Retornando ALLOW (200 OK)
-2026/08/08 22:42:15 Petición de verificación recibida para el servicio: billing-service
-2026/08/08 22:42:15 Fallo de validación de token (Expirado o firma inválida).
-2026/08/08 22:42:15 Solicitud no autorizada. Retornando DENIED (401 Unauthorized)
+2026/08/09 01:04:54 Received request from 127.0.0.6:54943 | Method: GET | Host/Service: httpbin:8000 | Path: /headers
+2026/08/09 01:04:54 --- Incoming Headers ---
+2026/08/09 01:04:54 Content-Length: 0
+2026/08/09 01:04:54 X-Forwarded-Proto: https
+2026/08/09 01:04:54 X-Request-Id: daa4fae4-c062-4f15-9ae1-da522e5a6ece
+2026/08/09 01:04:54 X-Forwarded-Client-Cert: By=spiffe://cluster.local/ns/foo/sa/default;Hash=74f738d5be270b155a1ff5902fe0cc9a0d89fd10a6d1983c5f4c01a4f8f192a9;Subject="";URI=spiffe://cluster.local/ns/foo/sa/default
+2026/08/09 01:04:54 ------------------------
+2026/08/09 01:04:54 Action: DENY - Reason: missing-authorization-header | Message: The Authorization header is required.
+
+2026/08/09 01:07:44 Received request from 127.0.0.6:57649 | Method: GET | Host/Service: dummy-svc-app:8080 | Path: /v1/customer/123456789
+2026/08/09 01:07:44 --- Incoming Headers ---
+2026/08/09 01:07:44 Content-Length: 0
+2026/08/09 01:07:44 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiQWxpY2UiLCJtc2lzZG4iOiIxMjM0NTY3ODkifQ==.signature
+2026/08/09 01:07:44 X-Forwarded-Proto: https
+2026/08/09 01:07:44 X-Request-Id: afb37c6d-ef75-4e9a-8096-2c7be9f9f384
+2026/08/09 01:07:44 X-Forwarded-Client-Cert: By=spiffe://cluster.local/ns/foo/sa/default;Hash=74b7b906cb9435fcf73f37b08b7050cfa771105658b3a683faf0be0832eec256;Subject="";URI=spiffe://cluster.local/ns/foo/sa/default
+2026/08/09 01:07:44 ------------------------
+2026/08/09 01:07:44 Parsed JWT: Name=Alice, TokenMSISDN=123456789 | Requested Path MSISDN: 123456789
+2026/08/09 01:07:44 Action: ALLOW - Token MSISDN matches Path MSISDN! User=Ali
 ```
 
 ### 2. Logs del Proxy Sidecar de Envoy (Contenedor 1 dentro del Pod Billing)
 > [!NOTE]
-> El sidecar de Envoy registra **todas** las peticiones. Para la solicitud denegada, Envoy registra el código de estado `401` con el flag de respuesta **`UAEX`**, que indica el rechazo del autorizador externo antes de llamar al servidor real:
+> El sidecar de Envoy registra **todas** las peticiones. Para la solicitud denegada, Envoy registra el código de estado `403` con el flag de respuesta **`UAEX`**, que indica el rechazo del autorizador externo antes de llamar al servidor real:
 
 ```log
-[2026-08-08T22:42:05.123Z] "GET /billing/invoice HTTP/1.1" 200 - 0 60 15 "-" "Mozilla/5.0" "10.244.1.15" "127.0.0.1:8080"
-[2026-08-08T22:42:15.456Z] "GET /billing/invoice HTTP/1.1" 401 UAEX 0 0 1 "-" "Mozilla/5.0" "10.244.1.15" "-"
+[2026-08-09T00:55:12.156Z] "GET /v1/customer/123456789 HTTP/1.1" 200 - via_upstream - "-" 0 634 21 12 "-" "curl/8.2.1" "8b8aedf5-e4e1-42af-a7e3-214c73b71d76" "dummy-svc-app:8080" "10.244.0.28:8080" inbound|8080|| 127.0.0.6:55597 10.244.0.28:8080 10.244.0.30:52152 outbound_.8080_._.dummy-svc-app.foo.svc.cluster.local default
+[2026-08-09T00:56:18.465Z] "GET /v1/customer/123456789 HTTP/1.1" 403 UAEX ext_authz_denied - "-" 0 125 11 - "-" "curl/8.2.1" "78adb6f2-1fad-4e0c-a786-03def12899ae" "dummy-svc-app:8080" "-" inbound|8080|| - 10.244.0.28:8080 10.244.0.30:36340 outbound_.8080_._.dummy-svc-app.foo.svc.cluster.local default
+[2026-08-09T00:56:21.195Z] "GET /v1/customer/3434234234 HTTP/1.1" 403 UAEX ext_authz_denied - "-" 0 142 1 - "-" "curl/8.2.1" "e0752295-01ae-4dae-9611-54656cb48ba1" "dummy-svc-app:8080" "-" inbound|8080|| - 10.244.0.28:8080 10.244.0.30:52152 outbound_.8080_._.dummy-svc-app.foo.svc.cluster.local default
 ```
 
 ### 3. Logs de la Aplicación Billing Service (Contenedor 2 dentro del Pod Billing)
 > [!IMPORTANT]
-> Dado que Envoy finalizó la petición no autorizada a las `22:42:15`, **¡ninguna solicitud llegó al contenedor de nuestra aplicación!** Los logs del backend solo registran el tráfico exitoso, libres del ruido de seguridad:
+> Dado que Envoy finalizó la petición no autorizada a las `01:04:54`, **¡ninguna solicitud llegó al contenedor de nuestra aplicación!** Los logs del backend solo registran el tráfico exitoso, libres del ruido de seguridad:
 
 ```log
-2026/08/08 22:42:05 [INFO] Procesando pago. Contexto de Usuario: user-123. Ruta: /billing/invoice
-2026/08/08 22:42:05 [INFO] Cargo procesado con éxito en pasarela externa. Estado: SUCCESS
-# Nota: ¡La solicitud no autorizada de las 22:42:15 fue bloqueada por Envoy y nunca llegó a este contenedor!
+2026/08/09 00:55:12 Received request for path: /v1/customer/123456789
+2026/08/09 01:00:16 Received request for path: /v1/customer/123456789
+# Nota: ¡La solicitud no autorizada de las 01:04:54 fue bloqueada por Envoy y nunca llegó a este contenedor!
 ```
 
 </div>
