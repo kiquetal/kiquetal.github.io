@@ -92,52 +92,124 @@ Below is a complete example of an HTTP-based authorizer middleware designed for 
 package main
 
 import (
-	"fmt"
+	"encoding/base64"
+	"encoding/json"
 	"log"
 	"net/http"
 	"strings"
 )
 
-func main() {
-	http.HandleFunc("/check", checkAuth)
-	log.Println("Auth middleware listening on :8080...")
-	if err := http.ListenAndServe(":8080", nil); err != nil {
-		log.Fatalf("Failed to start server: %v", err)
-	}
+type JWTPayload struct {
+	Name   string `json:"name"`
+	Msisdn string `json:"msisdn"`
 }
 
-func checkAuth(w http.ResponseWriter, r *http.Request) {
-	// 1. Extract context headers forwarded by Istio Envoy
+type DenyResponse struct {
+	Status  int    `json:"status"`
+	Error   string `json:"error"`
+	Message string `json:"message"`
+	Reason  string `json:"reason"`
+}
+
+func respondDeny(w http.ResponseWriter, status int, reason string, msg string) {
+	log.Printf("Action: DENY - Reason: %s | Message: %s", reason, msg)
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("X-Auth-Reason", reason)
+	w.WriteHeader(status)
+	
+	resp := DenyResponse{
+		Status:  status,
+		Error:   http.StatusText(status),
+		Message: msg,
+		Reason:  reason,
+	}
+	_ = json.NewEncoder(w).Encode(resp)
+}
+
+func handleAuth(w http.ResponseWriter, r *http.Request) {
+	// r.Host contains the original HTTP/2 :authority or Host header forwarded by Envoy!
+	log.Printf("Received request from %s | Method: %s | Host/Service: %s | Path: %s", r.RemoteAddr, r.Method, r.Host, r.URL.Path)
+	log.Println("--- Incoming Headers ---")
+	for name, values := range r.Header {
+		for _, value := range values {
+			log.Printf("%s: %s", name, value)
+		}
+	}
+	log.Println("------------------------")
+
 	authHeader := r.Header.Get("Authorization")
-	targetService := r.Header.Get("X-Target-Service")
-	
-	log.Printf("Received check request for service: %s", targetService)
-
-	// 2. Validate Token (In production, decode and verify your JWT/Token)
-	if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
-		log.Println("Authorization header missing or invalid format")
-		w.WriteHeader(http.StatusUnauthorized)
+	if authHeader == "" {
+		respondDeny(w, http.StatusForbidden, "missing-authorization-header", "The Authorization header is required.")
 		return
 	}
 
-	token := strings.TrimPrefix(authHeader, "Bearer ")
-	
-	// 3. Evaluate access rules (Example of path or metadata matching)
-	if !isValidToken(token) {
-		log.Println("Token validation failed")
-		w.WriteHeader(http.StatusUnauthorized)
+	// 1. Parse MSISDN from request path (e.g. /v1/customer/123456789)
+	pathParts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+	if len(pathParts) < 3 || pathParts[0] != "v1" || pathParts[1] != "customer" {
+		respondDeny(w, http.StatusForbidden, "invalid-path-format", "The requested path format is invalid.")
+		return
+	}
+	pathMsisdn := pathParts[2]
+
+	// 2. Parse Fake JWT: Bearer <header>.<payload>.<signature>
+	tokenParts := strings.Split(authHeader, " ")
+	if len(tokenParts) != 2 || strings.ToLower(tokenParts[0]) != "bearer" {
+		respondDeny(w, http.StatusForbidden, "invalid-authorization-format", "Authorization header must use Bearer scheme.")
 		return
 	}
 
-	// 4. Respond with 200 OK to allow request, optionally adding enrichment headers
-	log.Printf("Request authorized for service %s", targetService)
-	w.Header().Set("X-Authorized-User", "user-123") // Envoy can forward this to your app!
-	w.WriteHeader(http.StatusOK)
+	jwtParts := strings.Split(tokenParts[1], ".")
+	var payloadSegment string
+	if len(jwtParts) == 3 {
+		payloadSegment = jwtParts[1]
+	} else if len(jwtParts) == 1 {
+		payloadSegment = jwtParts[0]
+	} else {
+		respondDeny(w, http.StatusForbidden, "invalid-jwt-structure", "The provided JWT token has an invalid structure.")
+		return
+	}
+
+	// Base64 decode the payload
+	if l := len(payloadSegment) % 4; l > 0 {
+		payloadSegment += strings.Repeat("=", 4-l)
+	}
+
+	decodedBytes, err := base64.URLEncoding.DecodeString(payloadSegment)
+	if err != nil {
+		decodedBytes, err = base64.StdEncoding.DecodeString(payloadSegment)
+	}
+
+	if err != nil {
+		respondDeny(w, http.StatusForbidden, "failed-to-decode-jwt", "Failed to base64-decode the token payload segment.")
+		return
+	}
+
+	var payload JWTPayload
+	if err := json.Unmarshal(decodedBytes, &payload); err != nil {
+		respondDeny(w, http.StatusForbidden, "failed-to-parse-jwt-json", "Failed to parse JWT payload JSON.")
+		return
+	}
+
+	log.Printf("Parsed JWT: Name=%s, TokenMSISDN=%s | Requested Path MSISDN: %s", payload.Name, payload.Msisdn, pathMsisdn)
+
+	// 3. Match Token MSISDN against Path MSISDN
+	if payload.Msisdn == pathMsisdn {
+		log.Printf("Action: ALLOW - Token MSISDN matches Path MSISDN! User=%s", payload.Name)
+		w.Header().Set("X-Auth-User", payload.Name)
+		w.Header().Set("X-Auth-Email", strings.ToLower(payload.Name)+"@example.com")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("allowed"))
+	} else {
+		respondDeny(w, http.StatusForbidden, "path-msisdn-mismatch", "The token's MSISDN does not match the requested path's MSISDN.")
+	}
 }
 
-func isValidToken(token string) bool {
-	// Custom rules validation
-	return token == "super-secret-token"
+func main() {
+	http.HandleFunc("/", handleAuth)
+	log.Println("Starting dummy external auth server on :8000...")
+	if err := http.ListenAndServe(":8000", nil); err != nil {
+		log.Fatalf("Server failed: %v", err)
+	}
 }
 ```
 
@@ -288,52 +360,124 @@ A continuación, se presenta un ejemplo completo de un autorizador basado en HTT
 package main
 
 import (
-	"fmt"
+	"encoding/base64"
+	"encoding/json"
 	"log"
 	"net/http"
 	"strings"
 )
 
-func main() {
-	http.HandleFunc("/check", checkAuth)
-	log.Println("Auth middleware listening on :8080...")
-	if err := http.ListenAndServe(":8080", nil); err != nil {
-		log.Fatalf("Failed to start server: %v", err)
-	}
+type JWTPayload struct {
+	Name   string `json:"name"`
+	Msisdn string `json:"msisdn"`
 }
 
-func checkAuth(w http.ResponseWriter, r *http.Request) {
-	// 1. Extraer cabeceras de contexto reenviadas por Istio Envoy
+type DenyResponse struct {
+	Status  int    `json:"status"`
+	Error   string `json:"error"`
+	Message string `json:"message"`
+	Reason  string `json:"reason"`
+}
+
+func respondDeny(w http.ResponseWriter, status int, reason string, msg string) {
+	log.Printf("Action: DENY - Reason: %s | Message: %s", reason, msg)
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("X-Auth-Reason", reason)
+	w.WriteHeader(status)
+	
+	resp := DenyResponse{
+		Status:  status,
+		Error:   http.StatusText(status),
+		Message: msg,
+		Reason:  reason,
+	}
+	_ = json.NewEncoder(w).Encode(resp)
+}
+
+func handleAuth(w http.ResponseWriter, r *http.Request) {
+	// r.Host contiene el Host original o :authority de HTTP/2 reenviado por Envoy.
+	log.Printf("Received request from %s | Method: %s | Host/Service: %s | Path: %s", r.RemoteAddr, r.Method, r.Host, r.URL.Path)
+	log.Println("--- Incoming Headers ---")
+	for name, values := range r.Header {
+		for _, value := range values {
+			log.Printf("%s: %s", name, value)
+		}
+	}
+	log.Println("------------------------")
+
 	authHeader := r.Header.Get("Authorization")
-	targetService := r.Header.Get("X-Target-Service")
-	
-	log.Printf("Petición de verificación recibida para el servicio: %s", targetService)
-
-	// 2. Validar el Token (En producción, decodifica y verifica tu JWT/Token)
-	if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
-		log.Println("Cabecera de autorización ausente o formato inválido")
-		w.WriteHeader(http.StatusUnauthorized)
+	if authHeader == "" {
+		respondDeny(w, http.StatusForbidden, "missing-authorization-header", "The Authorization header is required.")
 		return
 	}
 
-	token := strings.TrimPrefix(authHeader, "Bearer ")
-	
-	// 3. Evaluar reglas de acceso (Ejemplo de coincidencia de ruta o metadatos)
-	if !isValidToken(token) {
-		log.Println("Fallo en la validación del token")
-		w.WriteHeader(http.StatusUnauthorized)
+	// 1. Parsear MSISDN de la ruta de la solicitud (ej. /v1/customer/123456789)
+	pathParts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+	if len(pathParts) < 3 || pathParts[0] != "v1" || pathParts[1] != "customer" {
+		respondDeny(w, http.StatusForbidden, "invalid-path-format", "The requested path format is invalid.")
+		return
+	}
+	pathMsisdn := pathParts[2]
+
+	// 2. Parsear JWT: Bearer <header>.<payload>.<signature>
+	tokenParts := strings.Split(authHeader, " ")
+	if len(tokenParts) != 2 || strings.ToLower(tokenParts[0]) != "bearer" {
+		respondDeny(w, http.StatusForbidden, "invalid-authorization-format", "Authorization header must use Bearer scheme.")
 		return
 	}
 
-	// 4. Responder con 200 OK para permitir la solicitud, opcionalmente agregando cabeceras de enriquecimiento
-	log.Printf("Solicitud autorizada para el servicio %s", targetService)
-	w.Header().Set("X-Authorized-User", "user-123") // ¡Envoy puede reenviar esto a tu aplicación!
-	w.WriteHeader(http.StatusOK)
+	jwtParts := strings.Split(tokenParts[1], ".")
+	var payloadSegment string
+	if len(jwtParts) == 3 {
+		payloadSegment = jwtParts[1]
+	} else if len(jwtParts) == 1 {
+		payloadSegment = jwtParts[0]
+	} else {
+		respondDeny(w, http.StatusForbidden, "invalid-jwt-structure", "The provided JWT token has an invalid structure.")
+		return
+	}
+
+	// Decodificar payload en Base64
+	if l := len(payloadSegment) % 4; l > 0 {
+		payloadSegment += strings.Repeat("=", 4-l)
+	}
+
+	decodedBytes, err := base64.URLEncoding.DecodeString(payloadSegment)
+	if err != nil {
+		decodedBytes, err = base64.StdEncoding.DecodeString(payloadSegment)
+	}
+
+	if err != nil {
+		respondDeny(w, http.StatusForbidden, "failed-to-decode-jwt", "Failed to base64-decode the token payload segment.")
+		return
+	}
+
+	var payload JWTPayload
+	if err := json.Unmarshal(decodedBytes, &payload); err != nil {
+		respondDeny(w, http.StatusForbidden, "failed-to-parse-jwt-json", "Failed to parse JWT payload JSON.")
+		return
+	}
+
+	log.Printf("Parsed JWT: Name=%s, TokenMSISDN=%s | Requested Path MSISDN: %s", payload.Name, payload.Msisdn, pathMsisdn)
+
+	// 3. Validar MSISDN del Token contra el MSISDN de la ruta
+	if payload.Msisdn == pathMsisdn {
+		log.Printf("Action: ALLOW - Token MSISDN matches Path MSISDN! User=%s", payload.Name)
+		w.Header().Set("X-Auth-User", payload.Name)
+		w.Header().Set("X-Auth-Email", strings.ToLower(payload.Name)+"@example.com")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("allowed"))
+	} else {
+		respondDeny(w, http.StatusForbidden, "path-msisdn-mismatch", "The token's MSISDN does not match the requested path's MSISDN.")
+	}
 }
 
-func isValidToken(token string) bool {
-	// Validación de reglas personalizadas
-	return token == "super-secret-token"
+func main() {
+	http.HandleFunc("/", handleAuth)
+	log.Println("Starting dummy external auth server on :8000...")
+	if err := http.ListenAndServe(":8000", nil); err != nil {
+		log.Fatalf("Server failed: %v", err)
+	}
 }
 ```
 
