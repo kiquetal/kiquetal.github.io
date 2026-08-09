@@ -1,7 +1,7 @@
 ---
 title:
-  en: 'Building an external authorization extension with middleware'
-  es: 'Construyendo una extensión de autorización externa con middleware'
+  en: 'Building a custom external authorization middleware with Go and Istio'
+  es: 'Construyendo un middleware de autorización externa personalizado con Go e Istio'
 excerpt:
   en: 'A step-by-step guide on how to build a highly optimized HTTP/gRPC external authorizer middleware for Istio and secure your services at the mesh layer.'
   es: 'Una guía paso a paso sobre cómo construir un middleware autorizador externo HTTP/gRPC altamente optimizado para Istio y asegurar tus servicios en la capa de mesh.'
