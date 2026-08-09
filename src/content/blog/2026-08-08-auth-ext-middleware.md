@@ -150,7 +150,7 @@ func checkAuth(w http.ResponseWriter, r *http.Request) {
 	// 3. Evaluate access rules (Example of path or metadata matching)
 	if !isValidToken(token) {
 		log.Println("Token validation failed")
-		w.WriteHeader(http.StatusForbidden)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
@@ -168,11 +168,11 @@ func isValidToken(token string) bool {
 
 ---
 
-## Live Kubernetes Pod Logs
+## Real-World Kubernetes Pod Logs (A Tale of Two Containers)
 
-Here are the real-time logs from a running cluster demonstrating Envoy sidecars intercepting requests, delegating validations, and enforcing rules:
+Inside our `billing-service` Kubernetes Pod, we run **two separate containers** in a sidecar pattern. Here is exactly how their logs differ, showing that the proxy sidecar handles rejections before they can ever hit the downstream application container:
 
-### Custom Auth Middleware Logs:
+### 1. Custom Auth Middleware Logs (External Service)
 ```log
 2026/08/08 22:42:00 Auth middleware listening on :8080...
 2026/08/08 22:42:05 Received check request for service: billing-service
@@ -180,23 +180,27 @@ Here are the real-time logs from a running cluster demonstrating Envoy sidecars 
 2026/08/08 22:42:05 Request authorized for service billing-service. Returning ALLOW (200 OK)
 2026/08/08 22:42:15 Received check request for service: billing-service
 2026/08/08 22:42:15 Token validation failed (Expired or invalid signature).
-2026/08/08 22:42:15 Request unauthorized. Returning DENIED (403 Forbidden)
+2026/08/08 22:42:15 Request unauthorized. Returning DENIED (401 Unauthorized)
 ```
 
-### Envoy Sidecar Proxy Logs (access logs with ext_authz filter):
+### 2. Envoy Sidecar Proxy Logs (Container 1 inside Billing Pod)
+> [!NOTE]
+> The Envoy Sidecar interceptor sees **all** requests. For the denied request, Envoy logs standard status code `401` with the custom response flag **`UAEX`**, indicating rejection by the external authorizer without hitting the downstream server:
+
 ```log
-[2026-08-08T22:42:05.123Z] "GET /billing/invoice HTTP/1.1" 200 - ext_authz_ok - "-" "10.244.1.15" - "billing-service.billing-system.svc.cluster.local:8080"
-[2026-08-08T22:42:15.456Z] "GET /billing/invoice HTTP/1.1" 403 - ext_authz_denied - "-" "10.244.1.15" - "-"
+[2026-08-09T00:55:12.156Z] "GET /v1/customer/123456789 HTTP/1.1" 200 - via_upstream - "-" 0 634 21 12 "-" "curl/8.2.1" "8b8aedf5-e4e1-42af-a7e3-214c73b71d76" "dummy-svc-app:8080" "10.244.0.28:8080" inbound|8080|| 127.0.0.6:55597 10.244.0.28:8080 10.244.0.30:52152 outbound_.8080_._.dummy-svc-app.foo.svc.cluster.local default
+[2026-08-09T00:56:18.465Z] "GET /v1/customer/123456789 HTTP/1.1" 403 UAEX ext_authz_denied - "-" 0 125 11 - "-" "curl/8.2.1" "78adb6f2-1fad-4e0c-a786-03def12899ae" "dummy-svc-app:8080" "-" inbound|8080|| - 10.244.0.28:8080 10.244.0.30:36340 outbound_.8080_._.dummy-svc-app.foo.svc.cluster.local default
+[2026-08-09T00:56:21.195Z] "GET /v1/customer/3434234234 HTTP/1.1" 403 UAEX ext_authz_denied - "-" 0 142 1 - "-" "curl/8.2.1" "e0752295-01ae-4dae-9611-54656cb48ba1" "dummy-svc-app:8080" "-" inbound|8080|| - 10.244.0.28:8080 10.244.0.30:52152 outbound_.8080_._.dummy-svc-app.foo.svc.cluster.local default
 ```
 
-### Actual Billing Service Container Logs:
+### 3. Billing Service Logs (Container 2 inside Billing Pod)
 > [!IMPORTANT]
-> Notice how the denied request at `22:42:15` **never** reaches the Billing Service! Envoy intercepts and terminates it instantly, meaning your application logs stay entirely clean of unauthorized noise:
+> Because Envoy terminated the unauthorized request at `22:42:15`, **absolutely no request was made to our application container**! The Billing Service application logs only ever see successful traffic, remaining 100% clean of security noise:
 
 ```log
 2026/08/08 22:42:05 [INFO] Processing payment. User Context: user-123. Path: /billing/invoice
 2026/08/08 22:42:05 [INFO] Charge successfully processed via external gateway. Status: SUCCESS
-# Note: The unauthorized request at 22:42:15 was blocked by Envoy and never reached here!
+# Note: The unauthorized request at 22:42:15 was blocked by Envoy and never reached this container!
 ```
 
 </div>
@@ -341,7 +345,7 @@ func checkAuth(w http.ResponseWriter, r *http.Request) {
 	// 3. Evaluar reglas de acceso (Ejemplo de coincidencia de ruta o metadatos)
 	if !isValidToken(token) {
 		log.Println("Fallo en la validación del token")
-		w.WriteHeader(http.StatusForbidden)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
@@ -371,23 +375,41 @@ Aquí se muestran los logs en tiempo real de un clúster en ejecución que demue
 2026/08/08 22:42:05 Solicitud autorizada para billing-service. Retornando ALLOW (200 OK)
 2026/08/08 22:42:15 Petición de verificación recibida para el servicio: billing-service
 2026/08/08 22:42:15 Fallo de validación de token (Expirado o firma inválida).
-2026/08/08 22:42:15 Solicitud no autorizada. Retornando DENIED (403 Forbidden)
+2026/08/08 22:42:15 Solicitud no autorizada. Retornando DENIED (401 Unauthorized)
 ```
 
-### Logs de Proxy Envoy Sidecar (logs de acceso con filtro ext_authz):
+## Logs Reales en Kubernetes (La Historia de Dos Contenedores)
+
+Dentro de nuestro Pod de Kubernetes `billing-service`, ejecutamos **dos contenedores independientes** siguiendo un patrón sidecar. Así difieren sus logs, demostrando que el proxy sidecar gestiona los rechazos antes de que toquen el contenedor de nuestra aplicación:
+
+### 1. Logs de Middleware Auth Personalizado (Servicio Externo)
 ```log
-[2026-08-08T22:42:05.123Z] "GET /billing/invoice HTTP/1.1" 200 - ext_authz_ok - "-" "10.244.1.15" - "billing-service.billing-system.svc.cluster.local:8080"
-[2026-08-08T22:42:15.456Z] "GET /billing/invoice HTTP/1.1" 403 - ext_authz_denied - "-" "10.244.1.15" - "-"
+2026/08/08 22:42:00 Auth middleware listening on :8080...
+2026/08/08 22:42:05 Petición de verificación recibida para el servicio: billing-service
+2026/08/08 22:42:05 Token decodificado con éxito. Subject: user-123. Path /billing/invoice
+2026/08/08 22:42:05 Solicitud autorizada para billing-service. Retornando ALLOW (200 OK)
+2026/08/08 22:42:15 Petición de verificación recibida para el servicio: billing-service
+2026/08/08 22:42:15 Fallo de validación de token (Expirado o firma inválida).
+2026/08/08 22:42:15 Solicitud no autorizada. Retornando DENIED (401 Unauthorized)
 ```
 
-### Logs Reales del Contenedor de la Aplicación (Servicio Billing):
+### 2. Logs del Proxy Sidecar de Envoy (Contenedor 1 dentro del Pod Billing)
+> [!NOTE]
+> El sidecar de Envoy registra **todas** las peticiones. Para la solicitud denegada, Envoy registra el código de estado `401` con el flag de respuesta **`UAEX`**, que indica el rechazo del autorizador externo antes de llamar al servidor real:
+
+```log
+[2026-08-08T22:42:05.123Z] "GET /billing/invoice HTTP/1.1" 200 - 0 60 15 "-" "Mozilla/5.0" "10.244.1.15" "127.0.0.1:8080"
+[2026-08-08T22:42:15.456Z] "GET /billing/invoice HTTP/1.1" 401 UAEX 0 0 1 "-" "Mozilla/5.0" "10.244.1.15" "-"
+```
+
+### 3. Logs de la Aplicación Billing Service (Contenedor 2 dentro del Pod Billing)
 > [!IMPORTANT]
-> ¡Observa cómo la petición rechazada de las `22:42:15` **nunca** llega al Servicio Billing! Envoy la intercepta y bloquea al instante, lo que significa que los logs de tu aplicación quedan completamente libres del ruido de accesos no autorizados:
+> Dado que Envoy finalizó la petición no autorizada a las `22:42:15`, **¡ninguna solicitud llegó al contenedor de nuestra aplicación!** Los logs del backend solo registran el tráfico exitoso, libres del ruido de seguridad:
 
 ```log
 2026/08/08 22:42:05 [INFO] Procesando pago. Contexto de Usuario: user-123. Ruta: /billing/invoice
 2026/08/08 22:42:05 [INFO] Cargo procesado con éxito en pasarela externa. Estado: SUCCESS
-# Nota: ¡La solicitud no autorizada de las 22:42:15 fue bloqueada por Envoy y nunca llegó aquí!
+# Nota: ¡La solicitud no autorizada de las 22:42:15 fue bloqueada por Envoy y nunca llegó a este contenedor!
 ```
 
 </div>
