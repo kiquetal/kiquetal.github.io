@@ -1,0 +1,45 @@
+@startuml
+skinparam backgroundcolor #F0F4F8
+skinparam DefaultFontName "Courier New"
+skinparam RoundCorner 8
+
+skinparam sequence {
+    ArrowColor #1D5D9B
+    LifeLineBorderColor #1A5F7A
+    LifeLineBackgroundColor #F0F4F8
+    
+    ParticipantBackgroundColor #1D5D9B
+    ParticipantFontColor #FFFFFF
+    ParticipantBorderColor #143F6B
+    
+    ActorBackgroundColor #0F2C59
+    ActorFontColor #FFFFFF
+    ActorBorderColor #1A5F7A
+}
+
+actor Client as "Client" #0F2C59
+participant "KrakenD Gateway" as Gateway
+box "Kubernetes / Istio Service Mesh" #E1EAF0
+    participant "Envoy Sidecar" as Sidecar
+    participant "Auth Middleware" as Middleware
+    participant "Billing Service API" as Backend
+end box
+participant "External Backend" as ExtBackend #3E4A56
+
+autonumber
+
+Client -> Gateway: HTTP GET /billing (with ID Token)
+Gateway -> Sidecar: Route to Billing Pod (with X-Target-Service header)
+note over Sidecar: Sidecar intercepts inbound request
+Sidecar -> Middleware: Envoy ext_authz HTTP Check
+note over Middleware: Decodes token & validates rules
+Middleware --> Sidecar: ALLOW 200 OK (with X-Authorized-User)
+Sidecar -> Backend: Forward Request (with X-Authorized-User header)
+note over Backend: Executes transaction logic
+Backend -> ExtBackend: Outbound charges (HTTPS)
+ExtBackend --> Backend: Transaction result (HTTPS)
+Backend --> Sidecar: Return response payload
+Sidecar --> Gateway: Return response payload
+Gateway --> Client: 200 OK API Response
+
+@enduml
