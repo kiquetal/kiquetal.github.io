@@ -24,36 +24,7 @@ By leveraging **Istio's CUSTOM External Authorization (`ext_authz`)**, we can in
 
 This step-by-step sequence diagram details exactly how requests are routed, validated by our middleware, and then forwarded downstream to execute business logic:
 
-<div style="background-color: white; padding: 20px; border-radius: 8px; margin: 1.5rem 0;">
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Client
-    participant Gateway as KrakenD Gateway
-    box rgb(240, 244, 248) Kubernetes / Istio Service Mesh
-        participant Sidecar as Envoy Sidecar
-        participant Middleware as Auth Middleware
-        participant Backend as Billing Service API
-    end
-    participant ExtBackend as External Backend
-
-    Client->>Gateway: HTTP GET /billing (with ID Token)
-    Gateway->>Sidecar: Route to Billing Pod (with X-Target-Service header)
-    Note over Sidecar: Sidecar intercepts inbound request
-    Sidecar->>Middleware: Envoy ext_authz HTTP Check
-    Note over Middleware: Decodes token & validates rules
-    Middleware-->>Sidecar: ALLOW 200 OK (with X-Authorized-User)
-    Sidecar->>Backend: Forward Request (with X-Authorized-User header)
-    Note over Backend: Executes transaction logic
-    Backend->>ExtBackend: Outbound charges (HTTPS)
-    ExtBackend-->>Backend: Transaction result (HTTPS)
-    Backend-->>Sidecar: Return response payload
-    Sidecar-->>Gateway: Return response payload
-    Gateway-->>Client: 200 OK API Response
-```
-
-</div>
+![Request Flow Sequence Diagram](/blog/2026-08-08-auth-ext-middleware/request-flow.png)
 
 ---
 
@@ -233,36 +204,7 @@ Al aprovechar la **Autorización Externa CUSTOM de Istio (`ext_authz`)**, podemo
 
 Este diagrama de secuencia paso a paso detalla exactamente cómo se enrutan las solicitudes, se validan mediante nuestro middleware y se reenvían aguas abajo para ejecutar la lógica de negocio:
 
-<div style="background-color: white; padding: 20px; border-radius: 8px; margin: 1.5rem 0;">
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Client as Cliente
-    participant Gateway as KrakenD Gateway
-    box rgb(240, 244, 248) Kubernetes / Istio Service Mesh
-        participant Sidecar as Envoy Sidecar
-        participant Middleware as Auth Middleware
-        participant Backend as API de Servicio Billing
-    end
-    participant ExtBackend as External Backend (Terceros)
-
-    Client->>Gateway: HTTP GET /billing (con ID Token)
-    Gateway->>Sidecar: Enruta al Pod Billing (con cabecera X-Target-Service)
-    Note over Sidecar: Sidecar intercepta la petición entrante
-    Sidecar->>Middleware: Verificación HTTP ext_authz de Envoy
-    Note over Middleware: Decodifica token y valida reglas
-    Middleware-->>Sidecar: ALLOW 200 OK (con X-Authorized-User)
-    Sidecar->>Backend: Reenvía petición (con cabecera X-Authorized-User)
-    Note over Backend: Ejecuta lógica transaccional de facturación
-    Backend->>ExtBackend: Cargo saliente (HTTPS)
-    ExtBackend-->>Backend: Resultado de transacción (HTTPS)
-    Backend-->>Sidecar: Retorna payload de respuesta
-    Sidecar-->>Gateway: Retorna payload de respuesta
-    Gateway-->>Client: Respuesta API 200 OK
-```
-
-</div>
+![Diagrama de Secuencia del Flujo de Solicitudes](/blog/2026-08-08-auth-ext-middleware/request-flow.png)
 
 ---
 
