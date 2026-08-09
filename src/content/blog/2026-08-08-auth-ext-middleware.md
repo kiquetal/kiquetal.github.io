@@ -59,9 +59,9 @@ sequenceDiagram
 
 ## Token Scope Resolution with Istio ext_authz
 
-We have found the problem to give limited access to a specific principal, the infrastructure where our services were running was Kubernetes with Istio. 
+We encountered a challenge when attempting to grant restricted access to a security principal in our infrastructure running on Kubernetes with Istio. 
 
-We put an API Gateway in front associated with an authentication by an external IDP OIDC 2.0. However, we could not scope the token access only to a subset of services because the token we were receiving was just an `ID_TOKEN`. To solve this scope limitation, we found the **Custom Authorization (External Authorizer)** capability in Istio:
+Specifically, we deployed an API Gateway at the ingress layer integrated with authentication via an external OIDC 2.0 Identity Provider (IDP). However, we could not restrict the token's scope to a specific subset of services because the token we received was simply an `ID_TOKEN`. To resolve this scope limitation, we leveraged the **Custom Authorization (External Authorizer)** capability in Istio:
 
 * Official Documentation: [Istio Custom Authorization (ext_authz)](https://istio.io/latest/docs/tasks/security/authorization/authz-custom/)
 
