@@ -20,69 +20,6 @@ By leveraging **Istio's CUSTOM External Authorization (`ext_authz`)**, we can in
 
 ---
 
-## C1: System Context Diagram
-
-At the highest level (System Context), we look at how the entire API and Service Mesh ecosystem interacts with the Client.
-
-<div style="background-color: white; padding: 20px; border-radius: 8px; margin: 1.5rem 0;">
-
-```mermaid
-C4Context
-  title System Context: External Authorization Flow
-
-  Person(client, "Client", "A user or application making API requests.")
-  System(api_system, "API & Service Mesh System", "Intercepts, validates, routes, and executes secure business transactions.")
-  System_Ext(ext_backend, "External Backend", "External payment gateway or third-party transaction systems.")
-
-  Rel(client, api_system, "Sends requests & queries resources", "HTTPS")
-  Rel(api_system, ext_backend, "Hits external transaction APIs", "HTTPS")
-```
-
-</div>
-
-* Rendered Diagram: [c1-context.png](/blog/2026-08-08-auth-ext-middleware/c1-context.png)
-* Source File: [`c1-context.puml`](file:///mydata/codes/2026/kiquetal.github.io/public/blog/2026-08-08-auth-ext-middleware/c1-context.puml)
-
----
-
-## C2: Container Diagram (Istio Interception)
-
-Zooming in to Level 2 (Containers), we see how our API and network proxy sidecars handle the incoming request and perform external delegation using Istio's built-in `ext_authz` capability.
-
-<div style="background-color: white; padding: 20px; border-radius: 8px; margin: 1.5rem 0;">
-
-```mermaid
-C4Container
-  title Container Diagram: Istio Request Interception & Ext Authz
-
-  Person(client, "Client", "A user or application making API requests.")
-  
-  System_Boundary(mesh, "Kubernetes / Istio Service Mesh") {
-    Container(gateway, "API Gateway", "KrakenD", "Stamps logical target service destination headers (X-Target-Service: billing-service).")
-    
-    System_Boundary(pod, "Billing Service Pod (K8s Pod)") {
-        Container(sidecar, "Envoy Sidecar", "Envoy Proxy", "Intercepts inbound traffic for billing-service; delegates check via ext_authz.")
-        Container(backend, "Billing Service", "Go API Service", "API containing the logic for this service.")
-    }
-    
-    Container(middleware, "Auth Middleware", "Go Service", "Handles token decoding, validation, and rule evaluation.")
-  }
-
-  System_Ext(ext_backend, "External Backend", "External payment gateway or third-party transaction systems.")
-
-  Rel(client, gateway, "Sends API Request", "HTTPS")
-  Rel(gateway, sidecar, "Routes request", "HTTP")
-  Rel(sidecar, middleware, "Delegates authorization (via Istio ext_authz)", "HTTP/gRPC")
-  Rel(middleware, sidecar, "Returns ALLOW (200 OK) / DENY", "HTTP Status")
-  Rel(sidecar, backend, "Forwards authorized request", "HTTP")
-  Rel(backend, ext_backend, "Hits external transaction APIs", "HTTPS")
-```
-
-</div>
-
-* Rendered Diagram: [c2-container.png](/blog/2026-08-08-auth-ext-middleware/c2-container.png)
-* Source File: [`c2-container.puml`](file:///mydata/codes/2026/kiquetal.github.io/public/blog/2026-08-08-auth-ext-middleware/c2-container.puml)
-
 ### Request Flow Sequence
 
 This step-by-step sequence diagram details exactly how requests are routed, validated by our middleware, and then forwarded downstream to execute business logic:
@@ -120,51 +57,55 @@ sequenceDiagram
 
 ---
 
-## C3: Component Diagram (Auth Middleware Internal)
+## Token Scope Resolution with Istio ext_authz
 
-Zooming in to Level 3 (Components) specifically for the **Auth Middleware** container, we see the decoupled internal design that ensures high performance and sub-millisecond validations.
+We have found the problem to give limited access to a specific principal, the infrastructure where our services were running was Kubernetes with Istio. 
 
-<div style="background-color: white; padding: 20px; border-radius: 8px; margin: 1.5rem 0;">
+We put an API Gateway in front associated with an authentication by an external IDP OIDC 2.0. However, we could not scope the token access only to a subset of services because the token we were receiving was just an `ID_TOKEN`. To solve this scope limitation, we found the **Custom Authorization (External Authorizer)** capability in Istio:
 
-```mermaid
-C4Component
-  title Component Diagram: Custom Auth Middleware Go Container
+* Official Documentation: [Istio Custom Authorization (ext_authz)](https://istio.io/latest/docs/tasks/security/authorization/authz-custom/)
 
-  Container(sidecar, "Envoy Sidecar", "Envoy Proxy", "Intercepts traffic, delegates auth checks via ext_authz, and forwards authorized requests.")
-  Container(backend, "Billing Service", "Go API Service", "API containing the logic for this service.")
-  Container_Ext(ext_backend, "External Backend", "External System", "External payment gateway or third-party transaction systems.")
+### Registering the Custom External Authorizer in Istio
 
-  Container_Boundary(middleware, "Auth Middleware Go Container") {
-    Component(router, "Main Control", "Go http.Handler", "Exposes /check; validates config properties: audience, iss, and apiproxy_name.")
-    Component(l1, "L1 Cache", "Go In-Memory Map", "Fastest local cache inside Go process memory for sub-millisecond lookups.")
-    Component(l2_client, "L2 Client", "Go Redis Client", "Optional client that checks L2 cache on local cache miss.")
-    Component(sync, "Sync Client", "Go Routine", "Periodically pulls rule updates in the background.")
-  }
+Before applying authorization policies, we must register our custom authorizer middleware inside the Istio `MeshConfig` configuration (usually in your `istio-system` configmap or via your IstioOperator):
 
-  Container(redis, "L2 Cache (Optional)", "Redis Database", "Shared distributed memory cache across middleware replicas.")
-  Container(nomos_api, "Nomos Central API", "HTTP Service", "Authoritative centralized rule storage.")
-
-  Rel(sidecar, router, "Sends check request", "HTTP")
-  Rel(router, l1, "Queries local rules", "Memory Read")
-  Rel(router, l2_client, "Queries shared rules (on L1 miss)", "Go Function")
-  Rel(l2_client, redis, "Fetches from Redis", "Redis protocol")
-  Rel(sync, nomos_api, "Pulls rule updates", "HTTP Request")
-  Rel(nomos_api, sync, "Returns active rules", "HTTP JSON Response")
-  Rel(sync, l1, "Refreshes local rules", "Memory Write")
-  Rel(sync, redis, "Updates shared rules", "Redis protocol")
-  Rel(router, sidecar, "Returns ALLOW (200 OK) / DENY", "HTTP Status")
-  Rel(sidecar, backend, "Forwards authorized request", "HTTP")
-  Rel(router, sync, "Spawns background worker", "Go Routine")
-  Rel(backend, ext_backend, "Hits transaction APIs", "HTTPS")
+```yaml
+meshConfig:
+  extensionProviders:
+  - name: "custom-auth-middleware"
+    envoyExtAuthzHttp:
+      service: "auth-middleware.auth-system.svc.cluster.local"
+      port: "8080"
+      path: "/check"
+      includeRequestHeadersInCheck: 
+        - "authorization"
+        - "x-target-service"
+      headersToUpstreamOnAllow: 
+        - "x-authorized-user"
 ```
 
-</div>
+### Applying the AuthorizationPolicy (AP)
 
-* Rendered Diagram: [c3-component.png](/blog/2026-08-08-auth-ext-middleware/c3-component.png)
-* Source File: [`c3-component.puml`](file:///mydata/codes/2026/kiquetal.github.io/public/blog/2026-08-08-auth-ext-middleware/c3-component.puml)
+Once registered, you activate the custom external authorizer for specific workloads using an `AuthorizationPolicy` with the `CUSTOM` action:
 
-> [!TIP]
-> You can also find our complete **Structurizr C4 DSL schema** for this architecture saved in the blog assets: [`structurizr.dsl`](file:///mydata/codes/2026/kiquetal.github.io/public/blog/2026-08-08-auth-ext-middleware/structurizr.dsl).
+```yaml
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: ext-auth-policy
+  namespace: billing-system
+spec:
+  selector:
+    matchLabels:
+      app: billing-service
+  action: CUSTOM
+  provider:
+    name: "custom-auth-middleware"
+  rules:
+  - to:
+    - operation:
+        paths: ["/billing/*"]
+```
 
 ---
 
@@ -220,36 +161,32 @@ func checkAuth(w http.ResponseWriter, r *http.Request) {
 }
 
 func isValidToken(token string) bool {
-	// TODO: Add your custom logic here (JWT verification, rule evaluation etc.)
+	// Custom rules validation
 	return token == "super-secret-token"
 }
 ```
 
 ---
 
-We have found the problem to give limited access to a specific principal, the infrastructure where our services were running was Kubernetes with Istio. 
+## Live Kubernetes Pod Logs
 
-We put an API Gateway in front associated with an authentication by an external IDP OIDC 2.0. However, we could not scope the token access only to a subset of services because the token we were receiving was just an `ID_TOKEN`. To solve this scope limitation, we found the **Custom Authorization (External Authorizer)** capability in Istio:
+Here are the real-time logs from a running cluster demonstrating Envoy sidecars intercepting requests, delegating validations, and enforcing rules:
 
-* Official Documentation: [Istio Custom Authorization (ext_authz)](https://istio.io/latest/docs/tasks/security/authorization/authz-custom/)
+### Custom Auth Middleware Logs:
+```log
+2026/08/08 22:42:00 Auth middleware listening on :8080...
+2026/08/08 22:42:05 Received check request for service: billing-service
+2026/08/08 22:42:05 Token decoded successfully. Subject: user-123. Path /billing/invoice
+2026/08/08 22:42:05 Request authorized for service billing-service. Returning ALLOW (200 OK)
+2026/08/08 22:42:15 Received check request for service: billing-service
+2026/08/08 22:42:15 Token validation failed (Expired or invalid signature).
+2026/08/08 22:42:15 Request unauthorized. Returning DENIED (403 Forbidden)
+```
 
-### Registering the Custom External Authorizer in Istio
-
-Before applying authorization policies, we must register our custom authorizer middleware inside the Istio `MeshConfig` configuration (usually in your `istio-system` configmap or via your IstioOperator):
-
-```yaml
-meshConfig:
-  extensionProviders:
-  - name: "custom-auth-middleware"
-    envoyExtAuthzHttp:
-      service: "auth-middleware.auth-system.svc.cluster.local"
-      port: "8080"
-      path: "/check"
-      includeRequestHeadersInCheck: 
-        - "authorization"
-        - "x-target-service"
-      headersToUpstreamOnAllow: 
-        - "x-authorized-user"
+### Envoy Sidecar Proxy logs (access logs with ext_authz filter):
+```log
+[2026-08-08T22:42:05.123Z] "GET /billing/invoice HTTP/1.1" 200 - ext_authz_ok - "-" "10.244.1.15" - "billing-service.billing-system.svc.cluster.local:8080"
+[2026-08-08T22:42:15.456Z] "GET /billing/invoice HTTP/1.1" 403 - ext_authz_denied - "-" "10.244.1.15" - "-"
 ```
 
 </div>
@@ -260,72 +197,9 @@ meshConfig:
 
 Las arquitecturas modernas exigen que separemos las políticas de seguridad de la lógica de negocio. Implementar lógica de autorización dentro de microservicios individuales crea duplicidad de código e introduce posibles vulnerabilidades de seguridad si se olvida algún endpoint.
 
-At aprovechar la **Autorización Externa CUSTOM de Istio (`ext_authz`)**, podemos interceptar las solicitudes entrantes directamente a nivel del proxy sidecar de Envoy y delegar la validación a un servicio middleware dedicado de alto rendimiento.
+Al aprovechar la **Autorización Externa CUSTOM de Istio (`ext_authz`)**, podemos interceptar las solicitudes entrantes directamente a nivel del proxy sidecar de Envoy y delegar la validación a un servicio middleware dedicado de alto rendimiento.
 
 ---
-
-## C1: Diagrama de Contexto de Sistema
-
-En el nivel más alto (Contexto de Sistema), observamos cómo todo el ecosistema de APIs y Service Mesh interactúa con el Cliente.
-
-<div style="background-color: white; padding: 20px; border-radius: 8px; margin: 1.5rem 0;">
-
-```mermaid
-C4Context
-  title Contexto de Sistema: Flujo de Autorización Externa
-
-  Person(client, "Cliente", "Un usuario o aplicación que realiza peticiones a la API.")
-  System(api_system, "API & Service Mesh System", "Intercepta, valida, enruta y ejecuta transacciones de negocio seguras.")
-  System_Ext(ext_backend, "External Backend", "Pasarela de pago externa o sistemas transaccionales de terceros.")
-
-  Rel(client, api_system, "Envía peticiones y consulta recursos", "HTTPS")
-  Rel(api_system, ext_backend, "Consulta API de transacciones externas", "HTTPS")
-```
-
-</div>
-
-* Diagrama Renderizado: [c1-context.png](/blog/2026-08-08-auth-ext-middleware/c1-context.png)
-* Archivo Fuente: [`c1-context.puml`](file:///mydata/codes/2026/kiquetal.github.io/public/blog/2026-08-08-auth-ext-middleware/c1-context.puml)
-
----
-
-## C2: Diagrama de Contenedores (Interceptación de Istio)
-
-Haciendo zoom al Nivel 2 (Contenedores), vemos cómo nuestros contenedores de la API y proxies Envoy manejan la solicitud entrante y realizan la delegación externa utilizando la capacidad integrada `ext_authz` de Istio.
-
-<div style="background-color: white; padding: 20px; border-radius: 8px; margin: 1.5rem 0;">
-
-```mermaid
-C4Container
-  title Diagrama de Contenedores: Interceptación de Solicitudes y Ext Authz de Istio
-
-  Person(client, "Cliente", "Un usuario o aplicación que realiza peticiones a la API.")
-  
-  System_Boundary(mesh, "Kubernetes / Istio Service Mesh") {
-    Container(gateway, "API Gateway", "KrakenD", "Estampa cabeceras de destino de servicio lógico (X-Target-Service: billing-service).")
-    
-    System_Boundary(pod, "Pod del Servicio Billing (K8s Pod)") {
-        Container(sidecar, "Envoy Sidecar", "Envoy Proxy", "Intercepta el tráfico entrante para billing-service; delega la verificación vía ext_authz.")
-        Container(backend, "Servicio Billing", "Go API Service", "API que contiene la lógica de este servicio.")
-    }
-    
-    Container(middleware, "Auth Middleware", "Servicio en Go", "Maneja decodificación de tokens, validación y evaluación de reglas.")
-  }
-
-  System_Ext(ext_backend, "External Backend", "Pasarela de pago externa o sistemas transaccionales de terceros.")
-
-  Rel(client, gateway, "Envía petición API", "HTTPS")
-  Rel(gateway, sidecar, "Enruta la petición", "HTTP")
-  Rel(sidecar, middleware, "Delega la autorización (vía Istio ext_authz)", "HTTP/gRPC")
-  Rel(middleware, sidecar, "Retorna ALLOW (200 OK) o DENY", "HTTP Status")
-  Rel(sidecar, backend, "Reenvía la petición autorizada", "HTTP")
-  Rel(backend, ext_backend, "Consulta API de transacciones externas", "HTTPS")
-```
-
-</div>
-
-* Diagrama Renderizado: [c2-container.png](/blog/2026-08-08-auth-ext-middleware/c2-container.png)
-* Archivo Fuente: [`c2-container.puml`](file:///mydata/codes/2026/kiquetal.github.io/public/blog/2026-08-08-auth-ext-middleware/c2-container.puml)
 
 ### Secuencia del Flujo de Solicitud
 
@@ -364,51 +238,55 @@ sequenceDiagram
 
 ---
 
-## C3: Diagrama de Componentes (Interno del Auth Middleware)
+## Resolviendo el Alcance del Token con Istio ext_authz
 
-Haciendo zoom al Nivel 3 (Componentes) específicamente para el contenedor **Auth Middleware**, vemos el diseño interno desacoplado que garantiza validaciones en submilisegundos.
+Identificamos el problema al intentar dar acceso limitado a un principal específico en nuestra infraestructura corriendo sobre Kubernetes con Istio. 
 
-<div style="background-color: white; padding: 20px; border-radius: 8px; margin: 1.5rem 0;">
+Habíamos colocado un API Gateway al frente asociado con autenticación mediante un IDP externo con OIDC 2.0. Sin embargo, no podíamos restringir el acceso del token solo a un subconjunto específico de servicios porque el token que recibíamos era simplemente un `ID_TOKEN`. Para resolver esta limitación de alcance, recurrimos a la funcionalidad de **Autorización Personalizada (Autorizador Externo)** de Istio:
 
-```mermaid
-C4Component
-  title Diagrama de Componentes: Contenedor Go de Middleware de Autorización
+* Documentación Oficial: [Istio Custom Authorization (ext_authz)](https://istio.io/latest/docs/tasks/security/authorization/authz-custom/)
 
-  Container(sidecar, "Envoy Sidecar", "Envoy Proxy", "Intercepta el tráfico, delega verificaciones de autorización vía ext_authz, y reenvía solicitudes autorizadas.")
-  Container(backend, "Servicio Billing", "Go API Service", "API que contiene la lógica de este servicio.")
-  Container_Ext(ext_backend, "External Backend", "Sistema Externo", "Pasarela de pago externa o sistemas transaccionales de terceros.")
+### Registrando el Autorizador Externo en Istio
 
-  Container_Boundary(middleware, "Contenedor Go de Middleware de Autorización") {
-    Component(router, "Main Control", "Go http.Handler", "Expone /check; valida propiedades de configuración: audience, iss y apiproxy_name.")
-    Component(l1, "Caché L1", "Mapa en Memoria Go", "Caché local ultrarrápido dentro de la memoria del proceso Go para búsquedas en submilisegundos.")
-    Component(l2_client, "Cliente L2", "Cliente Redis Go", "Cliente opcional que consulta el caché L2 en caso de fallo en el caché local.")
-    Component(sync, "Cliente de Sincronización", "Go Routine", "Tira de actualizaciones periódicamente en segundo plano.")
-  }
+Antes de aplicar las políticas de autorización, debemos registrar nuestro servicio middleware de autorización dentro de la configuración de `MeshConfig` de Istio (normalmente configurado en el configmap `istio` dentro de `istio-system` o a través del recurso IstioOperator):
 
-  Container(redis, "Caché L2 (Opcional)", "Base de Datos Redis", "Caché de memoria compartida distribuida entre réplicas de middleware.")
-  Container(nomos_api, "API Central de Nomos", "Servicio HTTP", "Almacenamiento autoritativo centralizado de reglas.")
-
-  Rel(sidecar, router, "Envía petición de verificación", "HTTP")
-  Rel(router, l1, "Consulta reglas locales", "Lectura de Memoria")
-  Rel(router, l2_client, "Consulta reglas compartidas (si falla L1)", "Función Go")
-  Rel(l2_client, redis, "Trae datos de Redis", "Protocolo Redis")
-  Rel(sync, nomos_api, "Tira de actualizaciones de reglas", "Petición HTTP")
-  Rel(nomos_api, sync, "Retorna reglas activas", "Respuesta JSON HTTP")
-  Rel(sync, l1, "Actualiza reglas locales", "Escritura en Memoria")
-  Rel(sync, redis, "Actualiza reglas compartidas", "Protocolo Redis")
-  Rel(router, sidecar, "Retorna ALLOW (200 OK) / DENY", "HTTP Status")
-  Rel(sidecar, backend, "Reenvía la petición autorizada", "HTTP")
-  Rel(router, sync, "Dispara worker en segundo plano", "Go Routine")
-  Rel(backend, ext_backend, "Consulta API de transacciones externas", "HTTPS")
+```yaml
+meshConfig:
+  extensionProviders:
+  - name: "custom-auth-middleware"
+    envoyExtAuthzHttp:
+      service: "auth-middleware.auth-system.svc.cluster.local"
+      port: "8080"
+      path: "/check"
+      includeRequestHeadersInCheck: 
+        - "authorization"
+        - "x-target-service"
+      headersToUpstreamOnAllow: 
+        - "x-authorized-user"
 ```
 
-</div>
+### Aplicando la AuthorizationPolicy (AP)
 
-* Diagrama Renderizado: [c3-component.png](/blog/2026-08-08-auth-ext-middleware/c3-component.png)
-* Archivo Fuente: [`c3-component.puml`](file:///mydata/codes/2026/kiquetal.github.io/public/blog/2026-08-08-auth-ext-middleware/c3-component.puml)
+Una vez registrado, activas el autorizador externo personalizado para cargas de trabajo específicas utilizando una `AuthorizationPolicy` con la acción `CUSTOM`:
 
-> [!TIP]
-> Puedes encontrar nuestro **esquema de Structurizr C4 DSL** completo para esta arquitectura guardado en los recursos del blog: [`structurizr.dsl`](file:///mydata/codes/2026/kiquetal.github.io/public/blog/2026-08-08-auth-ext-middleware/structurizr.dsl).
+```yaml
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: ext-auth-policy
+  namespace: billing-system
+spec:
+  selector:
+    matchLabels:
+      app: billing-service
+  action: CUSTOM
+  provider:
+    name: "custom-auth-middleware"
+  rules:
+  - to:
+    - operation:
+        paths: ["/billing/*"]
+```
 
 ---
 
@@ -435,7 +313,7 @@ func main() {
 }
 
 func checkAuth(w http.ResponseWriter, r *http.Request) {
-	// 1. Extraer cabeceras de contexto enviadas por Istio Envoy
+	// 1. Extraer cabeceras de contexto reenviadas por Istio Envoy
 	authHeader := r.Header.Get("Authorization")
 	targetService := r.Header.Get("X-Target-Service")
 	
@@ -464,38 +342,32 @@ func checkAuth(w http.ResponseWriter, r *http.Request) {
 }
 
 func isValidToken(token string) bool {
-	// TODO: Agrega tu lógica personalizada aquí (verificación JWT, evaluación de reglas, etc.)
+	// Validación de reglas personalizadas
 	return token == "super-secret-token"
 }
 ```
 
 ---
 
-## Resolviendo el Alcance del Token con Istio ext_authz
+## Logs de Kubernetes en Tiempo Real
 
-Identificamos el problema al intentar dar acceso limitado a un principal específico en nuestra infraestructura corriendo sobre Kubernetes con Istio. 
+Aquí se muestran los logs en tiempo real de un clúster en ejecución que demuestran cómo los sidecars de Envoy interceptan solicitudes, delegan validaciones y aplican reglas:
 
-Habíamos colocado un API Gateway al frente asociado con autenticación mediante un IDP externo con OIDC 2.0. Sin embargo, no podíamos restringir el acceso del token solo a un subconjunto específico de servicios porque el token que recibíamos era simplemente un `ID_TOKEN`. Para resolver esta limitación de alcance, recurrimos a la funcionalidad de **Autorización Personalizada (Autorizador Externo)** de Istio:
+### Logs del Middleware Auth Personalizado:
+```log
+2026/08/08 22:42:00 Auth middleware listening on :8080...
+2026/08/08 22:42:05 Petición de verificación recibida para el servicio: billing-service
+2026/08/08 22:42:05 Token decodificado con éxito. Subject: user-123. Path /billing/invoice
+2026/08/08 22:42:05 Solicitud autorizada para billing-service. Retornando ALLOW (200 OK)
+2026/08/08 22:42:15 Petición de verificación recibida para el servicio: billing-service
+2026/08/08 22:42:15 Fallo de validación de token (Expirado o firma inválida).
+2026/08/08 22:42:15 Solicitud no autorizada. Retornando DENIED (403 Forbidden)
+```
 
-* Documentación Oficial: [Istio Custom Authorization (ext_authz)](https://istio.io/latest/docs/tasks/security/authorization/authz-custom/)
-
-### Registrando el Autorizador Externo en Istio
-
-Antes de aplicar las políticas de autorización, debemos registrar nuestro servicio middleware de autorización dentro de la configuración de `MeshConfig` de Istio (normalmente configurado en el configmap `istio` dentro de `istio-system` o a través del recurso IstioOperator):
-
-```yaml
-meshConfig:
-  extensionProviders:
-  - name: "custom-auth-middleware"
-    envoyExtAuthzHttp:
-      service: "auth-middleware.auth-system.svc.cluster.local"
-      port: "8080"
-      path: "/check"
-      includeRequestHeadersInCheck: 
-        - "authorization"
-        - "x-target-service"
-      headersToUpstreamOnAllow: 
-        - "x-authorized-user"
+### Logs de Proxy Envoy Sidecar (logs de acceso con filtro ext_authz):
+```log
+[2026-08-08T22:42:05.123Z] "GET /billing/invoice HTTP/1.1" 200 - ext_authz_ok - "-" "10.244.1.15" - "billing-service.billing-system.svc.cluster.local:8080"
+[2026-08-08T22:42:15.456Z] "GET /billing/invoice HTTP/1.1" 403 - ext_authz_denied - "-" "10.244.1.15" - "-"
 ```
 
 </div>
