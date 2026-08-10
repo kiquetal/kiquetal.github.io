@@ -195,8 +195,8 @@ const t = translations[currentLang];
 							{latestPost && (
 								<div class="latest-update flex items-center gap-4">
 									<div class="h-[1px] w-4 bg-brand-border"></div>
-									<a href={`/blog/${latestPost.slug}`} class="font-mono text-[10px] tracking-[0.2em] text-brand-text-main hover:text-brand-accent transition-colors group flex items-center gap-1">
-										<span id="latest-update-label" class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-sm font-semibold tracking-wider mr-1 text-[9px] shadow-[0_0_12px_rgba(16,185,129,0.1)]">{t.latestUpdate}</span>
+									<a href={`/blog/${latestPost.slug}`} class="font-mono text-[10px] tracking-[0.2em] text-brand-text-main uppercase hover:text-brand-accent transition-colors group flex items-center gap-1">
+										<span id="latest-update-label" class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-sm font-semibold tracking-wider mr-1 text-[9px] shadow-[0_0_12px_rgba(16,185,129,0.1)] uppercase">{t.latestUpdate}</span>
 										<span id="latest-post-title" class="group-hover:underline underline-offset-4"
 											data-title-en={latestPost.data.title.en}
 											data-title-es={latestPost.data.title.es}>
