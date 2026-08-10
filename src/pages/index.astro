@@ -195,9 +195,9 @@ const t = translations[currentLang];
 							{latestPost && (
 								<div class="latest-update flex items-center gap-4">
 									<div class="h-[1px] w-4 bg-brand-border"></div>
-									<a href={`/blog/${latestPost.slug}`} class="font-mono text-[10px] tracking-[0.2em] text-brand-text-main uppercase hover:text-brand-accent transition-colors group">
-										<span id="latest-update-label" class="text-brand-text-muted mr-2">{t.latestUpdate}:</span>
-										<span id="latest-post-title" class="group-hover:underline underline-offset-4"
+									<a href={`/blog/${latestPost.slug}`} class="font-mono text-[10px] tracking-[0.2em] text-brand-text-main uppercase hover:text-emerald-400 transition-colors group flex items-center gap-1">
+										<span id="latest-update-label" class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-sm font-semibold tracking-wider mr-1 text-[9px] shadow-[0_0_12px_rgba(16,185,129,0.1)]">{t.latestUpdate}</span>
+										<span id="latest-post-title" class="group-hover:underline underline-offset-4 text-emerald-300/90 font-medium"
 											data-title-en={latestPost.data.title.en}
 											data-title-es={latestPost.data.title.es}>
 											{latestPost.data.title[currentLang]}
@@ -371,7 +371,7 @@ const t = translations[currentLang];
 		if (manifestoText) manifestoText.textContent = t.manifesto;
 
 		const latestUpdateLabel = document.getElementById('latest-update-label');
-		if (latestUpdateLabel) latestUpdateLabel.textContent = t.latestUpdate + ':';
+		if (latestUpdateLabel) latestUpdateLabel.textContent = t.latestUpdate;
 
 		const latestPostTitle = document.getElementById('latest-post-title');
 		if (latestPostTitle) {
