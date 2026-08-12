@@ -151,10 +151,7 @@ const t = translations.en;
 						</div>
 
 						<form
-							action="https://buttondown.email/api/emails/embed-subscribe/kiquetal"
-							method="post"
-							target="popupwindow"
-							onsubmit="window.open('https://buttondown.email/kiquetal', 'popupwindow')"
+							id="subscribe-form"
 							class="flex flex-col sm:flex-row gap-4 w-full"
 						>
 							<div class="flex-grow flex border border-brand-border/40 focus-within:border-brand-accent/50 bg-brand-bg/80 transition-colors">
@@ -162,7 +159,7 @@ const t = translations.en;
 								<input
 									type="email"
 									name="email"
-									id="bd-email"
+									id="subscribe-email"
 									placeholder="USER@HOST.COM"
 									class="bg-transparent text-brand-text-main font-mono text-xs p-4 flex-grow focus:outline-none placeholder:text-brand-text-muted/30 uppercase tracking-widest"
 									required
@@ -170,12 +167,14 @@ const t = translations.en;
 							</div>
 							<button 
 								type="submit" 
+								id="subscribe-btn"
 								class="bg-brand-accent/10 hover:bg-brand-accent/25 text-brand-accent font-mono text-[10px] tracking-[0.2em] uppercase font-bold px-8 py-4 border border-brand-accent/20 transition-all whitespace-nowrap"
 							>
 								<span class="lang-en">JOIN NODE</span>
 								<span class="lang-es hidden">UNIRSE AL NODO</span>
 							</button>
 						</form>
+						<p id="subscribe-status" class="font-mono text-[10px] tracking-[0.2em] uppercase mt-4 hidden"></p>
 					</div>
 				</div>
 
@@ -255,4 +254,46 @@ const t = translations.en;
 
 	const savedLang = localStorage.getItem('preferred-lang') || 'en';
 	setLanguage(savedLang);
+
+	// Newsletter subscription handler
+	const form = document.getElementById('subscribe-form');
+	const status = document.getElementById('subscribe-status');
+	form?.addEventListener('submit', async (e) => {
+		e.preventDefault();
+		const email = (document.getElementById('subscribe-email') as HTMLInputElement)?.value;
+		const btn = document.getElementById('subscribe-btn') as HTMLButtonElement;
+		const lang = localStorage.getItem('preferred-lang') || 'en';
+
+		if (!email) return;
+		btn.disabled = true;
+		btn.textContent = '...';
+
+		try {
+			const res = await fetch('https://subscriber.kiquetal.workers.dev', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ email, language: lang }),
+			});
+			if (status) {
+				status.classList.remove('hidden');
+				if (res.ok) {
+					status.textContent = lang === 'es' ? '✓ NODO CONECTADO' : '✓ NODE CONNECTED';
+					status.classList.add('text-green-400');
+				} else {
+					status.textContent = lang === 'es' ? '✗ ERROR DE CONEXIÓN' : '✗ CONNECTION ERROR';
+					status.classList.add('text-red-400');
+				}
+			}
+		} catch {
+			if (status) {
+				status.classList.remove('hidden');
+				status.textContent = '✗ NETWORK ERROR';
+				status.classList.add('text-red-400');
+			}
+		} finally {
+			btn.disabled = false;
+			btn.innerHTML = `<span class="lang-en">JOIN NODE</span><span class="lang-es hidden">UNIRSE AL NODO</span>`;
+			setLanguage(localStorage.getItem('preferred-lang') || 'en');
+		}
+	});
 </script>
