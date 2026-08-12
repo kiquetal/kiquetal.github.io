@@ -1,0 +1,149 @@
+name: Wednesday Newsletter Broadcast
+
+on:
+  schedule:
+    # Every Wednesday at 14:00 UTC (11:00 AM your time -03:00)
+    - cron: '0 14 * * 3'
+  workflow_dispatch: # Manual trigger for testing
+
+jobs:
+  broadcast:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Find newest non-draft post and trigger worker
+        env:
+          NEWSLETTER_WORKER_URL: ${{ secrets.NEWSLETTER_WORKER_URL }}
+          NEWSLETTER_SECRET: ${{ secrets.NEWSLETTER_SECRET }}
+        run: |
+          node << 'EOF'
+          const fs = require('fs');
+          const path = require('path');
+
+          const BLOG_DIR = './src/content/blog';
+
+          // Simple frontmatter parser for nested YAML (title.en, excerpt.en, etc.)
+          function parseFrontmatter(filePath) {
+            const content = fs.readFileSync(filePath, 'utf-8');
+            const match = content.match(/^---([\s\S]*?)---/);
+            if (!match) return null;
+
+            const yaml = match[1];
+            const metadata = {};
+            let currentKey = null;
+
+            yaml.split('\n').forEach(line => {
+              // Nested key (indented with spaces)
+              const nestedMatch = line.match(/^\s+(en|es):\s*['"]?(.+?)['"]?\s*$/);
+              if (nestedMatch && currentKey) {
+                if (!metadata[currentKey]) metadata[currentKey] = {};
+                metadata[currentKey][nestedMatch[1]] = nestedMatch[2];
+                return;
+              }
+
+              // Top-level key
+              const topMatch = line.match(/^(\w+):\s*(.*)$/);
+              if (topMatch) {
+                const key = topMatch[1];
+                const val = topMatch[2].trim().replace(/^['"]|['"]$/g, '');
+                if (val === '' || val === undefined) {
+                  currentKey = key;
+                  metadata[key] = {};
+                } else {
+                  currentKey = null;
+                  // Handle arrays like tags: ['a', 'b']
+                  if (val.startsWith('[')) {
+                    metadata[key] = val.replace(/[\[\]']/g, '').split(',').map(s => s.trim());
+                  } else if (val === 'true') {
+                    metadata[key] = true;
+                  } else if (val === 'false') {
+                    metadata[key] = false;
+                  } else {
+                    metadata[key] = val;
+                  }
+                }
+              }
+            });
+
+            return metadata;
+          }
+
+          // Get all blog posts sorted by date (newest first)
+          const files = fs.readdirSync(BLOG_DIR)
+            .filter(f => f.endsWith('.md'))
+            .map(f => ({
+              filename: f,
+              path: path.join(BLOG_DIR, f),
+            }));
+
+          // Parse and filter non-draft posts
+          const posts = files
+            .map(f => {
+              const meta = parseFrontmatter(f.path);
+              if (!meta) return null;
+              return { ...f, meta };
+            })
+            .filter(p => p && !p.meta.draft)
+            .sort((a, b) => {
+              const dateA = new Date(a.meta.date);
+              const dateB = new Date(b.meta.date);
+              return dateB - dateA;
+            });
+
+          if (posts.length === 0) {
+            console.log('No non-draft blog posts found. Skipping.');
+            process.exit(0);
+          }
+
+          const newest = posts[0];
+          const slug = newest.filename.replace('.md', '');
+          const postUrl = `https://kiquetal.dev/blog/${slug}`;
+
+          const payload = {
+            slug,
+            titleEn: newest.meta.title?.en || newest.meta.title || 'New Post',
+            titleEs: newest.meta.title?.es || newest.meta.title || 'Nueva Entrada',
+            excerptEn: newest.meta.excerpt?.en || '',
+            excerptEs: newest.meta.excerpt?.es || '',
+            postUrl,
+          };
+
+          console.log(`Newest post: ${slug}`);
+          console.log(`Triggering worker with payload:`, JSON.stringify(payload, null, 2));
+
+          // POST to Cloudflare Worker
+          const workerUrl = process.env.NEWSLETTER_WORKER_URL;
+          const secret = process.env.NEWSLETTER_SECRET;
+
+          if (!workerUrl || !secret) {
+            console.error('Missing NEWSLETTER_WORKER_URL or NEWSLETTER_SECRET secrets.');
+            process.exit(1);
+          }
+
+          fetch(workerUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Newsletter-Secret': secret,
+            },
+            body: JSON.stringify(payload),
+          })
+            .then(async res => {
+              const body = await res.text();
+              console.log(`Worker response [${res.status}]: ${body}`);
+              if (!res.ok && res.status !== 200) {
+                process.exit(1);
+              }
+            })
+            .catch(err => {
+              console.error('Failed to call worker:', err.message);
+              process.exit(1);
+            });
+          EOF
