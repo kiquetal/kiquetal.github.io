@@ -40,7 +40,7 @@ System_Boundary(subscribe_system, "Subscription Flow") {
 ' =============================================================================
 
 System_Ext(resend, "Resend", "Email platform. Manages audience/contacts (POST /audiences/{id}/contacts) and sends transactional emails (POST /emails).")
-System_Ext(cloudflare, "Cloudflare Edge Network", "Runs the Worker at edge locations globally. Manages secrets (RESEND_API_KEY, RESEND_AUDIENCE_ID) via environment bindings.")
+System_Ext(cloudflare, "Cloudflare Edge Network", "Runs the Worker at edge locations globally. Manages secrets (API key for Resend, audience identifier) via environment bindings.")
 
 ' =============================================================================
 ' RELATIONSHIPS

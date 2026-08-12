@@ -39,12 +39,12 @@ Container_Boundary(worker_subscribe, "worker-subscribe (Cloudflare Worker / JS)"
     Component(request_validator, "Request Validator", "JS", "Parses JSON body, extracts email and language fields. Returns 400 if email is missing. Enforces POST-only method.")
 
     ' --- Business Logic Layer ---
-    Component(audience_client, "Audience Client", "JS / fetch → Resend API", "Calls Resend POST /audiences/{id}/contacts to add subscriber with email, unsubscribed=false, and language metadata. Uses RESEND_API_KEY and RESEND_AUDIENCE_ID from env bindings.")
+    Component(audience_client, "Audience Client", "JS / fetch → Resend API", "Calls Resend POST /audiences/{id}/contacts to add subscriber with email, unsubscribed=false, and language metadata. Uses API key and audience ID from env bindings.")
 
     Component(welcome_sender, "Welcome Email Sender", "JS / ctx.waitUntil", "Fires asynchronously after successful subscription. Builds a styled HTML welcome email (i18n: en/es) and sends via Resend POST /emails. Does not block the response.")
 
     ' --- Configuration ---
-    Component(env_config, "Environment Bindings", "Cloudflare Worker Secrets", "RESEND_API_KEY: Bearer token for Resend API. RESEND_AUDIENCE_ID: target audience for contacts. Validated at runtime — returns 500 if missing.")
+    Component(env_config, "Environment Bindings", "Cloudflare Worker Secrets", "Resend API key (Bearer token for API calls), Audience ID (target contact list). Validated at runtime — returns 500 if missing.")
 }
 
 ' =============================================================================
@@ -64,8 +64,8 @@ Rel(request_validator, audience_client, "Passes validated email + language")
 Rel(audience_client, welcome_sender, "Triggers via ctx.waitUntil on 2xx response")
 
 ' Env config used by clients
-Rel(audience_client, env_config, "Reads RESEND_API_KEY, RESEND_AUDIENCE_ID")
-Rel(welcome_sender, env_config, "Reads RESEND_API_KEY")
+Rel(audience_client, env_config, "Reads API key + audience ID")
+Rel(welcome_sender, env_config, "Reads API key")
 
 ' =============================================================================
 ' RELATIONSHIPS — To External Containers

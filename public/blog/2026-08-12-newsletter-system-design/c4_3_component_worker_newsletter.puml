@@ -37,7 +37,7 @@ Person(subscribers, "Newsletter Subscribers", "Receive weekly broadcast.")
 Container_Boundary(worker_newsletter, "worker-newsletter (Cloudflare Worker / JS)") {
 
     ' --- Security Layer ---
-    Component(auth_guard, "Auth Guard", "JS / header check", "Validates X-Newsletter-Secret header against env.NEWSLETTER_SECRET. Returns 401 if missing or mismatched. Ensures only GitHub Actions can trigger broadcasts.")
+    Component(auth_guard, "Auth Guard", "JS / header check", "Validates shared secret header against env binding. Returns 401 if missing or mismatched. Ensures only GitHub Actions can trigger broadcasts.")
 
     ' --- Payload Validation ---
     Component(payload_validator, "Payload Validator", "JS", "Parses JSON body. Extracts slug, titleEn, titleEs, excerptEn, excerptEs, postUrl. Returns 400 if required fields (slug, titleEn, postUrl) are missing.")
@@ -52,7 +52,7 @@ Container_Boundary(worker_newsletter, "worker-newsletter (Cloudflare Worker / JS
     Component(broadcast_sender, "Broadcast Sender", "JS / fetch → Resend API", "POSTs to /broadcasts with segment_id, from, subject, html, and send:true. On success, updates KV state with the sent slug.")
 
     ' --- Configuration ---
-    Component(env_config, "Environment Bindings", "Cloudflare Worker Secrets + KV", "RESEND_API_KEY: Bearer token. RESEND_SEGMENT_ID: target subscriber segment. NEWSLETTER_SECRET: shared secret with GitHub Actions. NEWSLETTER_STATE: KV namespace binding.")
+    Component(env_config, "Environment Bindings", "Cloudflare Worker Secrets + KV", "Resend API key (Bearer token), subscriber segment ID, shared secret for auth with GitHub Actions, KV namespace binding for state.")
 }
 
 ' =============================================================================
@@ -75,9 +75,9 @@ Rel(state_checker, email_builder, "Passes post data if slug differs from last se
 Rel(email_builder, broadcast_sender, "Passes subject + HTML body")
 
 ' Env config used by components
-Rel(auth_guard, env_config, "Reads NEWSLETTER_SECRET")
-Rel(state_checker, env_config, "Reads NEWSLETTER_STATE (KV binding)")
-Rel(broadcast_sender, env_config, "Reads RESEND_API_KEY, RESEND_SEGMENT_ID, NEWSLETTER_STATE")
+Rel(auth_guard, env_config, "Reads shared secret")
+Rel(state_checker, env_config, "Reads KV namespace binding")
+Rel(broadcast_sender, env_config, "Reads API key + segment ID + KV binding")
 
 ' =============================================================================
 ' RELATIONSHIPS — To External Containers

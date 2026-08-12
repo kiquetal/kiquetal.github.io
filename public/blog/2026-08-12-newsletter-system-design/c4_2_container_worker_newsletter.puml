@@ -46,7 +46,7 @@ System_Boundary(broadcast_system, "Weekly Newsletter Broadcast") {
 ' =============================================================================
 
 System_Ext(resend, "Resend", "Email platform. Broadcast API creates and sends bulk emails to a segment of contacts. Handles delivery, tracking, and unsubscribe links.")
-System_Ext(cloudflare, "Cloudflare Edge Network", "Runs the Worker + KV namespace. Manages secrets (RESEND_API_KEY, RESEND_SEGMENT_ID, NEWSLETTER_SECRET).")
+System_Ext(cloudflare, "Cloudflare Edge Network", "Runs the Worker + KV namespace. Manages secrets (Resend API key, segment identifier, shared auth secret) via environment bindings.")
 
 ' =============================================================================
 ' RELATIONSHIPS
@@ -56,7 +56,7 @@ System_Ext(cloudflare, "Cloudflare Edge Network", "Runs the Worker + KV namespac
 Rel(gh_action, repo, "Reads blog posts, finds newest non-draft", "fs / checkout")
 
 ' --- GitHub Actions → Worker ---
-Rel(gh_action, worker_newsletter, "POST {slug, titleEn, titleEs, excerptEn, excerptEs, postUrl}", "HTTPS/JSON (X-Newsletter-Secret header)")
+Rel(gh_action, worker_newsletter, "POST {slug, titleEn, titleEs, excerptEn, excerptEs, postUrl}", "HTTPS/JSON (shared secret header)")
 
 ' --- Worker → KV (idempotency check) ---
 Rel(worker_newsletter, kv_state, "GET/PUT newsletter:last_sent_slug", "KV binding")

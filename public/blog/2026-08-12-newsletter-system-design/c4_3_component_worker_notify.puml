@@ -35,7 +35,7 @@ Person(owner, "Site Owner (kiquetal)", "Receives notification emails about subsc
 Container_Boundary(worker_notify, "worker-notify-subscriber (Cloudflare Worker / JS)") {
 
     ' --- Security Layer ---
-    Component(signature_verifier, "Svix Signature Verifier", "JS / Web Crypto API", "Verifies webhook authenticity using HMAC-SHA256. Extracts svix-id, svix-timestamp, svix-signature headers. Decodes whsec_ secret, signs msg_id.timestamp.body, compares against provided signatures. Rejects if >5 min old (replay protection).")
+    Component(signature_verifier, "Svix Signature Verifier", "JS / Web Crypto API", "Verifies webhook authenticity using HMAC-SHA256. Extracts svix-id, svix-timestamp, svix-signature headers. Decodes signing secret, signs msg_id.timestamp.body, compares against provided signatures. Rejects if >5 min old (replay protection).")
 
     ' --- Routing Layer ---
     Component(event_router, "Event Router", "JS / switch", "Routes webhook payload by event type: contact.created → new subscriber, contact.updated → unsubscribe/update, contact.deleted → removal. Ignores unknown event types with 200 OK.")
@@ -44,10 +44,10 @@ Container_Boundary(worker_notify, "worker-notify-subscriber (Cloudflare Worker /
     Component(notification_builder, "Notification Builder", "JS / buildNotificationHtml", "Builds styled HTML notification email for the site owner. Each event type has distinct emoji, color, and copy. Includes subscriber email, metadata, and timestamp.")
 
     ' --- Delivery Layer ---
-    Component(email_sender, "Email Sender", "JS / fetch → Resend API", "Sends the notification email to NOTIFY_EMAIL via Resend POST /emails. Uses RESEND_API_KEY from env. From address: newsletter@kiquetal.dev.")
+    Component(email_sender, "Email Sender", "JS / fetch → Resend API", "Sends the notification email to the owner via Resend POST /emails. Uses API key and owner email from env. From address: newsletter@kiquetal.dev.")
 
     ' --- Configuration ---
-    Component(env_config, "Environment Bindings", "Cloudflare Worker Secrets", "RESEND_API_KEY: Bearer token for sending emails. NOTIFY_EMAIL: site owner destination. WEBHOOK_SIGNING_SECRET: whsec_ prefixed Svix key for verification.")
+    Component(env_config, "Environment Bindings", "Cloudflare Worker Secrets", "Resend API key (Bearer token), owner notification email address, webhook signing secret (Svix HMAC key).")
 }
 
 ' =============================================================================
@@ -67,8 +67,8 @@ Rel(event_router, notification_builder, "Passes event type, email, metadata")
 Rel(notification_builder, email_sender, "Passes subject + HTML body")
 
 ' Env config used by components
-Rel(signature_verifier, env_config, "Reads WEBHOOK_SIGNING_SECRET")
-Rel(email_sender, env_config, "Reads RESEND_API_KEY, NOTIFY_EMAIL")
+Rel(signature_verifier, env_config, "Reads webhook signing secret")
+Rel(email_sender, env_config, "Reads API key + owner email")
 
 ' =============================================================================
 ' RELATIONSHIPS — To External
