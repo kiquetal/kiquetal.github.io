@@ -1,0 +1,13 @@
+name = "kiquetal-newsletter-worker"
+main = "worker-newsletter.js"
+compatibility_date = "2024-01-30"
+
+# KV Namespace for tracking last sent newsletter
+[[kv_namespaces]]
+binding = "NEWSLETTER_STATE"
+id = "YOUR_KV_NAMESPACE_ID"
+
+# Secrets (set via `wrangler secret put`):
+# - RESEND_API_KEY
+# - RESEND_SEGMENT_ID  (the Segment ID from your Resend dashboard)
+# - NEWSLETTER_SECRET  (shared secret with GitHub Action)
