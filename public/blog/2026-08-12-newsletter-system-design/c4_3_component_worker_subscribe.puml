@@ -1,0 +1,78 @@
+@startuml C4_Level3_WorkerSubscribe
+' =============================================================================
+' C4 Level 3 — Component Diagram (worker-subscribe)
+' =============================================================================
+' Zooms INTO the "worker-subscribe" Cloudflare Worker from Level 2.
+' Shows the major internal building blocks: CORS handler, request validation,
+' Resend audience client, and welcome email sender.
+'
+' AUDIENCE: Developers working on the subscription flow.
+'
+' WHY THIS CONTAINER: worker-subscribe is the core of the subscription pipeline —
+' it handles CORS, validation, audience management, and async welcome email delivery.
+' =============================================================================
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+' --- Layout ---
+LAYOUT_TOP_DOWN()
+LAYOUT_WITH_LEGEND()
+
+title Component Diagram - worker-subscribe (Cloudflare Worker)
+
+' =============================================================================
+' EXTERNAL CONTAINERS (from Level 2 — shown for context)
+' =============================================================================
+
+System_Ext(resend, "Resend API", "Audience/contacts management and email delivery.")
+Person(subscriber, "Blog Visitor", "Submits email directly to Worker from subscription form in browser.")
+
+' =============================================================================
+' CONTAINER BOUNDARY — worker-subscribe internals
+' =============================================================================
+
+Container_Boundary(worker_subscribe, "worker-subscribe (Cloudflare Worker / JS)") {
+
+    ' --- Request Handling Layer ---
+    Component(cors_handler, "CORS Handler", "JS / fetch handler", "Validates Origin against allowlist (kiquetal.dev, localhost:4321). Handles OPTIONS preflight and attaches CORS headers to all responses.")
+
+    Component(request_validator, "Request Validator", "JS", "Parses JSON body, extracts email and language fields. Returns 400 if email is missing. Enforces POST-only method.")
+
+    ' --- Business Logic Layer ---
+    Component(audience_client, "Audience Client", "JS / fetch → Resend API", "Calls Resend POST /audiences/{id}/contacts to add subscriber with email, unsubscribed=false, and language metadata. Uses RESEND_API_KEY and RESEND_AUDIENCE_ID from env bindings.")
+
+    Component(welcome_sender, "Welcome Email Sender", "JS / ctx.waitUntil", "Fires asynchronously after successful subscription. Builds a styled HTML welcome email (i18n: en/es) and sends via Resend POST /emails. Does not block the response.")
+
+    ' --- Configuration ---
+    Component(env_config, "Environment Bindings", "Cloudflare Worker Secrets", "RESEND_API_KEY: Bearer token for Resend API. RESEND_AUDIENCE_ID: target audience for contacts. Validated at runtime — returns 500 if missing.")
+}
+
+' =============================================================================
+' RELATIONSHIPS — Internal
+' =============================================================================
+
+' Subscriber browser → CORS Handler (entry point — form submits directly to Worker)
+Rel(subscriber, cors_handler, "POST {email, language} from browser form", "HTTPS/JSON (fetch)")
+
+' CORS Handler → Request Validator
+Rel(cors_handler, request_validator, "Forwards valid POST requests")
+
+' Request Validator → Audience Client
+Rel(request_validator, audience_client, "Passes validated email + language")
+
+' Audience Client → Welcome Sender (on success)
+Rel(audience_client, welcome_sender, "Triggers via ctx.waitUntil on 2xx response")
+
+' Env config used by clients
+Rel(audience_client, env_config, "Reads RESEND_API_KEY, RESEND_AUDIENCE_ID")
+Rel(welcome_sender, env_config, "Reads RESEND_API_KEY")
+
+' =============================================================================
+' RELATIONSHIPS — To External Containers
+' =============================================================================
+
+Rel(audience_client, resend, "POST /audiences/{id}/contacts", "HTTPS/REST (Bearer token)")
+Rel(welcome_sender, resend, "POST /emails (welcome HTML)", "HTTPS/REST (Bearer token)")
+Rel(resend, subscriber, "Delivers welcome email", "Email/SMTP")
+
+@enduml
