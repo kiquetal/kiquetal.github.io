@@ -1,0 +1,80 @@
+@startuml C4_Level3_WorkerNotifySubscriber
+' =============================================================================
+' C4 Level 3 — Component Diagram (worker-notify-subscriber)
+' =============================================================================
+' Zooms INTO the "worker-notify-subscriber" Cloudflare Worker from Level 2.
+' Shows internal building blocks: webhook signature verification, event router,
+' notification builder, and email sender.
+'
+' AUDIENCE: Developers working on the webhook notification flow.
+'
+' WHY THIS CONTAINER: worker-notify-subscriber handles security-critical webhook
+' verification (Svix HMAC-SHA256), event routing, and owner notification — 
+' it's the inbound event processor of the system.
+' =============================================================================
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+' --- Layout ---
+LAYOUT_TOP_DOWN()
+LAYOUT_WITH_LEGEND()
+
+title Component Diagram - worker-notify-subscriber (Cloudflare Worker)
+
+' =============================================================================
+' EXTERNAL CONTAINERS (from Level 2 — shown for context)
+' =============================================================================
+
+System_Ext(resend, "Resend API", "Emits webhook events for contact lifecycle and delivers emails.")
+Person(owner, "Site Owner (kiquetal)", "Receives notification emails about subscriber events.")
+
+' =============================================================================
+' CONTAINER BOUNDARY — worker-notify-subscriber internals
+' =============================================================================
+
+Container_Boundary(worker_notify, "worker-notify-subscriber (Cloudflare Worker / JS)") {
+
+    ' --- Security Layer ---
+    Component(signature_verifier, "Svix Signature Verifier", "JS / Web Crypto API", "Verifies webhook authenticity using HMAC-SHA256. Extracts svix-id, svix-timestamp, svix-signature headers. Decodes whsec_ secret, signs msg_id.timestamp.body, compares against provided signatures. Rejects if >5 min old (replay protection).")
+
+    ' --- Routing Layer ---
+    Component(event_router, "Event Router", "JS / switch", "Routes webhook payload by event type: contact.created → new subscriber, contact.updated → unsubscribe/update, contact.deleted → removal. Ignores unknown event types with 200 OK.")
+
+    ' --- Presentation Layer ---
+    Component(notification_builder, "Notification Builder", "JS / buildNotificationHtml", "Builds styled HTML notification email for the site owner. Each event type has distinct emoji, color, and copy. Includes subscriber email, metadata, and timestamp.")
+
+    ' --- Delivery Layer ---
+    Component(email_sender, "Email Sender", "JS / fetch → Resend API", "Sends the notification email to NOTIFY_EMAIL via Resend POST /emails. Uses RESEND_API_KEY from env. From address: newsletter@kiquetal.dev.")
+
+    ' --- Configuration ---
+    Component(env_config, "Environment Bindings", "Cloudflare Worker Secrets", "RESEND_API_KEY: Bearer token for sending emails. NOTIFY_EMAIL: site owner destination. WEBHOOK_SIGNING_SECRET: whsec_ prefixed Svix key for verification.")
+}
+
+' =============================================================================
+' RELATIONSHIPS — Internal
+' =============================================================================
+
+' Resend → Signature Verifier (entry point)
+Rel(resend, signature_verifier, "POST webhook (svix-id, svix-timestamp, svix-signature headers + JSON body)", "HTTPS")
+
+' Signature Verifier → Event Router
+Rel(signature_verifier, event_router, "Forwards verified payload (type + data)")
+
+' Event Router → Notification Builder
+Rel(event_router, notification_builder, "Passes event type, email, metadata")
+
+' Notification Builder → Email Sender
+Rel(notification_builder, email_sender, "Passes subject + HTML body")
+
+' Env config used by components
+Rel(signature_verifier, env_config, "Reads WEBHOOK_SIGNING_SECRET")
+Rel(email_sender, env_config, "Reads RESEND_API_KEY, NOTIFY_EMAIL")
+
+' =============================================================================
+' RELATIONSHIPS — To External
+' =============================================================================
+
+Rel(email_sender, resend, "POST /emails (notification HTML)", "HTTPS/REST (Bearer token)")
+Rel(resend, owner, "Delivers notification email", "Email/SMTP")
+
+@enduml
