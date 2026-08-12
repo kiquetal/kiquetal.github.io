@@ -204,17 +204,17 @@ const t = translations[currentLang];
 				status.classList.remove('hidden');
 				if (res.ok) {
 					status.textContent = lang === 'es' ? '✓ NODO CONECTADO' : '✓ NODE CONNECTED';
-					status.classList.add('text-green-400');
+					status.classList.add('text-brand-accent');
 				} else {
 					status.textContent = lang === 'es' ? '✗ ERROR DE CONEXIÓN' : '✗ CONNECTION ERROR';
-					status.classList.add('text-red-400');
+					status.classList.add('text-amber-400');
 				}
 			}
 		} catch {
 			if (status) {
 				status.classList.remove('hidden');
 				status.textContent = '✗ NETWORK ERROR';
-				status.classList.add('text-red-400');
+				status.classList.add('text-amber-400');
 			}
 		} finally {
 			btn.disabled = false;
