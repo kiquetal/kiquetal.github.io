@@ -1,10 +1,11 @@
 /**
  * Cloudflare Worker: Subscriber Notification
  * 
- * Receives Resend webhook events (contact.created, contact.updated)
- * and sends a notification email to the site owner.
+ * Receives Resend webhook events (contact.created, contact.updated, contact.deleted)
+ * Verifies Svix signature to ensure request is from Resend.
+ * Sends a notification email to the site owner.
  * 
- * Secrets: RESEND_API_KEY, NOTIFY_EMAIL
+ * Secrets: RESEND_API_KEY, NOTIFY_EMAIL, WEBHOOK_SIGNING_SECRET
  */
 
 export default {
@@ -13,8 +14,38 @@ export default {
       return new Response("Method not allowed", { status: 405 });
     }
 
+    const rawBody = await request.text();
+
+    // Verify Svix webhook signature
+    const svixId = request.headers.get("svix-id");
+    const svixTimestamp = request.headers.get("svix-timestamp");
+    const svixSignature = request.headers.get("svix-signature");
+
+    if (!svixId || !svixTimestamp || !svixSignature) {
+      return new Response("Missing webhook signature headers", { status: 401 });
+    }
+
+    const isValid = await verifyWebhookSignature(
+      rawBody,
+      svixId,
+      svixTimestamp,
+      svixSignature,
+      env.WEBHOOK_SIGNING_SECRET
+    );
+
+    if (!isValid) {
+      return new Response("Invalid signature", { status: 401 });
+    }
+
+    // Reject old timestamps (>5 minutes) to prevent replay attacks
+    const now = Math.floor(Date.now() / 1000);
+    const ts = parseInt(svixTimestamp, 10);
+    if (Math.abs(now - ts) > 300) {
+      return new Response("Timestamp too old", { status: 401 });
+    }
+
     try {
-      const payload = await request.json();
+      const payload = JSON.parse(rawBody);
       const { type, data } = payload;
 
       if (!type || !data) {
@@ -109,6 +140,53 @@ export default {
     }
   },
 };
+
+/**
+ * Verify Svix webhook signature using Web Crypto API (native in CF Workers).
+ * Resend signing secret format: "whsec_<base64-encoded-key>"
+ */
+async function verifyWebhookSignature(payload, msgId, timestamp, signatures, secret) {
+  // Remove "whsec_" prefix and decode base64 key
+  const secretBytes = base64ToUint8Array(secret.replace("whsec_", ""));
+
+  // Create the signed content: "msg_id.timestamp.body"
+  const signedContent = `${msgId}.${timestamp}.${payload}`;
+  const encoder = new TextEncoder();
+
+  // Import key for HMAC-SHA256
+  const key = await crypto.subtle.importKey(
+    "raw",
+    secretBytes,
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+
+  // Sign the content
+  const signatureBytes = await crypto.subtle.sign("HMAC", key, encoder.encode(signedContent));
+  const expectedSignature = "v1," + uint8ArrayToBase64(new Uint8Array(signatureBytes));
+
+  // Compare against all provided signatures (comma-separated)
+  const providedSignatures = signatures.split(" ");
+  return providedSignatures.some(sig => sig.trim() === expectedSignature);
+}
+
+function base64ToUint8Array(base64) {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes;
+}
+
+function uint8ArrayToBase64(bytes) {
+  let binary = "";
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+}
 
 function buildNotificationHtml({ event, emoji, color, email, details, timestamp }) {
   return `<!DOCTYPE html>
