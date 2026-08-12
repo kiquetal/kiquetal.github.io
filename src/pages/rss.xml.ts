@@ -8,9 +8,16 @@ export async function GET(context) {
     title: 'kiquetal — Systems Architecture Blog',
     description: 'Resilience Engineering, Distributed Systems, Cloud Native',
     site: context.site,
-    items: sorted.map(post => ({
-      title: post.data.title.en,
-      description: post.data.excerpt.en,
+	items: sorted.map(post => ({
+      title: `${post.data.title.en} | ${post.data.title.es}`,
+      description: `
+        <div class="lang-en-content">
+          <p>${post.data.excerpt?.en || post.data.description?.en || "System architectural documentation."}</p>
+        </div>
+        <div class="lang-es-content" style="display:none;">
+          <p>${post.data.excerpt?.es || post.data.description?.es || "Documentación arquitectónica del sistema."}</p>
+        </div>
+      `,
       pubDate: post.data.date,
       link: `/blog/${post.slug}/`,
     })),

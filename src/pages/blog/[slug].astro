@@ -116,6 +116,47 @@ const t = translations[currentLang];
 					<Content />
 				</div>
 			</article>
+
+			<!-- Newsletter / Subscriber Node -->
+			<div class="border border-brand-border/30 bg-brand-bg/30 p-8 mt-24">
+				<div class="mb-6">
+					<h3 class="font-serif text-xl text-brand-text-main italic mb-2">
+						<span class="lang-en">SYSTEM BROADCASTS</span>
+						<span class="lang-es hidden">EMISIONES DEL SISTEMA</span>
+					</h3>
+					<p class="font-mono text-[10px] text-brand-text-muted uppercase tracking-[0.2em]">
+						<span class="lang-en">Subscribe to receive telemetry logs directly in your inbox upon new entry compiles.</span>
+						<span class="lang-es hidden">Suscríbete para recibir registros de telemetría en tu bandeja de entrada al compilar nuevas entradas.</span>
+					</p>
+				</div>
+
+				<form
+					action="https://buttondown.email/api/emails/embed-subscribe/kiquetal"
+					method="post"
+					target="popupwindow"
+					onsubmit="window.open('https://buttondown.email/kiquetal', 'popupwindow')"
+					class="flex flex-col sm:flex-row gap-4 w-full"
+				>
+					<div class="flex-grow flex border border-brand-border/40 focus-within:border-brand-accent/50 bg-brand-bg/80 transition-colors">
+						<span class="font-mono text-xs text-brand-text-muted/40 p-4 border-r border-brand-border/20 uppercase select-none">ADDR_</span>
+						<input
+							type="email"
+							name="email"
+							id="bd-email"
+							placeholder="USER@HOST.COM"
+							class="bg-transparent text-brand-text-main font-mono text-xs p-4 flex-grow focus:outline-none placeholder:text-brand-text-muted/30 uppercase tracking-widest"
+							required
+						/>
+					</div>
+					<button 
+						type="submit" 
+						class="bg-brand-accent/10 hover:bg-brand-accent/25 text-brand-accent font-mono text-[10px] tracking-[0.2em] uppercase font-bold px-8 py-4 border border-brand-accent/20 transition-all whitespace-nowrap"
+					>
+						<span class="lang-en">JOIN NODE</span>
+						<span class="lang-es hidden">UNIRSE AL NODO</span>
+					</button>
+				</form>
+			</div>
 		</div>
 	</main>
 </Layout>
