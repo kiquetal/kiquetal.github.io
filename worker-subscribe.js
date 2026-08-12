@@ -130,9 +130,9 @@ async function sendWelcomeEmail(apiKey, email, language) {
     </div>
 
     <div class="footer">
-      <p>${isEs ? "Puedes desconectarte en cualquier momento." : "You can disconnect at any time."}</p>
-      <p style="margin-top: 10px;">
-        <a href="{{{RESEND_UNSUBSCRIBE_URL}}}">${isEs ? "Desconectar nodo" : "Disconnect node"}</a>
+      <p>${isEs ? "Recibirás transmisiones cada miércoles si hay nuevas entradas." : "You will receive broadcasts every Wednesday when new entries are available."}</p>
+      <p style="margin-top: 10px; color: #4B5563;">
+        ${isEs ? "Para desconectarte, usa el enlace en cualquier transmisión futura." : "To disconnect, use the link in any future broadcast."}
       </p>
     </div>
   </div>
