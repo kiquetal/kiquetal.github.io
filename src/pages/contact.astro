@@ -48,8 +48,8 @@ const translations = {
                         </p>
 
 						<form id="contact-form" class="flex flex-col gap-10">
-							<div class="group border-b border-brand-border/50 focus-within:border-brand-accent/50 transition-colors pb-2">
-								<label for="name" class="block text-[9px] tracking-[0.3em] text-brand-text-muted uppercase mb-2 group-focus-within:text-brand-accent transition-colors font-bold" id="name-label">
+							<div class="group border-b border-brand-border/50 focus-within:border-brand-accent/50 transition-colors pb-3">
+								<label for="name" class="block text-[9px] tracking-[0.3em] text-brand-text-muted uppercase mb-3 group-focus-within:text-brand-accent transition-colors font-bold" id="name-label">
 									{translations.en.nameLabel}
 								</label>
 								<input 
@@ -57,13 +57,13 @@ const translations = {
 									id="name" 
 									name="name" 
 									required 
-									class="w-full bg-transparent border-none p-0 font-mono text-xs tracking-widest focus:ring-0 text-brand-text-main placeholder:text-brand-border/50"
+									class="w-full bg-transparent border-none p-0 py-2 font-mono text-sm md:text-base tracking-wide focus:ring-0 text-brand-text-main placeholder:text-brand-border/50"
 									placeholder="NAME / ORG"
 								/>
 							</div>
 
-							<div class="group border-b border-brand-border/50 focus-within:border-brand-accent/50 transition-colors pb-2">
-								<label for="email" class="block text-[9px] tracking-[0.3em] text-brand-text-muted uppercase mb-2 group-focus-within:text-brand-accent transition-colors font-bold" id="email-label">
+							<div class="group border-b border-brand-border/50 focus-within:border-brand-accent/50 transition-colors pb-3">
+								<label for="email" class="block text-[9px] tracking-[0.3em] text-brand-text-muted uppercase mb-3 group-focus-within:text-brand-accent transition-colors font-bold" id="email-label">
 									{translations.en.emailLabel}
 								</label>
 								<input 
@@ -71,21 +71,21 @@ const translations = {
 									id="email" 
 									name="email" 
 									required 
-									class="w-full bg-transparent border-none p-0 font-mono text-xs tracking-widest focus:ring-0 text-brand-text-main placeholder:text-brand-border/50"
+									class="w-full bg-transparent border-none p-0 py-2 font-mono text-sm md:text-base tracking-wide focus:ring-0 text-brand-text-main placeholder:text-brand-border/50"
 									placeholder="EMAIL@DOMAIN.COM"
 								/>
 							</div>
 
-							<div class="group border-b border-brand-border/50 focus-within:border-brand-accent/50 transition-colors pb-2">
-								<label for="message" class="block text-[9px] tracking-[0.3em] text-brand-text-muted uppercase mb-2 group-focus-within:text-brand-accent transition-colors font-bold" id="message-label">
+							<div class="group border-b border-brand-border/50 focus-within:border-brand-accent/50 transition-colors pb-3">
+								<label for="message" class="block text-[9px] tracking-[0.3em] text-brand-text-muted uppercase mb-3 group-focus-within:text-brand-accent transition-colors font-bold" id="message-label">
 									{translations.en.messageLabel}
 								</label>
 								<textarea 
 									id="message" 
 									name="message" 
-									rows="4" 
+									rows="5" 
 									required 
-									class="w-full bg-transparent border-none p-0 font-mono text-xs tracking-widest focus:ring-0 text-brand-text-main placeholder:text-brand-border/50 resize-none"
+									class="w-full bg-transparent border-none p-0 py-2 font-mono text-sm md:text-base tracking-wide focus:ring-0 text-brand-text-main placeholder:text-brand-border/50 resize-none"
 									placeholder="YOUR MESSAGE DATA..."
 								></textarea>
 							</div>
