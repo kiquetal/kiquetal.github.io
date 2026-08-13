@@ -1,0 +1,58 @@
+@startuml C4_Level1_Newsletter
+' =============================================================================
+' C4 Level 1 — System Context Diagram
+' =============================================================================
+' Shows the Newsletter System as a single box surrounded by the people who
+' interact with it and the external systems it depends on.
+'
+' AUDIENCE: Everyone — stakeholders, developers, new joiners.
+' =============================================================================
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+' --- Layout ---
+LAYOUT_WITH_LEGEND()
+
+title System Context Diagram - Newsletter System (kiquetal.dev)
+
+' =============================================================================
+' PEOPLE
+' =============================================================================
+
+Person(visitor, "Blog Visitor", "Subscribes to the newsletter via a form on the blog. Receives weekly broadcasts and a welcome email.")
+Person(owner, "Site Owner (kiquetal)", "Writes blog posts and receives real-time notifications about subscriber events.")
+
+' =============================================================================
+' YOUR SYSTEM
+' =============================================================================
+
+System(newsletter_system, "Newsletter System", "Handles subscriber registration, weekly broadcast delivery (with idempotency), and owner notifications. Enforces publishing cadence through infrastructure constraints.")
+
+' =============================================================================
+' EXTERNAL SYSTEMS
+' =============================================================================
+
+System_Ext(resend, "Resend", "Email delivery platform. Manages audience contacts, sends transactional and broadcast emails, emits webhook events for contact lifecycle.")
+System_Ext(cloudflare, "Cloudflare", "Edge compute platform. Hosts the Workers and KV state store. Provides global low-latency execution and secret management.")
+System_Ext(github_actions, "GitHub Actions", "CI/CD platform. Runs a Wednesday cron job that detects new blog posts and triggers the broadcast.")
+System_Ext(github_pages, "GitHub Pages", "Static hosting for the Astro blog. Serves the subscription form that visitors interact with.")
+
+' =============================================================================
+' RELATIONSHIPS
+' =============================================================================
+
+' --- People → System ---
+Rel(visitor, newsletter_system, "Subscribes via form, receives emails", "HTTPS / Email")
+Rel(owner, newsletter_system, "Publishes blog posts, receives subscriber notifications", "Git push / Email")
+
+' --- System → External ---
+Rel(newsletter_system, resend, "Manages contacts, sends emails, receives webhooks", "HTTPS/REST")
+Rel(newsletter_system, cloudflare, "Runs on edge, persists state in KV", "Worker runtime")
+Rel(github_actions, newsletter_system, "Triggers weekly broadcast with post metadata", "HTTPS (shared secret)")
+Rel(newsletter_system, github_pages, "Subscription form served from", "HTTPS")
+
+' --- External → People ---
+Rel(resend, visitor, "Delivers welcome + weekly emails", "Email/SMTP")
+Rel(resend, owner, "Delivers subscriber event notifications", "Email/SMTP")
+
+@enduml
