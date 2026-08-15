@@ -84,6 +84,26 @@ The shared secret header ensures only GitHub Actions can trigger it. The KV stat
 
 ---
 
+## Security at Every Boundary
+
+Each worker has a different trust model:
+
+**Newsletter Worker**
+- Shared secret header — only GitHub Actions can trigger it
+- No public access, no CORS needed
+
+**Subscribe Worker**
+- CORS allowlist — only `kiquetal.dev` and `localhost` can call it
+- Public endpoint, but origin-restricted (browser enforces this)
+
+**Notification Worker**
+- Svix HMAC-SHA256 signature verification — cryptographically proves the request came from Resend
+- Timestamp validation — rejects requests older than 5 minutes (replay attack prevention)
+
+Three workers, three trust models. No shared auth mechanism, because each has a different caller with different capabilities.
+
+---
+
 ## The Deduplication Mechanism
 
 The core of the broadcast system is a single entry in Cloudflare KV:
