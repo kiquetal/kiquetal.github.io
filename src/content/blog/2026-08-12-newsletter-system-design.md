@@ -128,6 +128,34 @@ Key numbers:
 
 ---
 
+## What Breaks and What Happens
+
+| Failure | Impact | Recovery |
+|---|---|---|
+| Resend API down during broadcast | Email not sent, KV not updated | Self-healing: next Wednesday the slug still differs, so it retries |
+| KV write fails after successful broadcast | Duplicate email next week | Acceptable: subscribers get the same post twice, not the end of the world |
+| GitHub Actions cron doesn't fire | No broadcast that week | Manual trigger via `workflow_dispatch` |
+| Webhook signature invalid | Owner not notified of subscriber change | No data loss — just missed awareness |
+| Welcome email fails (ctx.waitUntil) | Subscriber added but no welcome | Fire-and-forget by design, no retry |
+
+The system is **self-healing by default**: most failures resolve on the next weekly cycle without intervention. The only permanent failure is a KV write after broadcast (duplicate send), and at weekly cadence with a personal newsletter, that's an acceptable trade-off over adding transaction complexity.
+
+---
+
+## Observability Gap (and a Future Fix)
+
+Right now I know the system worked because... I check Resend's dashboard manually. That's not great.
+
+A future improvement: a **staleness monitor** — another lightweight worker on a cron that reads the KV slug, extracts the date from it, and alerts me if the last broadcast is older than 7 days. Something like:
+
+```
+"Hey, your last newsletter was 2 weeks ago. You stopped publishing."
+```
+
+The system already enforces silence when I don't publish. The monitor would make that silence *loud* — turning infrastructure accountability into active feedback.
+
+---
+
 ## What I'd Change
 
 - The frontmatter parser in the GitHub Action is a regex — a proper YAML parser would be more robust
@@ -140,6 +168,8 @@ Key numbers:
 ## Conclusion
 
 The goal was simple: notify subscribers when I publish. The constraint was: do it for free, with zero manual steps after `git push`. The result is a system that runs itself — and stays silent if I don't publish. That silence is the accountability mechanism.
+
+This design holds until ~1,000 subscribers. Beyond that, I'd need double opt-in to prevent abuse, rate limiting on the subscribe worker, and probably a paid Resend tier. But for a personal blog? This is more than enough.
 
 </div>
 
