@@ -1,7 +1,7 @@
 ---
 title:
-  en: 'Designing a zero-ops newsletter pipeline: from DNS to delivery'
-  es: 'Diseñando un pipeline de newsletter sin operaciones: desde DNS hasta la entrega'
+  en: 'Designing a zero-ops newsletter pipeline: architecture and trade-offs'
+  es: 'Diseñando un pipeline de newsletter sin operaciones: arquitectura y trade-offs'
 excerpt:
   en: 'How I built a self-accountability newsletter system using Cloudflare Workers, KV state machines, and Resend — with C4 architecture diagrams, idempotency guarantees, and behavioral constraints baked into infrastructure.'
   es: 'Cómo construí un sistema de newsletter con auto-accountability usando Cloudflare Workers, máquinas de estado KV y Resend — con diagramas C4, garantías de idempotencia y restricciones de comportamiento integradas en la infraestructura.'
@@ -58,7 +58,7 @@ Three workers, each with a single responsibility:
 
 When a contact is created, updated, or deleted in Resend, a signed webhook hits the notify worker. Here's what happens inside:
 
-![C4 Level 3 - worker-notify-subscriber](/blog/2026-08-12-newsletter-system-design/c4_3_component_worker_notify.png)
+<img src="/blog/2026-08-12-newsletter-system-design/c4_3_component_worker_notify.png" alt="C4 Level 3 - worker-notify-subscriber" class="img-small" />
 
 The key security element: Svix HMAC-SHA256 signature verification with a 5-minute timestamp window to prevent replay attacks.
 
@@ -68,7 +68,7 @@ The key security element: Svix HMAC-SHA256 signature verification with a 5-minut
 
 When a visitor submits their email from the blog form, the request goes directly to the subscribe worker:
 
-![C4 Level 3 - worker-subscribe](/blog/2026-08-12-newsletter-system-design/c4_3_component_worker_subscribe.png)
+<img src="/blog/2026-08-12-newsletter-system-design/c4_3_component_worker_subscribe.png" alt="C4 Level 3 - worker-subscribe" class="img-small" />
 
 CORS validation ensures only requests from `kiquetal.dev` are accepted. The welcome email fires asynchronously via `ctx.waitUntil` — the subscriber gets an immediate response without waiting for email delivery.
 
@@ -78,9 +78,29 @@ CORS validation ensures only requests from `kiquetal.dev` are accepted. The welc
 
 The newsletter worker is the most complex — it has auth, idempotency, and delivery in one flow:
 
-![C4 Level 3 - worker-newsletter](/blog/2026-08-12-newsletter-system-design/c4_3_component_worker_newsletter.png)
+<img src="/blog/2026-08-12-newsletter-system-design/c4_3_component_worker_newsletter.png" alt="C4 Level 3 - worker-newsletter" class="img-small" />
 
 The shared secret header ensures only GitHub Actions can trigger it. The KV state check prevents duplicate sends. Only after both gates pass does the broadcast fire.
+
+---
+
+## Security at Every Boundary
+
+Each worker has a different trust model:
+
+**Newsletter Worker**
+- Shared secret header — only GitHub Actions can trigger it
+- No public access, no CORS needed
+
+**Subscribe Worker**
+- CORS allowlist — only `kiquetal.dev` and `localhost` can call it
+- Public endpoint, but origin-restricted (browser enforces this)
+
+**Notification Worker**
+- Svix HMAC-SHA256 signature verification — cryptographically proves the request came from Resend
+- Timestamp validation — rejects requests older than 5 minutes (replay attack prevention)
+
+Three workers, three trust models. No shared auth mechanism, because each has a different caller with different capabilities.
 
 ---
 
@@ -150,13 +170,15 @@ Key numbers:
 
 ## What Breaks and What Happens
 
-| Failure | Impact | Recovery |
-|---|---|---|
-| Resend API down during broadcast | Email not sent, KV not updated | Self-healing: next Wednesday the slug still differs, so it retries |
-| KV write fails after successful broadcast | Duplicate email next week | Acceptable: subscribers get the same post twice, not the end of the world |
-| GitHub Actions cron doesn't fire | No broadcast that week | Manual trigger via `workflow_dispatch` |
-| Webhook signature invalid | Owner not notified of subscriber change | No data loss — just missed awareness |
-| Welcome email fails (ctx.waitUntil) | Subscriber added but no welcome | Fire-and-forget by design, no retry |
+| Failure | What happens |
+|---|---|
+| Resend API down during broadcast | KV not updated → next Wednesday retries naturally (self-healing) |
+| KV write fails after broadcast | Duplicate email next week — acceptable at this scale |
+| GitHub Actions cron doesn't fire | No broadcast; manual re-trigger via `workflow_dispatch` |
+| Webhook signature invalid | Owner not notified — no data loss |
+| Welcome email fails (ctx.waitUntil) | Subscriber added, no welcome — fire-and-forget by design |
+
+<br>
 
 The system is **self-healing by default**: most failures resolve on the next weekly cycle without intervention. The only permanent failure is a KV write after broadcast (duplicate send), and at weekly cadence with a personal newsletter, that's an acceptable trade-off over adding transaction complexity.
 
