@@ -158,6 +158,8 @@ Key numbers:
 | Webhook signature invalid | Owner not notified — no data loss |
 | Welcome email fails (ctx.waitUntil) | Subscriber added, no welcome — fire-and-forget by design |
 
+<br>
+
 The system is **self-healing by default**: most failures resolve on the next weekly cycle without intervention. The only permanent failure is a KV write after broadcast (duplicate send), and at weekly cadence with a personal newsletter, that's an acceptable trade-off over adding transaction complexity.
 
 ---
