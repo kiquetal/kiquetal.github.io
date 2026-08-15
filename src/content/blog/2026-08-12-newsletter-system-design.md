@@ -150,13 +150,20 @@ Key numbers:
 
 ## What Breaks and What Happens
 
-| Failure | Impact | Recovery |
-|---|---|---|
-| Resend API down during broadcast | Email not sent, KV not updated | Self-healing: next Wednesday the slug still differs, so it retries |
-| KV write fails after successful broadcast | Duplicate email next week | Acceptable: subscribers get the same post twice, not the end of the world |
-| GitHub Actions cron doesn't fire | No broadcast that week | Manual trigger via `workflow_dispatch` |
-| Webhook signature invalid | Owner not notified of subscriber change | No data loss — just missed awareness |
-| Welcome email fails (ctx.waitUntil) | Subscriber added but no welcome | Fire-and-forget by design, no retry |
+**Resend API down during broadcast**
+→ Email not sent, KV not updated. Self-healing: next Wednesday the slug still differs, so it retries naturally.
+
+**KV write fails after successful broadcast**
+→ Duplicate email next week. Acceptable: subscribers get the same post twice, not the end of the world.
+
+**GitHub Actions cron doesn't fire**
+→ No broadcast that week. Manual trigger via `workflow_dispatch` as fallback.
+
+**Webhook signature invalid**
+→ Owner not notified of subscriber change. No data loss — just missed awareness.
+
+**Welcome email fails (ctx.waitUntil)**
+→ Subscriber added but no welcome. Fire-and-forget by design, no retry.
 
 The system is **self-healing by default**: most failures resolve on the next weekly cycle without intervention. The only permanent failure is a KV write after broadcast (duplicate send), and at weekly cadence with a personal newsletter, that's an acceptable trade-off over adding transaction complexity.
 
