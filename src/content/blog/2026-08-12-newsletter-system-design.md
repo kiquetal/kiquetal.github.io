@@ -64,6 +64,26 @@ The key security element: Svix HMAC-SHA256 signature verification with a 5-minut
 
 ---
 
+## Subscription Flow (C4 Level 3)
+
+When a visitor submits their email from the blog form, the request goes directly to the subscribe worker:
+
+![C4 Level 3 - worker-subscribe](/blog/2026-08-12-newsletter-system-design/c4_3_component_worker_subscribe.png)
+
+CORS validation ensures only requests from `kiquetal.dev` are accepted. The welcome email fires asynchronously via `ctx.waitUntil` — the subscriber gets an immediate response without waiting for email delivery.
+
+---
+
+## Broadcast Internals (C4 Level 3)
+
+The newsletter worker is the most complex — it has auth, idempotency, and delivery in one flow:
+
+![C4 Level 3 - worker-newsletter](/blog/2026-08-12-newsletter-system-design/c4_3_component_worker_newsletter.png)
+
+The shared secret header ensures only GitHub Actions can trigger it. The KV state check prevents duplicate sends. Only after both gates pass does the broadcast fire.
+
+---
+
 ## The Deduplication Mechanism
 
 The core of the broadcast system is a single entry in Cloudflare KV:
