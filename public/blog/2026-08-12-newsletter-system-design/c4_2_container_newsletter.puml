@@ -1,0 +1,80 @@
+@startuml C4_Level2_Newsletter
+' =============================================================================
+' C4 Level 2 — Container Diagram (Unified Newsletter System)
+' =============================================================================
+' Shows ALL deployable units inside the Newsletter System: three workers,
+' GitHub Actions workflow, KV state, and their relationships through Resend.
+'
+' AUDIENCE: Dev, DevOps — full picture of the newsletter architecture.
+' =============================================================================
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+' --- Layout ---
+LAYOUT_TOP_DOWN()
+LAYOUT_WITH_LEGEND()
+
+title Container Diagram - Newsletter System (kiquetal.dev)
+
+' =============================================================================
+' PEOPLE
+' =============================================================================
+
+Person(visitor, "Blog Visitor", "Subscribes via form on the blog. Receives welcome email and weekly broadcasts.")
+Person(owner, "Site Owner (kiquetal)", "Writes blog posts. Receives notifications about subscriber activity.")
+
+' =============================================================================
+' SYSTEM BOUNDARY — Newsletter System (all containers)
+' =============================================================================
+
+System_Boundary(newsletter_system, "Newsletter System") {
+
+    ' --- Subscription Domain ---
+    Container(worker_subscribe, "worker-subscribe", "Cloudflare Worker / JS", "Validates CORS origin, parses email + language, adds contact to Resend Audience, fires async welcome email.")
+
+    Container(worker_notify, "worker-notify-subscriber", "Cloudflare Worker / JS", "Receives Resend webhook events. Verifies Svix HMAC-SHA256 signature + replay protection. Notifies owner of subscriber changes.")
+
+    ' --- Broadcast Domain ---
+    Container(gh_action, "GitHub Actions Workflow", "GitHub Actions / Node.js", "Cron every Wednesday 14:00 UTC. Parses blog frontmatter, finds newest non-draft post, POSTs metadata to broadcast worker.")
+
+    Container(worker_newsletter, "worker-newsletter", "Cloudflare Worker / JS", "Verifies shared secret. Checks KV for idempotency (skip if already sent). Builds bilingual email and creates Resend Broadcast.")
+
+    ContainerDb(kv_state, "KV State", "Cloudflare KV", "Stores last sent slug. Ensures each post is broadcast only once.")
+
+    ' --- Content Source ---
+    Container(blog_content, "Blog Content", "Git / Markdown", "Source of truth for blog posts. Frontmatter contains title, excerpt, date, draft flag.")
+}
+
+' =============================================================================
+' EXTERNAL SYSTEMS
+' =============================================================================
+
+System_Ext(resend, "Resend", "Email platform. Manages audience contacts, sends transactional and broadcast emails, emits webhook events on contact lifecycle.")
+System_Ext(blog, "kiquetal.dev", "Astro static site on GitHub Pages. Hosts the subscription form.")
+
+' =============================================================================
+' RELATIONSHIPS
+' =============================================================================
+
+' --- Visitor flows ---
+Rel(visitor, blog, "Reads blog, sees subscription form", "HTTPS")
+Rel(visitor, worker_subscribe, "Submits email + language", "POST HTTPS/JSON")
+
+' --- Subscription flow ---
+Rel(worker_subscribe, resend, "Adds contact + sends welcome email", "HTTPS/REST")
+
+' --- Webhook notification flow ---
+Rel(resend, worker_notify, "Fires contact events (created, updated, deleted)", "HTTPS webhook (Svix signed)")
+Rel(worker_notify, resend, "Sends notification email to owner", "HTTPS/REST")
+
+' --- Broadcast flow ---
+Rel(gh_action, blog_content, "Reads newest non-draft post", "Git checkout")
+Rel(gh_action, worker_newsletter, "POSTs post metadata (slug, title, excerpt, url)", "HTTPS/JSON")
+Rel(worker_newsletter, kv_state, "GET/PUT last sent slug", "KV binding")
+Rel(worker_newsletter, resend, "Creates and sends broadcast", "HTTPS/REST")
+
+' --- Resend delivers to people ---
+Rel(resend, visitor, "Delivers welcome + weekly emails", "Email")
+Rel(resend, owner, "Delivers subscriber notifications", "Email")
+
+@enduml
