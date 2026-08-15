@@ -58,7 +58,7 @@ Three workers, each with a single responsibility:
 
 When a contact is created, updated, or deleted in Resend, a signed webhook hits the notify worker. Here's what happens inside:
 
-![C4 Level 3 - worker-notify-subscriber](/blog/2026-08-12-newsletter-system-design/c4_3_component_worker_notify.png)
+<img src="/blog/2026-08-12-newsletter-system-design/c4_3_component_worker_notify.png" alt="C4 Level 3 - worker-notify-subscriber" class="img-small" />
 
 The key security element: Svix HMAC-SHA256 signature verification with a 5-minute timestamp window to prevent replay attacks.
 
@@ -68,7 +68,7 @@ The key security element: Svix HMAC-SHA256 signature verification with a 5-minut
 
 When a visitor submits their email from the blog form, the request goes directly to the subscribe worker:
 
-![C4 Level 3 - worker-subscribe](/blog/2026-08-12-newsletter-system-design/c4_3_component_worker_subscribe.png)
+<img src="/blog/2026-08-12-newsletter-system-design/c4_3_component_worker_subscribe.png" alt="C4 Level 3 - worker-subscribe" class="img-small" />
 
 CORS validation ensures only requests from `kiquetal.dev` are accepted. The welcome email fires asynchronously via `ctx.waitUntil` — the subscriber gets an immediate response without waiting for email delivery.
 
@@ -78,7 +78,7 @@ CORS validation ensures only requests from `kiquetal.dev` are accepted. The welc
 
 The newsletter worker is the most complex — it has auth, idempotency, and delivery in one flow:
 
-![C4 Level 3 - worker-newsletter](/blog/2026-08-12-newsletter-system-design/c4_3_component_worker_newsletter.png)
+<img src="/blog/2026-08-12-newsletter-system-design/c4_3_component_worker_newsletter.png" alt="C4 Level 3 - worker-newsletter" class="img-small" />
 
 The shared secret header ensures only GitHub Actions can trigger it. The KV state check prevents duplicate sends. Only after both gates pass does the broadcast fire.
 
