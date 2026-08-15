@@ -188,13 +188,15 @@ The system is **self-healing by default**: most failures resolve on the next wee
 
 Right now I know the system worked because... I check Resend's dashboard manually. That's not great.
 
+If the broadcast fails, GitHub Actions marks the step as failed — but I don't actively monitor workflow runs every Wednesday. A failure could go unnoticed until I realize subscribers didn't get the email.
+
 A future improvement: a **staleness monitor** — another lightweight worker on a cron that reads the KV slug, extracts the date from it, and alerts me if the last broadcast is older than 7 days. Something like:
 
 ```
 "Hey, your last newsletter was 2 weeks ago. You stopped publishing."
 ```
 
-The system already enforces silence when I don't publish. The monitor would make that silence *loud* — turning infrastructure accountability into active feedback.
+This would catch both scenarios: I didn't publish (expected silence) and I published but the broadcast failed (unexpected silence). The system already enforces silence when I don't publish. The monitor would make that silence *loud* — turning infrastructure accountability into active feedback.
 
 ---
 
