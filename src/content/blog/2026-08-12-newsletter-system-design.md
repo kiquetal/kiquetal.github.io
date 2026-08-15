@@ -14,135 +14,135 @@ draft: false
 
 ## The Problem
 
-Publishing consistently is hard. Not because writing is difficult, but because there's no consequence for skipping a week. I needed a system that would enforce my publishing cadence — not through willpower, but through infrastructure constraints.
-
-The goal: **if I don't publish a new blog post before Wednesday, no newsletter goes out.** The system itself becomes the accountability mechanism.
+I wanted to notify readers when a new blog post is published. I was already using Resend to manage email for this domain, and I noticed they offer a Broadcast API — bulk email to a segment of contacts in a single call. So I went with that idea: a fully automated newsletter that costs nothing to run and requires zero intervention after I push a post.
 
 ---
 
-## System Overview (C4 Context)
+## The Stack
 
-<!-- TODO: C4 Context diagram showing: User, kiquetal.dev, GitHub Actions, Cloudflare Workers, Resend, Subscribers -->
-
-At the highest level, the system involves:
-
-- **kiquetal.dev** — the Astro blog deployed on GitHub Pages
-- **GitHub Actions** — cron trigger every Wednesday at 14:00 UTC
-- **Cloudflare Workers** — three workers handling subscribe, broadcast, and notifications
-- **Resend** — email delivery and audience management
-- **Cloudflare KV** — state persistence for deduplication
+- **Resend** — offers audience management and a Broadcast API to send to all subscribers in one call
+- **GitHub Actions** — a cron job that triggers every Wednesday, detects new posts, and invokes the broadcast worker
+- **Cloudflare Worker (newsletter)** — receives post metadata, verifies the caller, checks for duplicates, and sends the broadcast
+- **Cloudflare KV** — a single key-value entry to store the last sent slug (idempotency guard)
+- **Cloudflare Worker (subscribe)** — handles the subscription form, adds contacts to Resend, sends a welcome email
+- **Cloudflare Worker (notify)** — receives Resend webhooks when contacts change, notifies me via email
 
 ---
 
-## Container Diagram (C4 Level 2)
+## System Context (C4 Level 1)
 
-<!-- TODO: C4 Container diagram showing the three workers, KV, GH Action, Resend API -->
+At the highest level, the system involves two people, the newsletter system as a whole, and two external dependencies:
+
+![C4 Level 1 - System Context](/blog/2026-08-12-newsletter-system-design/c4_1_context_newsletter.png)
+
+---
+
+## All Containers Working Together (C4 Level 2)
+
+Zooming in, we can see all the deployable units and how they communicate through Resend:
+
+![C4 Level 2 - Container Diagram](/blog/2026-08-12-newsletter-system-design/c4_2_container_newsletter.png)
 
 Three workers, each with a single responsibility:
 
 | Worker | Responsibility | Trigger |
 |---|---|---|
-| `subscriber` | Add contact + send welcome email | User form submission |
-| `newsletter` | Check state + broadcast if new post | GH Action (Wednesday cron) |
-| `subscriber-notification` | Notify owner of audience changes | Resend webhook |
+| `worker-subscribe` | Add contact + send welcome email | User form submission (browser fetch) |
+| `worker-newsletter` | Check KV state + broadcast if new post | GitHub Actions (Wednesday cron) |
+| `worker-notify-subscriber` | Notify me of subscriber changes | Resend webhook |
 
 ---
 
-## The Deduplication State Machine
+## Webhook Notifications (C4 Level 3)
 
-The core of the system is a simple state machine stored in Cloudflare KV:
+When a contact is created, updated, or deleted in Resend, a signed webhook hits the notify worker. Here's what happens inside:
+
+![C4 Level 3 - worker-notify-subscriber](/blog/2026-08-12-newsletter-system-design/c4_3_component_worker_notify.png)
+
+The key security element: Svix HMAC-SHA256 signature verification with a 5-minute timestamp window to prevent replay attacks.
+
+---
+
+## The Deduplication Mechanism
+
+The core of the broadcast system is a single entry in Cloudflare KV:
 
 ```
 Key:   newsletter:last_sent_slug
 Value: "2026-08-08-auth-ext-middleware"
 ```
 
-Every Wednesday:
+Every Wednesday at 14:00 UTC:
 
 1. GitHub Action parses the newest non-draft blog post
 2. POSTs the slug to the newsletter worker
 3. Worker reads KV: `GET newsletter:last_sent_slug`
-4. **If slug matches** → skip (idempotent, no duplicate sends)
+4. **If slug matches** → skip (already sent, no duplicate)
 5. **If slug differs** → send broadcast via Resend → `PUT` new slug to KV
 
-This guarantees **exactly-once delivery per post**, regardless of how many times the cron fires or retries.
+This guarantees **at-most-once delivery per post**. The mechanism is intentionally simple: a single string comparison. No distributed locks, no UUIDs, no transaction log. At weekly cadence, the race condition window is effectively zero — KV eventual consistency is irrelevant when writes happen once per week.
 
 ---
 
-## Security at Every Boundary
+## Why This Stack (Trade-offs)
 
-Each worker has a different trust model:
+**Cloudflare Workers over AWS Lambda:**
+- Free tier: 100,000 requests/day — I use ~4 per week
+- No cold starts (runs at the edge, always warm)
+- KV is a native binding, no external database needed
+- `ctx.waitUntil` for fire-and-forget async work (Lambda would need SQS/SNS)
 
-### Newsletter Worker
-- **Shared secret** (`X-Newsletter-Secret` header) — only GitHub Actions can trigger it
-- No public access
+**Resend over AWS SES:**
+- Audience management built-in (I don't build a subscriber database)
+- Broadcast API sends to the whole segment in one call (no loop, no batching code)
+- Webhooks for contact lifecycle out of the box (no polling, no custom event handling)
+- With SES I'd need: DynamoDB for contacts + Lambda to iterate + SES template + bounce handling = 4x more code for the same result
 
-### Subscribe Worker  
-- **CORS allowlist** — only `kiquetal.dev` and `localhost` can call it
-- No authentication (public endpoint, but origin-restricted)
-
-### Notification Worker
-- **Svix HMAC-SHA256 signature verification** — cryptographically proves the request came from Resend
-- **Timestamp validation** — rejects requests older than 5 minutes (replay attack prevention)
-
----
-
-## DNS Infrastructure for Deliverability
-
-<!-- TODO: Explain SPF, DKIM, DMARC records -->
-
-Email deliverability starts at DNS. The records required:
-
-- **SPF** — declares which servers can send email for `kiquetal.dev`
-- **DKIM** — Resend signs every email; the public key lives in DNS
-- **DMARC** — policy for what to do with failed authentication
-- **Custom Return-Path** — bounce handling domain
+**KV over D1 (Cloudflare's SQL database):**
+- One key, one value — a relational database is overkill
+- Eventual consistency is acceptable at weekly cadence
+- Free tier: 100,000 reads/day + 1,000 writes/day (I use 1+1 per week)
 
 ---
 
-## The Behavioral Constraint Pattern
+## Limitations and Justifications
 
-This is the key insight: **the system doesn't remind me to publish — it simply won't work if I don't.**
+**No retry on GitHub Actions failure:**
+We enabled `workflow_dispatch` (manual trigger) to handle this. If the Wednesday cron fails, I can re-trigger manually. At weekly cadence, the cost of one missed broadcast doesn't justify implementing retry logic.
 
-Traditional approach:
-> Set a reminder → feel guilty → maybe write → maybe not
+**Cloudflare Workers free tier limits:**
 
-Infrastructure approach:
-> No new post before Wednesday → KV slug matches → newsletter skipped → subscribers get nothing → accountability through absence
+![Cloudflare Workers Limits](/blog/2026-08-12-newsletter-system-design/cloudlfare-worker.png)
 
-The system is honest. It doesn't pretend I published. It just stays silent.
+**Resend free tier limits:**
 
----
+![Resend Limits](/blog/2026-08-12-newsletter-system-design/resend-limits.png)
 
-## Integration with the Deploy Pipeline
+Key numbers:
+- Workers: 100,000 requests/day (I use ~4/week)
+- KV: 100,000 reads + 1,000 writes per day (I use 1+1/week)
+- Resend: 1,000 marketing contacts, unlimited broadcasts, 100 transactional emails/day, 3,000/month
 
-The full flow from writing to delivery:
-
-1. I write a post, push to `master`
-2. GitHub Pages deploys the site (existing workflow)
-3. Wednesday 14:00 UTC → newsletter workflow fires
-4. Action parses frontmatter of newest non-draft post
-5. POSTs metadata to newsletter worker
-6. Worker checks KV → sends if new → stores slug
-7. Subscribers receive the broadcast
-
-No manual intervention after the push. Zero ops.
+**Total monthly cost: $0.** I would need to grow to 1,000+ subscribers before hitting any paid tier.
 
 ---
 
 ## What I'd Change
 
-- The frontmatter parser in the GitHub Action is a simple regex — a proper YAML parser would be more robust
-- Welcome email uses `POST /emails` (no unsubscribe link) — could migrate to Resend Automations
+- The frontmatter parser in the GitHub Action is a regex — a proper YAML parser would be more robust
+- The welcome email uses `POST /emails` (no unsubscribe link) — could migrate to Resend Automations
 - No double opt-in yet — acceptable at current scale, revisit if spam signups appear
+- No observability dashboard — I rely on Resend's UI and Cloudflare analytics, but a `/status` endpoint would be better
 
 ---
 
 ## Conclusion
 
-The best systems aren't the ones that require discipline to operate — they're the ones that make the right behavior the path of least resistance. This newsletter pipeline doesn't ask me to be consistent. It just makes inconsistency visible.
+The goal was simple: notify subscribers when I publish. The constraint was: do it for free, with zero manual steps after `git push`. The result is a system that runs itself — and stays silent if I don't publish. That silence is the accountability mechanism.
 
 </div>
+
+
 
 <div class="lang-es">
 
