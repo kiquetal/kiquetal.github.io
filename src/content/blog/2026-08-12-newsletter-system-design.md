@@ -6,6 +6,7 @@ excerpt:
   en: 'How I built a self-accountability newsletter system using Cloudflare Workers, KV state machines, and Resend — with C4 architecture diagrams, idempotency guarantees, and behavioral constraints baked into infrastructure.'
   es: 'Cómo construí un sistema de newsletter con auto-accountability usando Cloudflare Workers, máquinas de estado KV y Resend — con diagramas C4, garantías de idempotencia y restricciones de comportamiento integradas en la infraestructura.'
 date: 2026-08-12
+updated: 2026-08-15
 tags: ['cloudflare-workers', 'resend', 'system-design', 'newsletter', 'infrastructure']
 draft: false
 ---
