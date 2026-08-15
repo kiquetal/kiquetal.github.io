@@ -1,0 +1,50 @@
+@startuml C4_Level1_Newsletter
+' =============================================================================
+' C4 Level 1 — System Context Diagram
+' =============================================================================
+' Shows the Newsletter System as a single black box surrounded by the people
+' who interact with it and the external systems it depends on.
+'
+' AUDIENCE: Everyone — stakeholders, developers, new joiners.
+' =============================================================================
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+' --- Layout ---
+LAYOUT_WITH_LEGEND()
+
+title System Context Diagram - Newsletter System (kiquetal.dev)
+
+' =============================================================================
+' PEOPLE
+' =============================================================================
+
+Person(visitor, "Blog Visitor", "Subscribes to the newsletter and receives weekly broadcasts about new blog posts.")
+Person(owner, "Site Owner (kiquetal)", "Writes blog posts and receives notifications about subscriber activity.")
+
+' =============================================================================
+' YOUR SYSTEM
+' =============================================================================
+
+System(newsletter_system, "Newsletter System", "Manages subscriber registration, sends weekly broadcasts when new content is published, and notifies the owner of audience changes. Enforces publishing cadence through infrastructure.")
+
+' =============================================================================
+' EXTERNAL SYSTEMS
+' =============================================================================
+
+System_Ext(resend, "Resend", "Email delivery platform. Manages contacts, sends transactional and broadcast emails, emits webhook events.")
+System_Ext(blog, "kiquetal.dev Blog", "Astro static site where the subscription form lives and blog posts are published.")
+
+' =============================================================================
+' RELATIONSHIPS
+' =============================================================================
+
+Rel(visitor, blog, "Reads blog posts, fills subscription form", "HTTPS")
+Rel(visitor, newsletter_system, "Submits email to subscribe", "HTTPS")
+Rel(newsletter_system, resend, "Manages contacts, sends emails", "HTTPS/REST")
+Rel(resend, visitor, "Delivers welcome and weekly emails", "Email")
+Rel(resend, owner, "Delivers subscriber notifications", "Email")
+Rel(resend, newsletter_system, "Sends webhook events on contact changes", "HTTPS")
+Rel(newsletter_system, blog, "Reads newest post metadata to decide broadcast", "Git checkout")
+
+@enduml

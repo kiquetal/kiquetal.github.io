@@ -1,0 +1,91 @@
+@startuml C4_Level3_WorkerNewsletter
+' =============================================================================
+' C4 Level 3 — Component Diagram (worker-newsletter)
+' =============================================================================
+' Zooms INTO the "worker-newsletter" Cloudflare Worker from Level 2.
+' Shows internal building blocks: auth guard, idempotency check (KV),
+' email builder, and broadcast sender.
+'
+' AUDIENCE: Developers working on the weekly broadcast logic.
+'
+' WHY THIS CONTAINER: worker-newsletter has critical idempotency logic (KV state
+' machine), shared-secret auth, bilingual email templating, and Resend Broadcast
+' API integration.
+' =============================================================================
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+' --- Layout ---
+LAYOUT_TOP_DOWN()
+LAYOUT_WITH_LEGEND()
+
+title Component Diagram - worker-newsletter (Cloudflare Worker)
+
+' =============================================================================
+' EXTERNAL CONTAINERS (from Level 2 — shown for context)
+' =============================================================================
+
+Container(gh_action, "GitHub Actions Workflow", "GitHub Actions / Node.js", "Wednesday cron trigger. Sends post metadata.")
+ContainerDb(kv_state, "NEWSLETTER_STATE", "Cloudflare KV", "Stores last sent slug for idempotency.")
+System_Ext(resend, "Resend Broadcast API", "Creates and sends bulk emails to subscriber segment.")
+Person(subscribers, "Newsletter Subscribers", "Receive weekly broadcast.")
+
+' =============================================================================
+' CONTAINER BOUNDARY — worker-newsletter internals
+' =============================================================================
+
+Container_Boundary(worker_newsletter, "worker-newsletter (Cloudflare Worker / JS)") {
+
+    ' --- Security Layer ---
+    Component(auth_guard, "Auth Guard", "JS / header check", "Validates shared secret header against env binding. Returns 401 if missing or mismatched. Ensures only GitHub Actions can trigger broadcasts.")
+
+    ' --- Payload Validation ---
+    Component(payload_validator, "Payload Validator", "JS", "Parses JSON body. Extracts slug, titleEn, titleEs, excerptEn, excerptEs, postUrl. Returns 400 if required fields (slug, titleEn, postUrl) are missing.")
+
+    ' --- Idempotency Layer ---
+    Component(state_checker, "KV State Checker", "JS / KV binding", "Reads newsletter:last_sent_slug from KV. If slug matches current post, returns 200 with status:skipped. Prevents duplicate broadcasts across retries or repeated cron runs.")
+
+    ' --- Presentation Layer ---
+    Component(email_builder, "Email Builder", "JS / buildEmailHtml", "Builds bilingual (en/es) HTML email with dark monospace theme. Includes post title, excerpt, CTA buttons, and Resend unsubscribe link placeholder ({{{RESEND_UNSUBSCRIBE_URL}}}).")
+
+    ' --- Delivery Layer ---
+    Component(broadcast_sender, "Broadcast Sender", "JS / fetch → Resend API", "POSTs to /broadcasts with segment_id, from, subject, html, and send:true. On success, updates KV state with the sent slug.")
+
+    ' --- Configuration ---
+    Component(env_config, "Environment Bindings", "Cloudflare Worker Secrets + KV", "Resend API key (Bearer token), subscriber segment ID, shared secret for auth with GitHub Actions, KV namespace binding for state.")
+}
+
+' =============================================================================
+' RELATIONSHIPS — Internal
+' =============================================================================
+
+' GitHub Actions → Auth Guard (entry point)
+Rel(gh_action, auth_guard, "POST with X-Newsletter-Secret header + JSON body", "HTTPS")
+
+' Auth Guard → Payload Validator
+Rel(auth_guard, payload_validator, "Forwards authenticated request")
+
+' Payload Validator → State Checker
+Rel(payload_validator, state_checker, "Passes validated slug + metadata")
+
+' State Checker → Email Builder (only if new post)
+Rel(state_checker, email_builder, "Passes post data if slug differs from last sent")
+
+' Email Builder → Broadcast Sender
+Rel(email_builder, broadcast_sender, "Passes subject + HTML body")
+
+' Env config used by components
+Rel(auth_guard, env_config, "Reads shared secret")
+Rel(state_checker, env_config, "Reads KV namespace binding")
+Rel(broadcast_sender, env_config, "Reads API key + segment ID + KV binding")
+
+' =============================================================================
+' RELATIONSHIPS — To External Containers
+' =============================================================================
+
+Rel(state_checker, kv_state, "GET newsletter:last_sent_slug", "KV binding")
+Rel(broadcast_sender, kv_state, "PUT newsletter:last_sent_slug (after success)", "KV binding")
+Rel(broadcast_sender, resend, "POST /broadcasts (send: true)", "HTTPS/REST (Bearer token)")
+Rel(resend, subscribers, "Delivers bilingual newsletter", "Email/SMTP")
+
+@enduml
