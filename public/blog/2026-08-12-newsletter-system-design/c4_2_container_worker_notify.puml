@@ -36,9 +36,8 @@ System_Boundary(notify_system, "Webhook Notification Flow") {
 ' EXTERNAL SYSTEMS
 ' =============================================================================
 
-System_Ext(resend_webhooks, "Resend (Webhook Emitter)", "Fires signed HTTP POST events when contacts are created, updated, or deleted in the audience. Uses Svix for signature (HMAC-SHA256 + whsec_ secret).")
+System_Ext(resend_webhooks, "Resend (Webhook Emitter)", "Fires signed HTTP POST events when contacts are created, updated, or deleted in the audience.")
 System_Ext(resend_email, "Resend (Email Sender)", "Delivers notification emails via POST /emails API.")
-System_Ext(cloudflare, "Cloudflare Edge Network", "Runs the Worker at edge locations. Manages secrets (RESEND_API_KEY, NOTIFY_EMAIL, WEBHOOK_SIGNING_SECRET) via environment bindings.")
 
 ' =============================================================================
 ' RELATIONSHIPS
@@ -52,8 +51,5 @@ Rel(worker_notify, resend_email, "Sends notification email to owner", "POST /ema
 
 ' --- Resend → Owner ---
 Rel(resend_email, owner, "Delivers notification email (+NODE joined, -NODE disconnected, ✗NODE removed)", "Email/SMTP")
-
-' --- Worker deployed on Cloudflare ---
-Rel(worker_notify, cloudflare, "Deployed on", "wrangler deploy")
 
 @enduml

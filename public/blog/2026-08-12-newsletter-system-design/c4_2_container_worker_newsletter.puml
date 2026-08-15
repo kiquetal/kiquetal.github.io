@@ -46,7 +46,6 @@ System_Boundary(broadcast_system, "Weekly Newsletter Broadcast") {
 ' =============================================================================
 
 System_Ext(resend, "Resend", "Email platform. Broadcast API creates and sends bulk emails to a segment of contacts. Handles delivery, tracking, and unsubscribe links.")
-System_Ext(cloudflare, "Cloudflare Edge Network", "Runs the Worker + KV namespace. Manages secrets (Resend API key, segment identifier, shared auth secret) via environment bindings.")
 
 ' =============================================================================
 ' RELATIONSHIPS
@@ -62,12 +61,9 @@ Rel(gh_action, worker_newsletter, "POST {slug, titleEn, titleEs, excerptEn, exce
 Rel(worker_newsletter, kv_state, "GET/PUT newsletter:last_sent_slug", "KV binding")
 
 ' --- Worker → Resend (broadcast) ---
-Rel(worker_newsletter, resend, "Creates and sends broadcast to segment", "POST /broadcasts (Bearer token, send: true)")
+Rel(worker_newsletter, resend, "Creates and sends broadcast to segment", "POST /broadcasts")
 
 ' --- Resend → Subscribers ---
 Rel(resend, subscribers, "Delivers weekly bilingual newsletter email", "Email/SMTP")
-
-' --- Worker deployed on Cloudflare ---
-Rel(worker_newsletter, cloudflare, "Deployed on", "wrangler deploy")
 
 @enduml

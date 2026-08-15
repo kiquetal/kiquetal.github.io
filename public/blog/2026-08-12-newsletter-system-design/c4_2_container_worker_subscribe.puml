@@ -39,8 +39,7 @@ System_Boundary(subscribe_system, "Subscription Flow") {
 ' EXTERNAL SYSTEMS
 ' =============================================================================
 
-System_Ext(resend, "Resend", "Email platform. Manages audience/contacts (POST /audiences/{id}/contacts) and sends transactional emails (POST /emails).")
-System_Ext(cloudflare, "Cloudflare Edge Network", "Runs the Worker at edge locations globally. Manages secrets (API key for Resend, audience identifier) via environment bindings.")
+System_Ext(resend, "Resend", "Email platform. Manages audience/contacts and sends transactional emails.")
 
 ' =============================================================================
 ' RELATIONSHIPS
@@ -53,15 +52,12 @@ Rel(subscriber, astro_site, "Reads blog posts, sees subscription form", "HTTPS")
 Rel(subscriber, worker_subscribe, "Submits email + language from form", "POST HTTPS/JSON (fetch from browser)")
 
 ' --- Worker → Resend (add contact) ---
-Rel(worker_subscribe, resend, "Adds contact to audience", "POST /audiences/{id}/contacts (Bearer token)")
+Rel(worker_subscribe, resend, "Adds contact to audience", "POST /audiences/{id}/contacts")
 
 ' --- Worker → Resend (welcome email) ---
-Rel(worker_subscribe, resend, "Sends welcome email (async, ctx.waitUntil)", "POST /emails (Bearer token)")
+Rel(worker_subscribe, resend, "Sends welcome email (async, ctx.waitUntil)", "POST /emails")
 
 ' --- Resend → Subscriber ---
 Rel(resend, subscriber, "Delivers i18n welcome email", "Email/SMTP")
-
-' --- Worker deployed on Cloudflare ---
-Rel(worker_subscribe, cloudflare, "Deployed on", "wrangler deploy")
 
 @enduml
