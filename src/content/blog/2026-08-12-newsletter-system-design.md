@@ -1,7 +1,7 @@
 ---
 title:
-  en: 'Designing a zero-ops newsletter pipeline: from DNS to delivery'
-  es: 'Diseñando un pipeline de newsletter sin operaciones: desde DNS hasta la entrega'
+  en: 'Designing a zero-ops newsletter pipeline: architecture and trade-offs'
+  es: 'Diseñando un pipeline de newsletter sin operaciones: arquitectura y trade-offs'
 excerpt:
   en: 'How I built a self-accountability newsletter system using Cloudflare Workers, KV state machines, and Resend — with C4 architecture diagrams, idempotency guarantees, and behavioral constraints baked into infrastructure.'
   es: 'Cómo construí un sistema de newsletter con auto-accountability usando Cloudflare Workers, máquinas de estado KV y Resend — con diagramas C4, garantías de idempotencia y restricciones de comportamiento integradas en la infraestructura.'

@@ -1,4 +1,4 @@
-# LinkedIn Draft: Zero-Ops Newsletter Pipeline with Cloudflare Workers
+# LinkedIn Draft: Zero-Ops Newsletter Pipeline — Architecture and Trade-offs
 
 > 📷 **Image Recommendation**: Attach the C4 Level 2 container diagram (c4_2_container_newsletter.png) — it shows the full system at a glance.
 
