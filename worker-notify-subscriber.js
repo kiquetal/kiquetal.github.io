@@ -64,7 +64,7 @@ export default {
             emoji: "✓",
             color: "#3B82F6",
             email,
-            details: `Language: ${data.metadata?.language || "unknown"}`,
+            details: `Subscribed to the telemetry network.`,
             timestamp: new Date().toISOString(),
           });
           break;
