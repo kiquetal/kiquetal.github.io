@@ -1,56 +1,87 @@
-# My Portfolio
+# kiquetal.dev
 
-This is a portfolio project built with [Astro](https://astro.build).
+Personal portfolio and technical blog built with [Astro](https://astro.build).
+
+**Live:** https://kiquetal.dev
 
 ## Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
 
 ```text
 /
 ├── public/
+│   ├── blog/                    # Static assets per blog post (diagrams, images)
+│   │   ├── 2026-08-12-newsletter-system-design/
+│   │   ├── 2026-08-08-auth-ext-middleware/
+│   │   └── ...
+│   ├── images/                  # Global images
 │   └── favicon.svg
 ├── src/
 │   ├── components/
 │   │   └── Card.astro
+│   ├── content/
+│   │   ├── blog/                # Blog posts (Markdown, bilingual en/es)
+│   │   └── config.ts            # Content collection schemas
+│   ├── data/
+│   │   └── location.json
 │   ├── layouts/
-│   │   └── Layout.astro
+│   │   └── Layout.astro         # Base layout (SEO, OG tags, RSS discovery)
 │   └── pages/
-│       └── index.astro
+│       ├── blog/
+│       │   ├── [...page].astro  # Blog listing (paginated)
+│       │   ├── [slug].astro     # Individual post + newsletter subscribe form
+│       │   ├── tag/[tag].astro  # Posts filtered by tag
+│       │   └── date/[date].astro # Posts filtered by month
+│       ├── index.astro          # Homepage
+│       ├── about.astro
+│       ├── contact.astro
+│       ├── 404.astro
+│       └── rss.xml.ts           # RSS feed
+├── superdesign/                 # Vintage infographic design system
+│   ├── design_iterations/       # HTML infographics
+│   └── screenshot.py            # HTML → PNG export script
+├── linkedin-drafts/             # LinkedIn post drafts for amplification
 ├── astro.config.mjs
+├── tailwind.config.mjs
 ├── package.json
 └── tsconfig.json
 ```
 
+## Tech Stack
+
+- **Framework:** Astro (zero-JS by default)
+- **Styling:** Tailwind CSS
+- **Typography:** Playfair Display, JetBrains Mono
+- **Icons:** astro-icon (Phosphor icons)
+- **Content:** Astro Content Collections (type-safe Markdown)
+- **Integrations:** @astrojs/rss, @astrojs/sitemap, @astrojs/tailwind
+- **Deployment:** GitHub Pages (auto-deploy on push to `master`)
+- **CDN/Proxy:** Cloudflare (Web Analytics, DDoS protection)
+
+## Features
+
+- Bilingual content (English / Spanish) with client-side toggle
+- RSS feed with autodiscovery
+- Sitemap generation
+- Open Graph + Twitter Card meta tags
+- Blog with pagination, tag filtering, and date archives
+- Newsletter subscription (powered by Cloudflare Workers + Resend)
+- Visitor counter
+- Publish reminder system (15-day inactivity alerts)
+
 ## Commands
 
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
+| Command           | Action                                       |
+| :---------------- | :------------------------------------------- |
+| `npm install`     | Install dependencies                         |
+| `npm run dev`     | Start dev server at `localhost:4321`          |
+| `npm run build`   | Build production site to `./dist/`           |
+| `npm run preview` | Preview production build locally             |
 
 ## Deployment
 
-This project is configured to deploy automatically to GitHub Pages using GitHub Actions.
-The workflow file is located at `.github/workflows/deploy.yml`.
+Auto-deploys via `.github/workflows/deploy.yml` on push to `master`.
 
-Pushing to the `main` branch will trigger the deployment.
+## Related
 
-## Recent Updates
-
-### 2026-06-22
-- Added Open Graph and Twitter Card meta tags for rich link previews
-  - Per-page descriptions for index, about, contact
-  - Blog posts use their excerpt as OG description
-  - Canonical URLs and twitter:card support
-
-### 2026-02-24
-- Added NATS on Fly.io deployment process diagrams
-  - Setup & Configuration diagram
-  - Access Methods diagram (internal DNS, WireGuard, public DNS)
-  - Testing & Monitoring diagram
-  - Located in `public/blog/2026-01-31-nats-on-fly/`
+- **Workers:** Private repo ([kiquetal-workers](https://github.com/kiquetal/kiquetal-workers)) — Cloudflare Workers for newsletter, subscriptions, reminders
+- **Design System:** See `.kiro/steering/vintage-design.md`
