@@ -17,3 +17,6 @@ pnpm-debug.log*
 
 # macOS-specific files
 .DS_Store
+
+# secrets
+personal_access_token_gitlab_2026.txt
