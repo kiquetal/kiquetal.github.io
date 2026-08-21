@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    .infographic {
+      width: 1584px;
+      height: 396px;
+      position: relative;
+      background: linear-gradient(135deg, #1C1917 0%, #292524 50%, #1C1917 100%);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 40px 100px 60px 420px;
+      overflow: hidden;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Subtle top accent line */
+    .infographic::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, transparent 0%, #E7A66A 20%, #E7A66A 80%, transparent 100%);
+    }
+
+    .left {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      z-index: 1;
+    }
+
+    .site-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 72px;
+      font-weight: 700;
+      color: #FFFFFF;
+      letter-spacing: 0.03em;
+    }
+
+    .site-name span {
+      color: #E7A66A;
+    }
+
+    .role {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      color: #F5F0EB;
+      letter-spacing: 0.02em;
+      font-style: italic;
+    }
+
+    .tags {
+      display: flex;
+      gap: 16px;
+    }
+
+    .tag {
+      font-size: 13px;
+      letter-spacing: 0.12em;
+      color: #E7A66A;
+      border: 1px solid #E7A66A;
+      padding: 8px 18px;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+
+    .right {
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 14px;
+    }
+
+    .metric-line {
+      font-size: 14px;
+      color: #A8A29E;
+      letter-spacing: 0.08em;
+    }
+
+    .metric-line .value {
+      color: #E7A66A;
+      font-weight: 500;
+    }
+
+    /* Bottom accent line */
+    .bottom-line {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, transparent 0%, #3D3835 30%, #3D3835 70%, transparent 100%);
+    }
+  </style>
+</head>
+<body>
+  <div class="infographic">
+    <div class="left">
+      <div class="site-name">kiquetal<span>.dev</span></div>
+      <div class="role">Staff Software Engineer · System Architect</div>
+      <div class="tags">
+        <span class="tag">AWS × 3</span>
+        <span class="tag">Cloud Native</span>
+        <span class="tag">Distributed Systems</span>
+      </div>
+    </div>
+
+    <div class="right">
+      <div class="metric-line"><span class="value">JVM · Go</span></div>
+      <div class="metric-line"><span class="value">C4 Architecture</span></div>
+      <div class="metric-line"><span class="value">Kubernetes</span></div>
+    </div>
+
+    <div class="bottom-line"></div>
+  </div>
+</body>
+</html>

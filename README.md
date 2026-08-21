@@ -85,3 +85,10 @@ Auto-deploys via `.github/workflows/deploy.yml` on push to `master`.
 
 - **Workers:** Private repo ([kiquetal-workers](https://github.com/kiquetal/kiquetal-workers)) — Cloudflare Workers for newsletter, subscriptions, reminders
 - **Design System:** See `.kiro/steering/vintage-design.md`
+
+## Changelog
+
+### 2026-08-21
+- **Color palette redesign:** Migrated from cold blue (`#0A0C10`, `#3B82F6`) to Warm Stone palette (`#1C1917`, `#E7A66A`). Updated `tailwind.config.mjs`, Layout, and index page.
+- **LinkedIn banner:** Created new banner matching warm stone palette (`superdesign/design_iterations/linkedin-banner-warm-stone.png`).
+- **Design system:** Updated `.kiro/steering/vintage-design.md` with new palette tokens.
