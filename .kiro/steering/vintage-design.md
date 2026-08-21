@@ -8,14 +8,14 @@ When creating infographics, ALWAYS use the MCP superdesign tools to properly man
 
 ## Vintage Style Requirements
 
-### Colors
-- Cream: `#F5E6D3`
-- Tan: `#E8D5C4` 
-- Beige: `#D2B48C`
-- Brown: `#8B7355`
-- Dark Brown: `#5C4A3A`
+### Colors (Dusty Blue & Ivory — vintage blueprint)
+- Ivory: `#F0EDE5`
+- Faded Blue: `#C8D5DC`
+- Slate Blue: `#7A9BAE`
+- Deep Teal: `#4A6B7C`
+- Dark Navy: `#2C3E4A`
 
-Use warm sepia gradients. No pure black except in ribbon.
+Use cool blue-grey gradients. No pure black except in ribbon.
 
 ### Typography
 **Headings:** Playfair Display, Libre Baskerville, Cormorant Garamond (serif, bold, 36-48px)
@@ -23,16 +23,16 @@ Use warm sepia gradients. No pure black except in ribbon.
 **Letter-spacing:** 0.05-0.15em for headings
 
 ### Visual Elements
-- Borders: 2-8px solid `#8B7355`
+- Borders: 2-8px solid `#7A9BAE`
 - Paper texture: Repeating linear gradients with 3% opacity
-- Box shadows: `0 8px 24px rgba(0,0,0,0.3)`
+- Box shadows: `0 8px 24px rgba(44, 62, 74, 0.3)`
 - Minimal rounded corners: 2-4px
 - Ornamental dividers: ✦, ❦, horizontal lines
 
 ### Layout
 - Padding: 24-32px
 - Element spacing: 12-16px
-- Semi-transparent backgrounds: `rgba(232, 213, 196, 0.6)`
+- Semi-transparent backgrounds: `rgba(200, 213, 220, 0.6)`
 
 ## Co-Design Attribution (REQUIRED)
 
@@ -91,4 +91,4 @@ python superdesign/screenshot.py $(pwd)/superdesign/design_iterations/aes-gcm-25
 - [ ] Ornamental borders/dividers
 - [ ] Kiquetal ribbon at bottom
 - [ ] PNG exported at exact size
-- [ ] All text in sepia tones (except ribbon)
+- [ ] All text in cool blue-grey tones (except ribbon)

@@ -4,13 +4,13 @@ export default {
 	theme: {
 		extend: {
 			colors: {
-				"brand-bg": "#0A0C10",
-				"brand-surface": "#12151C",
-				"brand-surface-accent": "#1A1F29",
-				"brand-text-main": "#E5E7EB",
-				"brand-text-muted": "#9CA3AF",
-				"brand-accent": "#60A5FA",
-				"brand-border": "#1F2937",
+				"brand-bg": "#1C1917",
+				"brand-surface": "#292524",
+				"brand-surface-accent": "#44403C",
+				"brand-text-main": "#F5F0EB",
+				"brand-text-muted": "#A8A29E",
+				"brand-accent": "#E7A66A",
+				"brand-border": "#3D3835",
 			},
 			fontFamily: {
 				"serif": ["'Playfair Display'", "serif"],
