@@ -196,16 +196,9 @@ const translations = {
 			}
 
 			const resendPayload = {
-				from: "contact@kiquetal.dev",
-				to: "hi@kiquetal.dev",
-				subject: `New Contact from ${rawData.name}`,
-				html: `
-					<p><strong>Name:</strong> ${rawData.name}</p>
-					<p><strong>Email:</strong> ${rawData.email}</p>
-					<p><strong>Message:</strong></p>
-					<p>${rawData.message.replace(/\n/g, '<br>')}</p>
-				`,
-				reply_to: rawData.email,
+				name: rawData.name,
+				email: rawData.email,
+				message: rawData.message,
 				company_url: rawData.company_url || "",
 				t: rawData.t || ""
 			};
