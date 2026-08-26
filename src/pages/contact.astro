@@ -205,7 +205,9 @@ const translations = {
 					<p><strong>Message:</strong></p>
 					<p>${rawData.message.replace(/\n/g, '<br>')}</p>
 				`,
-				reply_to: rawData.email
+				reply_to: rawData.email,
+				company_url: rawData.company_url || "",
+				t: rawData.t || ""
 			};
 
 			try {
