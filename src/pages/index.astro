@@ -21,8 +21,10 @@ const translations = {
     certificationsTitle: "Professional Certifications",
     viewProfile: "You can view my profile here -> ",
     cert1: "AWS Solutions Architect Professional",
-    cert2: "Certified Kubernetes Application Developer",
-    cert3: "Oracle Certified Professional: Java",
+    cert2: "AWS Solutions Architect Associate",
+    cert3: "AWS Developer Associate",
+    cert4: "Certified Kubernetes Application Developer",
+    cert5: "Oracle Certified Professional: Java",
     certCredly: "Credly Profile",
     demosTitle: "Live Demos",
     demo1Title: "End to End Encryption with Quarkus",
@@ -61,8 +63,10 @@ const translations = {
     certificationsTitle: "Certificaciones Profesionales",
     viewProfile: "Puedes ver mi perfil aquí -> ",
     cert1: "AWS Solutions Architect Professional",
-    cert2: "Certified Kubernetes Application Developer",
-    cert3: "Oracle Certified Professional: Java",
+    cert2: "AWS Solutions Architect Associate",
+    cert3: "AWS Developer Associate",
+    cert4: "Certified Kubernetes Application Developer",
+    cert5: "Oracle Certified Professional: Java",
     certCredly: "Perfil de Credly",
     demosTitle: "Demos en Vivo",
     demo1Title: "Encriptación de Extremo a Extremo con Quarkus",
@@ -309,7 +313,7 @@ const t = translations[currentLang];
 						<div class="flex items-center justify-between">
 							<span class="text-[9px] text-brand-accent/40 uppercase tracking-[0.2em] font-mono">02</span>
 							<div class="w-12 h-12 relative overflow-hidden group-hover:drop-shadow-[0_0_15px_rgba(96,165,250,0.5)] transition-all duration-500">
-								<img src="https://images.credly.com/size/340x340/images/cc8adc83-1dc6-4d57-8e20-22171247e052/blob" alt="CKAD" class="w-full h-full object-contain transition-all duration-500" />
+								<img src="https://images.credly.com/size/340x340/images/0e284c3f-5164-4b21-8660-0d84737941bc/image.png" alt="AWS SAA" class="w-full h-full object-contain transition-all duration-500" />
 							</div>
 						</div>
 						<span class="text-[11px] tracking-[0.1em] uppercase leading-relaxed text-brand-text-main font-bold group-hover:font-black group-hover:underline underline-offset-8 transition-all duration-500 decoration-brand-accent/40 group-hover:bg-brand-accent/5 px-2 py-1 -mx-2" id="cert2-text">{t.cert2}</span>
@@ -318,14 +322,32 @@ const t = translations[currentLang];
 						<div class="flex items-center justify-between">
 							<span class="text-[9px] text-brand-accent/40 uppercase tracking-[0.2em] font-mono">03</span>
 							<div class="w-12 h-12 relative overflow-hidden group-hover:drop-shadow-[0_0_15px_rgba(96,165,250,0.5)] transition-all duration-500">
-								<img src="https://images.credly.com/size/340x340/images/3661e48f-ee1c-47fc-a474-b84fca370a19/Oracle-Certification-badge_OC-Professional600X600.png" alt="Oracle Java" class="w-full h-full object-contain transition-all duration-500" />
+								<img src="https://images.credly.com/size/340x340/images/b9feab85-1a43-4f6b-99a5-631b88d5461b/image.png" alt="AWS DVA" class="w-full h-full object-contain transition-all duration-500" />
 							</div>
 						</div>
 						<span class="text-[11px] tracking-[0.1em] uppercase leading-relaxed text-brand-text-main font-bold group-hover:font-black group-hover:underline underline-offset-8 transition-all duration-500 decoration-brand-accent/40 group-hover:bg-brand-accent/5 px-2 py-1 -mx-2" id="cert3-text">{t.cert3}</span>
 					</div>
-					<a href="https://www.credly.com/users/enrique-m-talavera/badges#credly" target="_blank" class="flex flex-col gap-6 group">
+					<div class="flex flex-col gap-6 group">
 						<div class="flex items-center justify-between">
 							<span class="text-[9px] text-brand-accent/40 uppercase tracking-[0.2em] font-mono">04</span>
+							<div class="w-12 h-12 relative overflow-hidden group-hover:drop-shadow-[0_0_15px_rgba(96,165,250,0.5)] transition-all duration-500">
+								<img src="https://images.credly.com/size/340x340/images/cc8adc83-1dc6-4d57-8e20-22171247e052/blob" alt="CKAD" class="w-full h-full object-contain transition-all duration-500" />
+							</div>
+						</div>
+						<span class="text-[11px] tracking-[0.1em] uppercase leading-relaxed text-brand-text-main font-bold group-hover:font-black group-hover:underline underline-offset-8 transition-all duration-500 decoration-brand-accent/40 group-hover:bg-brand-accent/5 px-2 py-1 -mx-2" id="cert4-text">{t.cert4}</span>
+					</div>
+					<div class="flex flex-col gap-6 group">
+						<div class="flex items-center justify-between">
+							<span class="text-[9px] text-brand-accent/40 uppercase tracking-[0.2em] font-mono">05</span>
+							<div class="w-12 h-12 relative overflow-hidden group-hover:drop-shadow-[0_0_15px_rgba(96,165,250,0.5)] transition-all duration-500">
+								<img src="https://images.credly.com/size/340x340/images/3661e48f-ee1c-47fc-a474-b84fca370a19/Oracle-Certification-badge_OC-Professional600X600.png" alt="Oracle Java" class="w-full h-full object-contain transition-all duration-500" />
+							</div>
+						</div>
+						<span class="text-[11px] tracking-[0.1em] uppercase leading-relaxed text-brand-text-main font-bold group-hover:font-black group-hover:underline underline-offset-8 transition-all duration-500 decoration-brand-accent/40 group-hover:bg-brand-accent/5 px-2 py-1 -mx-2" id="cert5-text">{t.cert5}</span>
+					</div>
+					<a href="https://www.credly.com/users/enrique-m-talavera/badges#credly" target="_blank" class="flex flex-col gap-6 group">
+						<div class="flex items-center justify-between">
+							<span class="text-[9px] text-brand-accent/40 uppercase tracking-[0.2em] font-mono">06</span>
 							<div class="w-12 h-12 flex items-center justify-center text-brand-accent/20 group-hover:text-brand-accent transition-all duration-500">
 								<Icon name="ph:medal-bold" size={32} />
 							</div>
@@ -438,6 +460,12 @@ const t = translations[currentLang];
 
 		const cert3Text = document.getElementById('cert3-text');
 		if (cert3Text) cert3Text.textContent = t.cert3;
+
+		const cert4Text = document.getElementById('cert4-text');
+		if (cert4Text) cert4Text.textContent = t.cert4;
+
+		const cert5Text = document.getElementById('cert5-text');
+		if (cert5Text) cert5Text.textContent = t.cert5;
 
 		const certCredlyText = document.getElementById('cert-credly-text');
 		if (certCredlyText) certCredlyText.textContent = t.certCredly;
