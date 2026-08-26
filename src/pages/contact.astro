@@ -48,6 +48,9 @@ const translations = {
                         </p>
 
 						<form id="contact-form" class="flex flex-col gap-10">
+							<!-- Honeypot - hidden from humans, bots will fill it -->
+							<input type="text" name="company_url" style="display:none" tabindex="-1" autocomplete="off" />
+							<input type="hidden" name="t" id="form-timer" />
 							<div class="group border-b border-brand-border/50 focus-within:border-brand-accent/50 transition-colors pb-3">
 								<label for="name" class="block text-[9px] tracking-[0.3em] text-brand-text-muted uppercase mb-3 group-focus-within:text-brand-accent transition-colors font-bold" id="name-label">
 									{translations.en.nameLabel}
@@ -148,10 +151,39 @@ const translations = {
 	const statusDiv = document.getElementById('form-status');
 	const submitBtn = document.getElementById('submit-btn');
 
+	// Set form timer on load
+	const formTimer = document.getElementById('form-timer');
+	if (formTimer) formTimer.value = String(Date.now());
+
 	if (form) {
 		form.addEventListener('submit', async (e) => {
 			e.preventDefault();
 			const t = translations[currentLang];
+
+			// Bot checks
+			const formData = new FormData(form);
+			const rawData = Object.fromEntries(formData);
+
+			// Honeypot check - if filled, silently ignore
+			if (rawData.company_url) {
+				if (statusDiv) {
+					statusDiv.textContent = t.success;
+					statusDiv.classList.remove('hidden');
+					statusDiv.classList.add('text-green-500');
+				}
+				return;
+			}
+
+			// Time check - reject if submitted in less than 3 seconds
+			const elapsed = Date.now() - parseInt(rawData.t || '0');
+			if (elapsed < 3000) {
+				if (statusDiv) {
+					statusDiv.textContent = t.success;
+					statusDiv.classList.remove('hidden');
+					statusDiv.classList.add('text-green-500');
+				}
+				return;
+			}
 			
 			if (submitBtn) {
 				submitBtn.disabled = true;
@@ -162,9 +194,6 @@ const translations = {
 				statusDiv.classList.add('hidden');
 				statusDiv.className = 'text-[9px] tracking-[0.2em] uppercase hidden';
 			}
-
-			const formData = new FormData(form);
-			const rawData = Object.fromEntries(formData);
 
 			const resendPayload = {
 				from: "contact@kiquetal.dev",
