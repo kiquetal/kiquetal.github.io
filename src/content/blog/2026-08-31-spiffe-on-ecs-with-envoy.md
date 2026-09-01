@@ -12,7 +12,17 @@ draft: true
 
 <div class="lang-en">
 
-TODO — intro
+I have been studying envoy for a while, because I was very satisfied with istio, but i wanted to know how it works under the hood.
+The goal was very clear: implement a mTLS solution for ECS, a poor's version of zero trust.
+
+We create the architecture using:
+
+- SPIRE Server +  Admission Controller to allow/deny regiser in a service discovery
+- SPIRE-AGENT + Envoy sidecar to provide mTLS
+
+
+
+
 
 <!--
 BRAINSTORM NOTES (remove before publishing)
