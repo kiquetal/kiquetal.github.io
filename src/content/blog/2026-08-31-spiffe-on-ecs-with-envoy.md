@@ -70,7 +70,9 @@ BRAINSTORM NOTES (remove before publishing)
 - Why SPIFFE over App Mesh native mTLS?
 -->
 
-![SPIFFE on ECS with Envoy](/blog/2026-08-31-spiffe-on-ecs-with-envoy/hero-en.png)
+![Proteus C4 System Context — SPIFFE on ECS with Envoy](/blog/2026-08-31-spiffe-on-ecs-with-envoy/c4-context-en.png)
+
+![Proteus C4 Container — SPIRE Server, Admission Controller, Envoy sidecars](/blog/2026-08-31-spiffe-on-ecs-with-envoy/c4-container-en.png)
 
 </div>
 
