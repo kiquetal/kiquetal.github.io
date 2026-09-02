@@ -1,0 +1,75 @@
+@startuml mesh-e2e-dark-vs-live
+title Proteus — End-to-End mTLS: service-a to service-b (Dark vs Live)
+
+skinparam backgroundColor #0d1117
+skinparam defaultFontColor #e6edf3
+skinparam ArrowColor #58a6ff
+skinparam roundCorner 12
+skinparam shadowing false
+skinparam rectangle {
+  BorderColor #30363d
+  FontColor #e6edf3
+}
+
+' ==================== DARK ====================
+rectangle "DARK -- neither admitted (no workload entries)" as DARK #1a1a2e {
+
+  rectangle "service-a task" as dA #16213e {
+    rectangle "app :8080" as dAapp #21262d
+    rectangle "envoy :9903 egress" as dAenvoy #21262d
+    rectangle "spire-agent" as dAagent #21262d
+  }
+
+  rectangle "service-b task" as dB #16213e {
+    rectangle "envoy :9902 ingress" as dBenvoy #21262d
+    rectangle "spire-agent" as dBagent #21262d
+    rectangle "app :8080" as dBapp #21262d
+  }
+
+  dAapp -[#58a6ff]-> dAenvoy : GET localhost:9903
+  dAagent .[#e94560].> dAenvoy : DENIED no client cert
+  dAenvoy -[#e94560]-> dBenvoy : 503 UF handshake fails
+  dBagent .[#e94560].> dBenvoy : DENIED no server cert
+}
+
+note bottom of dB #3a1a1a
+  Both sides lack certs.
+  Handshake never completes.
+  service-b app never sees the request.
+end note
+
+' ==================== ADMIT ====================
+rectangle "Gatekeeper admits BOTH (admission-controller creates 2 SPIRE entries)" as ADMIT #f5a623
+
+' ==================== LIVE ====================
+rectangle "LIVE -- both admitted (workload entries exist)" as LIVE #16213e {
+
+  rectangle "service-a task" as lA #1a3a1a {
+    rectangle "app :8080" as lAapp #21262d
+    rectangle "envoy :9903 egress" as lAenvoy #21262d
+    rectangle "spire-agent" as lAagent #21262d
+  }
+
+  rectangle "service-b task" as lB #1a3a1a {
+    rectangle "envoy :9902 ingress" as lBenvoy #21262d
+    rectangle "spire-agent" as lBagent #21262d
+    rectangle "app :8080" as lBapp #21262d
+  }
+
+  lAapp -[#58a6ff]-> lAenvoy : GET localhost:9903
+  lAagent -[#0f9d58]-> lAenvoy : client SVID (service-a)
+  lAenvoy -[#0f9d58]-> lBenvoy : mTLS handshake OK
+  lBagent -[#0f9d58]-> lBenvoy : server SVID (service-b)
+  lBenvoy -[#0f9d58]-> lBapp : 200 forwarded
+}
+
+note bottom of lB #1a3a1a
+  Both present certs. Handshake succeeds.
+  service-b verifies peer=spiffe://proteus.local/service-a
+  service-b app returns 200.
+end note
+
+DARK -[#f5a623]-> ADMIT
+ADMIT -[#0f9d58]-> LIVE
+
+@enduml
