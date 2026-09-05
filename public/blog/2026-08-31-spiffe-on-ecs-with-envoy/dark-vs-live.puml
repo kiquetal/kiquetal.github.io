@@ -1,0 +1,45 @@
+@startuml dark-vs-live
+title Proteus — Dark by Default vs Live After Admit
+
+skinparam backgroundColor #0d1117
+skinparam defaultFontColor #e6edf3
+skinparam ArrowColor #58a6ff
+skinparam roundCorner 12
+skinparam shadowing false
+skinparam rectangle {
+  BorderColor #30363d
+  FontColor #e6edf3
+}
+
+' ============ DARK ============
+rectangle "DARK -- not admitted (no workload entry)" as DARK #1a1a2e {
+  rectangle "app :8080" as dApp #21262d
+  rectangle "envoy :9903 egress" as dEnvoy #21262d
+  rectangle "spire-agent (SDS server)" as dAgent #21262d
+  rectangle "service-b :9902" as dPeer #3a1a1a
+
+  dApp -[#58a6ff]-> dEnvoy : GET localhost:9903
+  dEnvoy .[#f5a623].> dAgent : SDS: give me cert
+  dAgent .[#e94560].> dEnvoy : DENIED not authorized
+  dEnvoy -[#e94560]-> dPeer : 503 UF (Secret not supplied by SDS)
+}
+
+' ============ ADMIT ============
+rectangle "Gatekeeper admits (admission-controller creates SPIRE entry)" as ADMIT #f5a623
+
+' ============ LIVE ============
+rectangle "LIVE -- admitted (workload entry exists)" as LIVE #16213e {
+  rectangle "app :8080" as lApp #21262d
+  rectangle "envoy :9903 egress" as lEnvoy #21262d
+  rectangle "spire-agent (SDS server)" as lAgent #21262d
+  rectangle "service-b :9902" as lPeer #1a3a1a
+
+  lApp -[#58a6ff]-> lEnvoy : GET localhost:9903
+  lAgent -[#0f9d58]-> lEnvoy : SVID pushed (Creating X509-SVID)
+  lEnvoy -[#0f9d58]-> lPeer : 200 mTLS (peer=spiffe://.../service-a)
+}
+
+DARK -[#f5a623]-> ADMIT
+ADMIT -[#0f9d58]-> LIVE
+
+@enduml
