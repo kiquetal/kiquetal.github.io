@@ -1,20 +1,20 @@
 @startuml
-title Proteus — Workload Admission (Entry Creation)
+title Admission — proving WHICH SERVICE IDENTITY
 
-actor "operator / CI" as op
-participant "admission-controller" as ac
-participant "SPIRE Server" as server
-participant "SPIRE Agent" as agent
+participant "operator" as op #4A6B7C
+participant "admission" as ac #C77D3A
+participant "SPIRE Server" as server #2C3E4A
+participant "SPIRE Agent" as agent #7A9BAE
 
 op -> ac : POST /admit (service-a)
-ac -> server : CreateEntry (spiffe id + selectors)
-server --> ac : entry-id
-note over ac : ADMITTED: entry created
+ac -> server : CreateEntry (spiffe id)
+server --> ac : entry created
+note over ac : now service-a is allowed
 
-agent -> server : SDS StreamSecrets (service-a)
+agent -> server : SDS: request SVID
 alt entry exists
-    server --> agent : X509-SVID issued
-else no entry yet
-    server --> agent : workload not authorized
+    server --> agent : X.509 SVID issued
+else not admitted yet
+    server --> agent : not authorized
 end
 @enduml
