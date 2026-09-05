@@ -152,56 +152,14 @@ On `service-b`, Envoy logs the inbound call and — crucially — the verified p
 
 The `peer=spiffe://proteus.local/service-a` field is the payoff: `service-b` didn't just accept a TLS connection, it cryptographically verified *who* was calling — no shared secret, no static cert, identity issued and rotated by SPIRE.
 
+#### Conclusion
 
+This hands-on project showed me the value of a control plane like Istio. The key lesson: communication should only be allowed between the listeners explicitly defined in each Envoy's configuration. The hard part is doing that *dynamically* — when you launch many services, something has to create and update the Envoy configuration every time a new service joins. That "something" is exactly the job of a control plane, or of a purpose-built component that reconciles Envoy config as the service topology changes. Building it by hand made that responsibility concrete in a way that using Istio never did.
 
+The piece I wasn't familiar with going in was the port hop. The app never speaks mTLS or even touches the network directly — it makes a plain HTTP call to its own sidecar on `localhost:9903` (the egress listener), and Envoy transparently negotiates mTLS to the peer's `:9902` ingress listener. So "the app calls localhost and mutual TLS just happens" is the mental model that took me a while to internalize. The trust boundary stops being *where* a service is (an IP or security group) and becomes *who* it is — `service-b` accepts the call because it cryptographically verified `peer=spiffe://proteus.local/service-a`, not because of a network rule.
 
+Next steps I'd tackle: tighter workload selectors than the coarse `unix:uid:1000`, an automated admission trigger instead of a manual `POST /admit`, and a comparison against AWS App Mesh's native mTLS to see what the from-scratch approach buys versus the managed path.
 
-
-<!--
-BRAINSTORM NOTES (remove before publishing)
-
-## Why SPIFFE on ECS?
-- Workload identity without long-lived secrets
-- ECS tasks are ephemeral → need dynamic identity
-- SPIFFE SVIDs (X.509) as the identity primitive
-- Contrast with K8s post (SPIRE on K8s) — what's different on ECS?
-
-## Architecture
-- SPIRE Server (where? ECS service / EC2 / Fargate?)
-- SPIRE Agent per ECS host (EC2 launch type) vs Fargate limitations
-  - NOTE: Fargate has no host access → agent attestation challenge
-  - Node attestation: aws_iid? aws_iam?
-  - Workload attestation on ECS
-- Envoy as sidecar in the task definition
-- SDS (Secret Discovery Service) — Envoy pulls SVIDs from SPIRE via SDS
-
-## The mTLS flow
-1. ECS task starts, Envoy sidecar boots
-2. Envoy connects to SPIRE Agent over Unix socket (SDS)
-3. SPIRE issues X.509 SVID
-4. Envoy uses SVID for mTLS between services
-5. Rotation handled automatically by SPIRE
-
-## Hard parts / gotchas
-- Fargate vs EC2 launch type (agent placement)
-- Unix domain socket sharing between containers in a task
-- Trust domain setup
-- SPIRE Server HA + datastore (RDS?)
-
-## Diagrams needed (superdesign, vintage style)
-- hero: SPIFFE + ECS + Envoy overview
-- flow: SVID issuance + mTLS handshake sequence
-- attestation: node + workload attestation on ECS
-
-## Ties to certs
-- AWS Security Specialty (identity, encryption in transit)
-- CKAD/K8s SPIRE post as the counterpart
-
-## Open questions
-- Does anyone run SPIRE agent as a Fargate sidecar realistically?
-- Comparison to AWS-native: ACM PCA + App Mesh mTLS?
-- Why SPIFFE over App Mesh native mTLS?
--->
 
 ![Proteus C4 System Context — SPIFFE on ECS with Envoy](/blog/2026-08-31-spiffe-on-ecs-with-envoy/c4-context-en.png)
 
@@ -345,6 +303,14 @@ En `service-b`, Envoy registra la llamada entrante y — lo más importante — 
 ![Envoy en service-b — mTLS entrante con SPIFFE ID del par verificado service-a](/blog/2026-08-31-spiffe-on-ecs-with-envoy/envoy-svc-b-obtaining-cert-from-b.png)
 
 El campo `peer=spiffe://proteus.local/service-a` es la recompensa: `service-b` no solo aceptó una conexión TLS, sino que verificó criptográficamente *quién* estaba llamando — sin secreto compartido, sin certificado estático, con identidad emitida y rotada por SPIRE.
+
+#### Conclusión
+
+Este proyecto práctico me mostró el valor de un control plane como Istio. La lección clave: la comunicación solo debería permitirse entre los listeners definidos explícitamente en la configuración de cada Envoy. La parte difícil es hacerlo de forma *dinámica* — cuando lanzas muchos servicios, algo tiene que crear y actualizar la configuración de Envoy cada vez que un nuevo servicio se une. Ese "algo" es justamente el trabajo de un control plane, o de un componente diseñado a medida que reconcilia la configuración de Envoy a medida que cambia la topología de servicios. Construirlo a mano hizo esa responsabilidad concreta de una forma que usar Istio nunca logró.
+
+Lo que no me resultaba familiar al empezar fue el salto de puertos. La app nunca habla mTLS ni toca la red directamente — hace una llamada HTTP en claro a su propio sidecar en `localhost:9903` (el listener de egress), y Envoy negocia de forma transparente mTLS hacia el listener de ingress `:9902` del par. Así que "la app llama a localhost y el TLS mutuo simplemente ocurre" es el modelo mental que me costó un tiempo interiorizar. El límite de confianza deja de ser *dónde* está un servicio (una IP o un security group) y pasa a ser *quién* es — `service-b` acepta la llamada porque verificó criptográficamente `peer=spiffe://proteus.local/service-a`, no por una regla de red.
+
+Próximos pasos que abordaría: selectores de workload más estrictos que el amplio `unix:uid:1000`, un disparador de admisión automático en lugar de un `POST /admit` manual, y una comparación con el mTLS nativo de AWS App Mesh para ver qué aporta el enfoque desde cero frente al camino gestionado.
 
 ![Proteus C4 System Context — SPIFFE en ECS con Envoy](/blog/2026-08-31-spiffe-on-ecs-with-envoy/c4-context-en.png)
 
