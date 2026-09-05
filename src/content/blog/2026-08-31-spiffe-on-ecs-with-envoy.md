@@ -27,11 +27,54 @@ We have configured the envoy to go from service-a to service-b using mtls, for t
 
 The admission controller is used to allow/deny the registration of the service in the service discovery, this is a very important step to avoid that a malicious service can register in the service discovery and get access to the other services.
 
+## Architecture
+
+Identity is established in two layers: first SPIRE decides which *task* it trusts (node attestation), then the admission controller decides which *service identity* that task is allowed to get (workload attestation).
+
+![Proteus C4 Container — SPIRE Server, Admission Controller, Envoy sidecars](/blog/2026-08-31-spiffe-on-ecs-with-envoy/c4-container-en.png)
+
+### Node attestation — proving the ECS task
+
+On Fargate there is no EC2 instance, so the usual `aws_iid` node attestor doesn't apply. I wrote a small custom plugin (`proteus_ecs`). The agent side reads the task metadata endpoint and forwards the task ARN, cluster and family:
+
+```go
+metadataURI := os.Getenv("ECS_CONTAINER_METADATA_URI_V4")
+body, _ := httpGet(metadataURI + "/task")   // TaskARN, Cluster, Family
+```
+
+The important part is on the **server side**: it never trusts the payload blindly. It calls the ECS API to confirm the task and checks the task's IAM role against an allow-list:
+
+```go
+taskInfo, _ := describeTask(ctx, region, cluster, payload.TaskARN) // ECS DescribeTasks
+if !isRoleAllowed(taskInfo.TaskRoleARN) {
+    return status.Error(codes.PermissionDenied, "task role not allowed")
+}
+// → spiffe://proteus.local/agent/ecs/<task-id>
+//   selectors: ecs:cluster:*, ecs:family:*, ecs:task-role:*
+```
+
+So a task can *claim* an ARN, but the server verifies it out-of-band via `DescribeTasks` and only accepts pre-approved IAM roles.
+
+### Workload attestation + admission — proving the service
+
+Node attestation says *which task*; the admission controller says *which service identity that task may hold*. On `POST /admit` it creates a SPIRE registration entry via the Entry API:
+
+```go
+spiffeID  := "spiffe://" + trustDomain + "/" + serviceName // e.g. .../service-a
+selectors := []string{"unix:uid:1000"}
+entryID, _ := spire.CreateEntry(ctx, parentID, spiffeID, selectors)
+log.Printf("ADMITTED: service=%s spire_entry=%s", serviceName, entryID)
+```
+
+Until that entry exists, the agent has nothing to match and SDS returns `workload is not authorized` — this is the deny-by-default behavior the test below demonstrates. (The workload selector here is a coarse `unix:uid:1000`; tighter selectors are a natural next step.)
+
 ## Testing the architecture
 
 The setup is intentionally minimal: two ECS services, `service-a` (the caller) and `service-b` (the callee), each with an Envoy sidecar and a co-located SPIRE Agent. `service-a` calls `service-b` over mTLS on `/api/data`. Both proxies fetch their identities from SPIRE via SDS.
 
 The test walks through a **dark → admit → live** progression, proving that no workload receives an identity until it has been explicitly admitted.
+
+![Dark by default vs live after admit — SDS denies the SVID until the admission controller creates the SPIRE entry](/blog/2026-08-31-spiffe-on-ecs-with-envoy/dark_vs_live.png)
 
 ### Step 1 — Dark state: no workload is admitted yet
 
@@ -142,14 +185,127 @@ BRAINSTORM NOTES (remove before publishing)
 
 ![Proteus C4 System Context — SPIFFE on ECS with Envoy](/blog/2026-08-31-spiffe-on-ecs-with-envoy/c4-context-en.png)
 
-![Proteus C4 Container — SPIRE Server, Admission Controller, Envoy sidecars](/blog/2026-08-31-spiffe-on-ecs-with-envoy/c4-container-en.png)
-
 </div>
 
 <div class="lang-es hidden">
 
-TODO — introducción
+Llevo un tiempo estudiando Envoy porque, aunque quedé muy satisfecho con Istio, quería entender cómo funciona por debajo.
+El objetivo era claro: implementar una solución de mTLS para ECS, una versión "casera" de zero trust.
 
-![SPIFFE en ECS con Envoy](/blog/2026-08-31-spiffe-on-ecs-with-envoy/hero-es.png)
+Construimos la arquitectura usando:
+
+- SPIRE Server + Admission Controller para permitir/denegar el registro en el service discovery
+- SPIRE-Agent + sidecar Envoy para proveer mTLS entre servicios
+
+Configuramos Envoy para ir de `service-a` a `service-b` usando mTLS; para ello configuramos Envoy para usar SDS (Secret Discovery Service) y obtener los SVIDs desde el SPIRE-Agent, y configuramos el SPIRE-Agent para obtener los SVIDs desde el SPIRE-Server.
+
+El Admission Controller se usa para permitir/denegar el registro del servicio en el service discovery. Este paso es muy importante para evitar que un servicio malicioso se registre y obtenga acceso a los demás servicios.
+
+## Arquitectura
+
+La identidad se establece en dos capas: primero SPIRE decide en qué *tarea* confía (atestación de nodo) y luego el admission controller decide qué *identidad de servicio* puede obtener esa tarea (atestación de workload).
+
+![Proteus C4 Container — SPIRE Server, Admission Controller, sidecars Envoy](/blog/2026-08-31-spiffe-on-ecs-with-envoy/c4-container-en.png)
+
+### Atestación de nodo — probando la tarea ECS
+
+En Fargate no hay una instancia EC2, así que el atestador de nodo habitual `aws_iid` no aplica. Escribí un pequeño plugin propio (`proteus_ecs`). El lado del agente lee el endpoint de metadata de la tarea y reenvía el ARN de la tarea, el cluster y la family:
+
+```go
+metadataURI := os.Getenv("ECS_CONTAINER_METADATA_URI_V4")
+body, _ := httpGet(metadataURI + "/task")   // TaskARN, Cluster, Family
+```
+
+Lo importante está en el **lado del servidor**: nunca confía en el payload a ciegas. Llama a la API de ECS para confirmar la tarea y verifica el rol IAM de la tarea contra una allow-list:
+
+```go
+taskInfo, _ := describeTask(ctx, region, cluster, payload.TaskARN) // ECS DescribeTasks
+if !isRoleAllowed(taskInfo.TaskRoleARN) {
+    return status.Error(codes.PermissionDenied, "task role not allowed")
+}
+// → spiffe://proteus.local/agent/ecs/<task-id>
+//   selectors: ecs:cluster:*, ecs:family:*, ecs:task-role:*
+```
+
+Así, una tarea puede *afirmar* un ARN, pero el servidor lo verifica por fuera con `DescribeTasks` y solo acepta roles IAM previamente aprobados.
+
+### Atestación de workload + admisión — probando el servicio
+
+La atestación de nodo dice *qué tarea*; el admission controller dice *qué identidad de servicio puede tener esa tarea*. En `POST /admit` crea una entrada de registro en SPIRE vía la Entry API:
+
+```go
+spiffeID  := "spiffe://" + trustDomain + "/" + serviceName // p.ej. .../service-a
+selectors := []string{"unix:uid:1000"}
+entryID, _ := spire.CreateEntry(ctx, parentID, spiffeID, selectors)
+log.Printf("ADMITTED: service=%s spire_entry=%s", serviceName, entryID)
+```
+
+Hasta que esa entrada existe, el agente no tiene nada que coincidir y SDS devuelve `workload is not authorized` — este es el comportamiento denegado-por-defecto que demuestra la prueba de abajo. (El selector de workload aquí es un `unix:uid:1000` bastante amplio; selectores más estrictos son el siguiente paso natural.)
+
+## Probando la arquitectura
+
+El montaje es intencionalmente mínimo: dos servicios ECS, `service-a` (el invocador) y `service-b` (el que recibe), cada uno con un sidecar Envoy y un SPIRE Agent co-ubicado. `service-a` llama a `service-b` sobre mTLS en `/api/data`. Ambos proxies obtienen sus identidades desde SPIRE vía SDS.
+
+La prueba recorre una progresión **oscuro → admitido → activo**, demostrando que ningún workload recibe una identidad hasta que ha sido admitido explícitamente.
+
+![Oscuro por defecto vs activo tras la admisión — SDS deniega el SVID hasta que el admission controller crea la entrada en SPIRE](/blog/2026-08-31-spiffe-on-ecs-with-envoy/dark_vs_live.png)
+
+### Paso 1 — Estado oscuro: ningún workload admitido todavía
+
+Antes de cualquier admisión, Envoy le pide un SVID a SPIRE y es rechazado. El log de Envoy en `service-a` muestra la petición fallando con `503 flags=UF` y, debajo, el stream de SDS cerrándose:
+
+`workload is not authorized for the requested identities ["spiffe://proteus.local/service-a"]`
+
+![Envoy en service-a denegado — workload no autorizado, 503 UF](/blog/2026-08-31-spiffe-on-ecs-with-envoy/svc-a-dark.png)
+
+Del lado de `service-b`, el SPIRE Agent reporta lo mismo desde su perspectiva — una petición SDS `StreamSecrets` para `spiffe://proteus.local/service-b` falla con `InvalidArgument: workload is not authorized`:
+
+![SPIRE Agent en service-b denegado — error building stream secrets](/blog/2026-08-31-spiffe-on-ecs-with-envoy/spire-agent-svc-b-dark.png)
+
+Este es justamente el punto del diseño: la identidad es denegada por defecto.
+
+### Paso 2 — Admitir service-a
+
+El Admission Controller es lo que hace pasar a un workload de oscuro a permitido. Una vez que aprueba `service-a`, registra la admisión y la entrada de registro que creó en SPIRE:
+
+`ADMITTED: microvm=service-a-task service=service-a spire_entry=6f842eda-9f2b-4f68-9bb8-ed514ec07937`
+
+![El admission controller admite service-a y crea la entrada en SPIRE](/blog/2026-08-31-spiffe-on-ecs-with-envoy/admission-controller-allow-svc-a.png)
+
+### Paso 3 — service-a recibe su SVID
+
+Con la entrada en su lugar, el SPIRE Agent en `service-a` crea la entrada del workload, emite el SVID X.509 y lo transmite a Envoy vía SDS:
+
+`Entry created ... spiffe_id="spiffe://proteus.local/service-a"` → `Creating X509-SVID` → `Sending StreamSecrets response`
+
+![SPIRE Agent en service-a creando el SVID X.509 y transmitiéndolo vía SDS](/blog/2026-08-31-spiffe-on-ecs-with-envoy/spire-agent-svc-a-obtaining-cert.png)
+
+### Paso 4 — Admitir service-b y emitir su SVID
+
+El mismo flujo se repite para `service-b`. Tras ser admitido, su SPIRE Agent crea la entrada, actualiza el SVID y lo sirve a Envoy:
+
+`Entry created ... spiffe://proteus.local/service-b` → `Creating X509-SVID` → `SVID updated`
+
+![SPIRE Agent en service-b creando y actualizando el SVID X.509 tras la admisión](/blog/2026-08-31-spiffe-on-ecs-with-envoy/spire-agent-svc-b-allowed.png)
+
+### Paso 5 — La llamada mTLS en vivo tiene éxito
+
+Con ambos workloads teniendo SVIDs válidos, la llamada mTLS pasa de extremo a extremo.
+
+En `service-a`, Envoy registra la llamada saliente exitosa:
+
+`[mTLS-OUT] GET /api/data 200 upstream=10.0.0.141:9902`
+
+![Envoy en service-a — llamada mTLS-OUT exitosa a service-b, HTTP 200](/blog/2026-08-31-spiffe-on-ecs-with-envoy/envoy-svc-a-calling-svc-b.png)
+
+En `service-b`, Envoy registra la llamada entrante y — lo más importante — la identidad del par verificada a partir del certificado de cliente:
+
+`[mTLS-IN] GET /api/data 200 peer=spiffe://proteus.local/service-a`
+
+![Envoy en service-b — mTLS entrante con SPIFFE ID del par verificado service-a](/blog/2026-08-31-spiffe-on-ecs-with-envoy/envoy-svc-b-obtaining-cert-from-b.png)
+
+El campo `peer=spiffe://proteus.local/service-a` es la recompensa: `service-b` no solo aceptó una conexión TLS, sino que verificó criptográficamente *quién* estaba llamando — sin secreto compartido, sin certificado estático, con identidad emitida y rotada por SPIRE.
+
+![Proteus C4 System Context — SPIFFE en ECS con Envoy](/blog/2026-08-31-spiffe-on-ecs-with-envoy/c4-context-en.png)
 
 </div>
