@@ -72,6 +72,15 @@ log.Printf("ADMITTED: service=%s spire_entry=%s", serviceName, entryID)
 
 Until that entry exists, the agent has nothing to match and SDS returns `workload is not authorized` — this is the deny-by-default behavior the test below demonstrates. (The workload selector here is a coarse `unix:uid:1000`; tighter selectors are a natural next step.)
 
+![Admission sequence — the admission controller creates a SPIRE registration entry so the agent's SDS request can be matched and a workload SVID issued](/blog/2026-08-31-spiffe-on-ecs-with-envoy/proteus-admission.png)
+
+**How the two layers relate.** The `proteus_ecs` plugin and the admission controller answer two different questions, and a workload only gets a usable identity when both pass:
+
+- **`proteus_ecs` plugin (node attestation)** — *is this really the ECS task it claims to be?* Its server-side half calls the ECS API (`DescribeTasks`) to verify the task and its IAM role, then issues a **node SVID** (`spiffe://proteus.local/agent/ecs/<task-id>`). Trust comes from AWS, not from the workload's own claim.
+- **Admission controller (workload attestation)** — *is this task allowed to hold this service identity?* On `POST /admit` it creates a registration entry whose **`parentID` is exactly that node SVID**. That parent-child link is the seam: the controller can only grant a workload identity to a node the plugin already vouched for.
+
+So the plugin establishes *infrastructure trust* (a genuine ECS task with an approved role); the admission controller layers *application policy* on top (this task may be `service-a`). Neither alone is enough — the SVID is minted only when the verified node has an admitted entry to match.
+
 ## Testing the architecture
 
 The setup is intentionally minimal: two ECS services, `service-a` (the caller) and `service-b` (the callee), each with an Envoy sidecar and a co-located SPIRE Agent. `service-a` calls `service-b` over mTLS on `/api/data`. Both proxies fetch their identities from SPIRE via SDS.
@@ -253,6 +262,15 @@ log.Printf("ADMITTED: service=%s spire_entry=%s", serviceName, entryID)
 ```
 
 Hasta que esa entrada existe, el agente no tiene nada que coincidir y SDS devuelve `workload is not authorized` — este es el comportamiento denegado-por-defecto que demuestra la prueba de abajo. (El selector de workload aquí es un `unix:uid:1000` bastante amplio; selectores más estrictos son el siguiente paso natural.)
+
+![Secuencia de admisión — el admission controller crea una entrada de registro en SPIRE para que la petición SDS del agente pueda coincidir y se emita un SVID de workload](/blog/2026-08-31-spiffe-on-ecs-with-envoy/proteus-admission.png)
+
+**Cómo se relacionan las dos capas.** El plugin `proteus_ecs` y el admission controller responden dos preguntas distintas, y un workload solo obtiene una identidad usable cuando ambas pasan:
+
+- **plugin `proteus_ecs` (atestación de nodo)** — *¿es realmente la tarea ECS que dice ser?* Su lado servidor llama a la API de ECS (`DescribeTasks`) para verificar la tarea y su rol IAM, y luego emite un **SVID de nodo** (`spiffe://proteus.local/agent/ecs/<task-id>`). La confianza viene de AWS, no de la afirmación del propio workload.
+- **admission controller (atestación de workload)** — *¿puede esa tarea tener esta identidad de servicio?* En `POST /admit` crea una entrada de registro cuyo **`parentID` es exactamente ese SVID de nodo**. Ese enlace padre-hijo es la costura: el controller solo puede otorgar una identidad de workload a un nodo que el plugin ya avaló.
+
+Así, el plugin establece la *confianza de infraestructura* (una tarea ECS genuina con un rol aprobado); el admission controller añade *política de aplicación* encima (esta tarea puede ser `service-a`). Ninguno basta por sí solo — el SVID se emite solo cuando el nodo verificado tiene una entrada admitida que coincida.
 
 ## Probando la arquitectura
 
