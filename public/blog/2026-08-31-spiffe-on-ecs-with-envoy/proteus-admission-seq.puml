@@ -1,0 +1,20 @@
+@startuml
+title Proteus — Workload Admission (Entry Creation)
+
+actor "operator / CI" as op
+participant "admission-controller" as ac
+participant "SPIRE Server" as server
+participant "SPIRE Agent" as agent
+
+op -> ac : POST /admit (service-a)
+ac -> server : CreateEntry (spiffe id + selectors)
+server --> ac : entry-id
+note over ac : ADMITTED: entry created
+
+agent -> server : SDS StreamSecrets (service-a)
+alt entry exists
+    server --> agent : X509-SVID issued
+else no entry yet
+    server --> agent : workload not authorized
+end
+@enduml

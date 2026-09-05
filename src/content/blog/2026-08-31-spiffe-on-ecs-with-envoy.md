@@ -55,6 +55,10 @@ if !isRoleAllowed(taskInfo.TaskRoleARN) {
 
 So a task can *claim* an ARN, but the server verifies it out-of-band via `DescribeTasks` and only accepts pre-approved IAM roles.
 
+![Node attestation sequence — the SPIRE Agent claims a task ARN; the SPIRE Server verifies it against the ECS API and an IAM-role allow-list before issuing a node SVID](/blog/2026-08-31-spiffe-on-ecs-with-envoy/proteus-node-attestation.png)
+
+**How to read it:** the **SPIRE Agent** only *claims* an identity (it forwards the task ARN it read from metadata). The **SPIRE Server** is the trust anchor — it calls the **ECS API** (`DescribeTasks`) to confirm the task really exists and to fetch its IAM role, then checks that role against an allow-list. Only if the role passes does it mint the node SVID. This is why a compromised task can't forge an identity: the proof comes from AWS, not from the agent's own claim.
+
 ### Workload attestation + admission — proving the service
 
 Node attestation says *which task*; the admission controller says *which service identity that task may hold*. On `POST /admit` it creates a SPIRE registration entry via the Entry API:
@@ -232,6 +236,10 @@ if !isRoleAllowed(taskInfo.TaskRoleARN) {
 ```
 
 Así, una tarea puede *afirmar* un ARN, pero el servidor lo verifica por fuera con `DescribeTasks` y solo acepta roles IAM previamente aprobados.
+
+![Secuencia de atestación de nodo — el SPIRE Agent afirma un ARN de tarea; el SPIRE Server lo verifica contra la API de ECS y una lista de roles IAM permitidos antes de emitir el SVID de nodo](/blog/2026-08-31-spiffe-on-ecs-with-envoy/proteus-node-attestation.png)
+
+**Cómo leerlo:** el **SPIRE Agent** solo *afirma* una identidad (reenvía el ARN de la tarea que leyó de la metadata). El **SPIRE Server** es el ancla de confianza — llama a la **API de ECS** (`DescribeTasks`) para confirmar que la tarea existe y obtener su rol IAM, y luego verifica ese rol contra una lista permitida. Solo si el rol pasa, emite el SVID de nodo. Por eso una tarea comprometida no puede falsificar una identidad: la prueba viene de AWS, no de la afirmación del agente.
 
 ### Atestación de workload + admisión — probando el servicio
 

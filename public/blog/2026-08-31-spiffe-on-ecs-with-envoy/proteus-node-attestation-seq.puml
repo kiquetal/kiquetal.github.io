@@ -1,0 +1,26 @@
+@startuml
+title Proteus — Node Attestation + Admission on ECS Fargate
+
+participant "SPIRE Agent" as agent #4A6B7C
+participant "SPIRE Server" as server #2C3E4A
+participant "ECS API" as ecs #7A9BAE
+participant "admission" as ac #C77D3A
+
+agent -> agent : read task metadata
+agent -> server : attest (TaskARN, cluster, family)
+note over server : verifies out-of-band
+server -> ecs : DescribeTasks(TaskARN)
+ecs --> server : TaskRoleARN
+
+alt role in allow-list
+    note over server : node granted
+    server --> agent : node SVID
+else role not allowed
+    note over server : claim rejected
+    server --> agent : PermissionDenied
+end
+
+ac -> server : POST /admit
+note over ac : picks service identity
+server -> ac : CreateEntry OK
+@enduml
