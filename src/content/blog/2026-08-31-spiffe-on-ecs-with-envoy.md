@@ -76,6 +76,10 @@ The test walks through a **dark → admit → live** progression, proving that n
 
 ![Dark by default vs live after admit — SDS denies the SVID until the admission controller creates the SPIRE entry](/blog/2026-08-31-spiffe-on-ecs-with-envoy/dark_vs_live.png)
 
+The same story as a sequence: in the **dark** branch Envoy's SDS request is denied and the call fails with `503 UF`; in the **live** branch — after the admission controller creates the SPIRE entry — the SVID is pushed and the mTLS call to `service-b` succeeds.
+
+![Proteus mTLS sequence — dark (SDS denied, 503 UF) vs live (SVID pushed, mTLS succeeds) after admission](/blog/2026-08-31-spiffe-on-ecs-with-envoy/proteus-mtls-dark-by-default-vs-live-after-admit.png)
+
 ### Step 1 — Dark state: no workload is admitted yet
 
 Before any admission, Envoy asks SPIRE for an SVID and is rejected. The Envoy log on `service-a` shows the request failing with `503 flags=UF` and, underneath, the SDS stream being closed:
@@ -249,6 +253,10 @@ El montaje es intencionalmente mínimo: dos servicios ECS, `service-a` (el invoc
 La prueba recorre una progresión **oscuro → admitido → activo**, demostrando que ningún workload recibe una identidad hasta que ha sido admitido explícitamente.
 
 ![Oscuro por defecto vs activo tras la admisión — SDS deniega el SVID hasta que el admission controller crea la entrada en SPIRE](/blog/2026-08-31-spiffe-on-ecs-with-envoy/dark_vs_live.png)
+
+La misma historia como secuencia: en la rama **oscura** la petición SDS de Envoy es denegada y la llamada falla con `503 UF`; en la rama **activa** — tras crear el admission controller la entrada en SPIRE — el SVID se entrega y la llamada mTLS a `service-b` tiene éxito.
+
+![Secuencia mTLS de Proteus — oscuro (SDS denegado, 503 UF) vs activo (SVID entregado, mTLS exitoso) tras la admisión](/blog/2026-08-31-spiffe-on-ecs-with-envoy/proteus-mtls-dark-by-default-vs-live-after-admit.png)
 
 ### Paso 1 — Estado oscuro: ningún workload admitido todavía
 
