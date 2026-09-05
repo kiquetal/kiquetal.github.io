@@ -1,0 +1,26 @@
+@startuml
+title Proteus mTLS — Dark by Default vs Live After Admit
+
+actor "service-a" as aApp
+participant "egress envoy" as aEnvoy
+database "spire-agent" as aAgent
+participant "ingress envoy" as bEnvoy
+participant "service-b" as bApp
+
+aApp -> aEnvoy : GET localhost:9903
+
+alt DARK — not admitted
+    aEnvoy -> aAgent : SDS request cert
+    aAgent --> aEnvoy : DENIED not authorized
+    aEnvoy --> aApp : 503 UF no secret
+    note over aEnvoy : Handshake never starts
+else LIVE — admitted
+    aAgent ->> aEnvoy : SVID pushed
+    aEnvoy -> bEnvoy : mTLS handshake
+    bEnvoy --> aEnvoy : peer verified service-a
+    aEnvoy -> bApp : 200 forwarded
+    bApp --> aApp : 200 OK
+end
+
+note over aAgent : Admission controller flips dark to live
+@enduml
