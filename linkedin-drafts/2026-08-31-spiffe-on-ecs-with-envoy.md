@@ -25,9 +25,6 @@ If you've done SPIFFE/SPIRE on Kubernetes, ECS forces you to rethink a few assum
 Read the full technical deep-dive:
 👉 https://kiquetal.github.io/blog/2026-08-31-spiffe-on-ecs-with-envoy
 
-The code is open source:
-👉 https://github.com/kiquetal/proteus-oss
-
 ---
 ## Versión en Español
 
@@ -48,8 +45,5 @@ Si ya hiciste SPIFFE/SPIRE en Kubernetes, ECS te obliga a repensar varias suposi
 
 Lee el análisis completo:
 👉 https://kiquetal.github.io/blog/2026-08-31-spiffe-on-ecs-with-envoy
-
-El código es open source:
-👉 https://github.com/kiquetal/proteus-oss
 
 #SPIFFE #SPIRE #ECS #Envoy #mTLS #ZeroTrust #AWS #CloudSecurity #Fargate #DevSecOps #PlatformEngineering
