@@ -3,12 +3,12 @@ title:
   en: 'SPIFFE on ECS with Envoy'
   es: 'SPIFFE en ECS con Envoy'
 excerpt:
-  en: 'TODO'
-  es: 'TODO'
+  en: 'Building a poor man''s zero-trust mesh on ECS Fargate: mTLS between services with SPIFFE/SPIRE and Envoy. A custom node attestor proves the task via the ECS API, an admission controller gates which service identity it may hold, and identity is deny-by-default until admitted.'
+  es: 'Construyendo una malla zero-trust casera en ECS Fargate: mTLS entre servicios con SPIFFE/SPIRE y Envoy. Un atestador de nodo propio prueba la tarea vía la API de ECS, un admission controller decide qué identidad de servicio puede tener, y la identidad es denegada por defecto hasta ser admitida.'
 date: 2026-08-31
-updated: 2026-09-04
+updated: 2026-09-05
 tags: ['spiffe', 'spire', 'ecs', 'envoy', 'aws', 'security', 'mtls']
-draft: true
+draft: false
 ---
 
 <div class="lang-en">
