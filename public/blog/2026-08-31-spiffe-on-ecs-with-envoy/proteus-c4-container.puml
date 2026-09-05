@@ -1,0 +1,41 @@
+@startuml
+!include <C4/C4_Container>
+title Proteus — Container View (SPIFFE mTLS on ECS)
+
+Person(admin, "Admin", "Manages admission policy")
+System_Ext(cloudmap, "AWS Cloud Map", "DNS discovery — proteus.local")
+
+System_Boundary(spire_task, "SPIRE Server Task (Fargate)") {
+    Container(spire_server, "SPIRE Server", "Go :8081", "Trust domain proteus.local; issues X.509 SVIDs")
+    Container(admission, "Admission Controller", "Go :8090", "Creates SPIRE entries via gRPC over Unix socket")
+}
+
+System_Boundary(svc_a, "service-a Task (Fargate)") {
+    Container(agent_a, "SPIRE Agent", "Go", "Attestation + SDS provider")
+    Container(envoy_a, "Envoy sidecar", "proxy :9901-:9903", "mTLS via SPIRE SDS")
+    Container(app_a, "Service A", "Go :8080", "Business logic")
+}
+
+System_Boundary(svc_b, "service-b Task (Fargate)") {
+    Container(agent_b, "SPIRE Agent", "Go", "Attestation + SDS provider")
+    Container(envoy_b, "Envoy sidecar", "proxy :9901-:9903", "mTLS via SPIRE SDS")
+    Container(app_b, "Service B", "Go :8080", "Business logic")
+}
+
+Rel(admin, admission, "defines admission policy")
+Rel(admission, spire_server, "creates entries", "gRPC over UDS")
+
+Rel(agent_a, spire_server, "attestation", "TCP :8081")
+Rel(agent_b, spire_server, "attestation", "TCP :8081")
+
+Rel(agent_a, envoy_a, "pushes SVID", "SDS over UDS")
+Rel(agent_b, envoy_b, "pushes SVID", "SDS over UDS")
+
+Rel(app_a, envoy_a, "egress", "HTTP :9903")
+Rel(envoy_b, app_b, "ingress", "HTTP :8080")
+
+Rel(envoy_a, envoy_b, "mTLS SPIFFE", ":9903 to :9902")
+
+Rel(envoy_a, cloudmap, "DNS lookup")
+Rel(envoy_b, cloudmap, "DNS lookup")
+@enduml

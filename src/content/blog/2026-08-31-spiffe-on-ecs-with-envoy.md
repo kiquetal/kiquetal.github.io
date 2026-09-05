@@ -31,8 +31,6 @@ The admission controller is used to allow/deny the registration of the service i
 
 Identity is established in two layers: first SPIRE decides which *task* it trusts (node attestation), then the admission controller decides which *service identity* that task is allowed to get (workload attestation).
 
-![Proteus C4 Container — SPIRE Server, Admission Controller, Envoy sidecars](/blog/2026-08-31-spiffe-on-ecs-with-envoy/c4-container-en.png)
-
 ### Node attestation — proving the ECS task
 
 On Fargate there is no EC2 instance, so the usual `aws_iid` node attestor doesn't apply. I wrote a small custom plugin (`proteus_ecs`). The agent side reads the task metadata endpoint and forwards the task ARN, cluster and family:
@@ -208,8 +206,6 @@ El Admission Controller se usa para permitir/denegar el registro del servicio en
 ## Arquitectura
 
 La identidad se establece en dos capas: primero SPIRE decide en qué *tarea* confía (atestación de nodo) y luego el admission controller decide qué *identidad de servicio* puede obtener esa tarea (atestación de workload).
-
-![Proteus C4 Container — SPIRE Server, Admission Controller, sidecars Envoy](/blog/2026-08-31-spiffe-on-ecs-with-envoy/c4-container-en.png)
 
 ### Atestación de nodo — probando la tarea ECS
 
