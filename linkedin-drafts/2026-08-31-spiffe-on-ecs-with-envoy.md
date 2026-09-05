@@ -1,51 +1,55 @@
 # LinkedIn Draft: SPIFFE on ECS with Envoy — A Poor Man's Zero Trust
 
-> 📷 **Image Recommendation**: Attach the C4 Container diagram (SPIRE Server, Admission Controller, Envoy sidecars) from the blog.
+> 📷 **Image Recommendation**: Attach the Proteus container diagram (SPIRE Server Task + two service tasks with app, Envoy sidecar egress :9903 / ingress :9902, and SPIRE Agent) from the blog.
 
-> ⚠️ **Note**: The blog post is still `draft: true` with a `TODO` excerpt. Flesh out the article before publishing this post so the link points at finished content.
+> ⚠️ **Note**: Before publishing, flip the blog post to `draft: false`, fill in the `excerpt`, and deploy so the link points at finished content.
 
 ---
 ## English Version
 
-I love Istio, but I wanted to understand what actually happens under the hood. So I rebuilt a "poor man's zero trust" on Amazon ECS — mTLS between services, no long-lived secrets, workload identity that rotates automatically. 🔐
+How do you get zero-trust mTLS on ECS Fargate when there's no EC2 instance to attest against? 🔐
 
-The stack:
+I love Istio — but I wanted to understand what actually happens under the hood. So I built **Proteus**: an mTLS mesh for Amazon ECS from scratch, using SPIFFE/SPIRE + Envoy. A "poor man's zero trust," but every piece is one I now genuinely understand.
 
-1️⃣ **SPIRE Server + Admission Controller** — gate exactly which workloads are allowed to register their identity.
-2️⃣ **SPIRE Agent + Envoy sidecar** per task — issue and consume X.509 SVIDs as the identity primitive.
-3️⃣ **Envoy over SDS** (Secret Discovery Service) — pull SVIDs dynamically and drive the mTLS handshake, with rotation handled automatically.
+The hard part: on Fargate there's no host, so the usual `aws_iid` node attestor doesn't apply. I wrote a custom SPIRE plugin that reads the ECS task metadata endpoint — then verifies it **server-side** via the ECS API (`DescribeTasks`) against an IAM-role allow-list. A task can *claim* an ARN, but it can't fake one.
 
-The interesting parts weren't the happy path — they were the ECS-specific gotchas:
+Identity is established in two layers:
 
-- Node vs workload attestation on ECS
-- Sharing a Unix domain socket between containers in a single task
-- The Fargate-vs-EC2 tradeoff for where the SPIRE agent actually lives
+1️⃣ **Node attestation** — SPIRE decides which *task* it trusts.
+2️⃣ **Workload attestation + admission** — an admission controller decides which *service identity* that task is allowed to hold.
 
-If you've done SPIFFE/SPIRE on Kubernetes, ECS forces you to rethink a few assumptions. I wrote up the architecture and the reasoning.
+The result is deny-by-default — I call it **"dark until admitted."** No workload gets an SVID until it's explicitly admitted. The moment the admission controller creates the SPIRE entry, the SVID flows over SDS, Envoy completes the mTLS handshake, and service-a → service-b starts working — all with short-lived X.509 certs and zero long-lived secrets ever touching the app.
 
-Read the full technical deep-dive here:
+If you've done SPIFFE/SPIRE on Kubernetes, ECS forces you to rethink a few assumptions (node vs workload attestation, sharing a Unix socket across containers in a task, and where the SPIRE agent actually lives). I wrote up the architecture, the reasoning, and the dark-vs-live walkthrough with real logs.
+
+Read the full technical deep-dive:
 👉 https://kiquetal.github.io/blog/2026-08-31-spiffe-on-ecs-with-envoy
+
+The code is open source:
+👉 https://github.com/kiquetal/proteus-oss
 
 ---
 ## Versión en Español
 
-Me gusta Istio, pero quería entender qué pasa realmente por debajo. Así que reconstruí una versión "casera" de zero trust sobre Amazon ECS — mTLS entre servicios, sin secretos de larga duración e identidad de workload que rota automáticamente. 🔐
+¿Cómo lograr mTLS zero-trust en ECS Fargate cuando no hay una instancia EC2 contra la cual atestar? 🔐
 
-El stack:
+Me gusta Istio — pero quería entender qué pasa realmente por debajo. Así que construí **Proteus**: una malla mTLS para Amazon ECS desde cero, usando SPIFFE/SPIRE + Envoy. Una versión "casera" de zero trust, pero donde entiendo cada pieza.
 
-1️⃣ **SPIRE Server + Admission Controller** — controlar exactamente qué workloads pueden registrar su identidad.
-2️⃣ **SPIRE Agent + sidecar Envoy** por tarea — emitir y consumir SVIDs X.509 como primitiva de identidad.
-3️⃣ **Envoy vía SDS** (Secret Discovery Service) — obtener los SVIDs de forma dinámica y ejecutar el handshake mTLS, con rotación automática.
+La parte difícil: en Fargate no hay host, así que el atestador de nodo habitual `aws_iid` no aplica. Escribí un plugin propio de SPIRE que lee el endpoint de metadata de la tarea ECS — y luego lo verifica **del lado del servidor** vía la API de ECS (`DescribeTasks`) contra una lista de roles IAM permitidos. Una tarea puede *afirmar* un ARN, pero no puede falsificarlo.
 
-Lo interesante no fue el camino feliz, sino los detalles propios de ECS:
+La identidad se establece en dos capas:
 
-- Atestación de nodo vs. de workload en ECS
-- Compartir un socket Unix entre contenedores de una misma tarea
-- El compromiso Fargate vs. EC2 para decidir dónde vive el agente SPIRE
+1️⃣ **Atestación de nodo** — SPIRE decide en qué *tarea* confía.
+2️⃣ **Atestación de workload + admisión** — un admission controller decide qué *identidad de servicio* puede tener esa tarea.
 
-Si ya hiciste SPIFFE/SPIRE en Kubernetes, ECS te obliga a repensar varias suposiciones. Documenté la arquitectura y el razonamiento.
+El resultado es denegar-por-defecto — lo llamo **"oscuro hasta ser admitido."** Ningún workload obtiene un SVID hasta ser admitido explícitamente. En el momento en que el admission controller crea la entrada en SPIRE, el SVID fluye vía SDS, Envoy completa el handshake mTLS, y service-a → service-b empieza a funcionar — todo con certificados X.509 de corta duración y cero secretos de larga duración tocando la aplicación.
 
-Lee el análisis completo aquí:
+Si ya hiciste SPIFFE/SPIRE en Kubernetes, ECS te obliga a repensar varias suposiciones (atestación de nodo vs. workload, compartir un socket Unix entre contenedores de una tarea, y dónde vive el agente SPIRE). Documenté la arquitectura, el razonamiento y el recorrido oscuro-vs-activo con logs reales.
+
+Lee el análisis completo:
 👉 https://kiquetal.github.io/blog/2026-08-31-spiffe-on-ecs-with-envoy
 
-#SPIFFE #SPIRE #ECS #Envoy #mTLS #ZeroTrust #AWS #CloudSecurity #DevSecOps #PlatformEngineering
+El código es open source:
+👉 https://github.com/kiquetal/proteus-oss
+
+#SPIFFE #SPIRE #ECS #Envoy #mTLS #ZeroTrust #AWS #CloudSecurity #Fargate #DevSecOps #PlatformEngineering
