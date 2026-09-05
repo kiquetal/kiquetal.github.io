@@ -107,6 +107,8 @@ On the `service-b` side, the SPIRE Agent reports the same thing from its own per
 
 This is the whole point of the design: identity is deny-by-default.
 
+> **What these logs actually prove.** The `workload is not authorized` errors are a *workload attestation* failure — there's no registration entry matching the requested SPIFFE ID yet. They are **not** node attestation. In fact, for the agent to reach this point it must have *already* node-attested successfully at startup (otherwise it couldn't talk to the Server at all). Node attestation happens first, almost immediately when the task boots; it just isn't what these dark-state screenshots capture. To see it directly you'd look at the agent/server startup logs where the node SVID (`spiffe://proteus.local/agent/ecs/<task-id>`) is issued.
+
 ### Step 2 — Admit service-a
 
 The Admission Controller is what flips a workload from dark to allowed. Once it approves `service-a`, it logs the admission and the SPIRE registration entry it created:
@@ -297,6 +299,8 @@ Del lado de `service-b`, el SPIRE Agent reporta lo mismo desde su perspectiva �
 ![SPIRE Agent en service-b denegado — error building stream secrets](/blog/2026-08-31-spiffe-on-ecs-with-envoy/spire-agent-svc-b-dark.png)
 
 Este es justamente el punto del diseño: la identidad es denegada por defecto.
+
+> **Qué prueban realmente estos logs.** Los errores `workload is not authorized` son una falla de *atestación de workload* — todavía no existe una entrada de registro que coincida con el SPIFFE ID solicitado. **No** son atestación de nodo. De hecho, para que el agente llegue a este punto ya tuvo que haber hecho la atestación de nodo con éxito al arrancar (de lo contrario no podría ni hablar con el Server). La atestación de nodo ocurre primero, casi de inmediato al iniciar la tarea; simplemente no es lo que capturan estas capturas del estado oscuro. Para verla directamente mirarías los logs de arranque del agente/servidor donde se emite el SVID de nodo (`spiffe://proteus.local/agent/ecs/<task-id>`).
 
 ### Paso 2 — Admitir service-a
 
