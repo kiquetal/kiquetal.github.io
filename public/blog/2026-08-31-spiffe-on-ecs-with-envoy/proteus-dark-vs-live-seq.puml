@@ -16,10 +16,11 @@ alt DARK — not admitted
     note over aEnvoy : Handshake never starts
 else LIVE — admitted
     aAgent ->> aEnvoy : SVID pushed
-    aEnvoy -> bEnvoy : mTLS handshake
+    aEnvoy -> bEnvoy : mTLS to :9902
     bEnvoy --> aEnvoy : peer verified service-a
-    aEnvoy -> bApp : 200 forwarded
-    bApp --> aApp : 200 OK
+    bEnvoy -> bApp : forward :8080
+    bApp --> aEnvoy : 200 OK
+    aEnvoy --> aApp : 200 OK
 end
 
 note over aAgent : Admission controller flips dark to live
