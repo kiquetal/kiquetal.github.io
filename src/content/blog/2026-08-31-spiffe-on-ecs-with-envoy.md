@@ -35,7 +35,7 @@ Identity is established in two layers: first SPIRE decides which *task* it trust
 
 ### Node attestation — proving the ECS task
 
-On Fargate there is no EC2 instance, so the usual `aws_iid` node attestor doesn't apply. I wrote a small custom plugin (`proteus_ecs`). The agent side reads the task metadata endpoint and forwards the task ARN, cluster and family:
+On Fargate there is no EC2 instance, so the usual `aws_iid` node attestor doesn't apply. I wrote a small custom node attestor, `proteus_ecs` — and like every SPIRE node attestor it comes in **two halves**: an *agent-side* plugin that gathers and sends the claim, and a *server-side* plugin that verifies it and decides whether to issue the node SVID. The agent side reads the task metadata endpoint and forwards the task ARN, cluster and family:
 
 ```go
 metadataURI := os.Getenv("ECS_CONTAINER_METADATA_URI_V4")
@@ -228,7 +228,7 @@ La identidad se establece en dos capas: primero SPIRE decide en qué *tarea* con
 
 ### Atestación de nodo — probando la tarea ECS
 
-En Fargate no hay una instancia EC2, así que el atestador de nodo habitual `aws_iid` no aplica. Escribí un pequeño plugin propio (`proteus_ecs`). El lado del agente lee el endpoint de metadata de la tarea y reenvía el ARN de la tarea, el cluster y la family:
+En Fargate no hay una instancia EC2, así que el atestador de nodo habitual `aws_iid` no aplica. Escribí un atestador de nodo propio, `proteus_ecs` — y como todo atestador de nodo de SPIRE viene en **dos mitades**: un plugin del *lado del agente* que reúne y envía la afirmación, y un plugin del *lado del servidor* que la verifica y decide si emite el SVID de nodo. El lado del agente lee el endpoint de metadata de la tarea y reenvía el ARN de la tarea, el cluster y la family:
 
 ```go
 metadataURI := os.Getenv("ECS_CONTAINER_METADATA_URI_V4")
