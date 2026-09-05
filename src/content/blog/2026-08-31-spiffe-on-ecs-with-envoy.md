@@ -80,6 +80,22 @@ Until that entry exists, the agent has nothing to match and SDS returns `workloa
 - **`proteus_ecs` plugin (node attestation)** — *is this really the ECS task it claims to be?* Its server-side half calls the ECS API (`DescribeTasks`) to verify the task and its IAM role, then issues a **node SVID** (`spiffe://proteus.local/agent/ecs/<task-id>`). Trust comes from AWS, not from the workload's own claim.
 - **Admission controller (workload attestation)** — *is this task allowed to hold this service identity?* On `POST /admit` it creates a registration entry whose **`parentID` is exactly that node SVID**. That parent-child link is the seam: the controller can only grant a workload identity to a node the plugin already vouched for.
 
+**How the entry finds its agent.** The `CreateEntry` call carries three fields that matter here:
+
+```go
+CreateEntry(ctx, parentID, spiffeID, selectors)
+// parentID  = spiffe://proteus.local/agent/ecs/<task-id>  ← the agent's node SVID
+// spiffeID  = spiffe://proteus.local/service-a            ← the workload identity
+// selectors = [unix:uid:1000]                             ← which process on that node
+```
+
+When Envoy later asks its local agent for `service-a`'s SVID over SDS, the SPIRE Server decides whether to issue it by matching **two things at once**:
+
+1. **`parentID`** — is the *requesting agent's* node SVID equal to the entry's `parentID`? This binds the entry to one specific agent. `service-a`'s entry can only ever be served by the agent whose node SVID is `spiffe://proteus.local/agent/ecs/<task-id>` — i.e. the agent inside `service-a`'s own task. No other task's agent matches.
+2. **`selectors`** — does the calling workload satisfy the selectors (`unix:uid:1000`)? This narrows it to the right process *within* that node.
+
+Only when both match does the Server mint and stream the SVID. This is the security property: even if an attacker knew `service-a`'s SPIFFE ID, they couldn't obtain its SVID from a different task, because their agent's node identity wouldn't equal the entry's `parentID`. And it's why node attestation must run first — without a node SVID there is no `parentID` to point the entry at.
+
 So the plugin establishes *infrastructure trust* (a genuine ECS task with an approved role); the admission controller layers *application policy* on top (this task may be `service-a`). Neither alone is enough — the SVID is minted only when the verified node has an admitted entry to match.
 
 ## Testing the architecture
@@ -231,6 +247,22 @@ Hasta que esa entrada existe, el agente no tiene nada que coincidir y SDS devuel
 
 - **plugin `proteus_ecs` (atestación de nodo)** — *¿es realmente la tarea ECS que dice ser?* Su lado servidor llama a la API de ECS (`DescribeTasks`) para verificar la tarea y su rol IAM, y luego emite un **SVID de nodo** (`spiffe://proteus.local/agent/ecs/<task-id>`). La confianza viene de AWS, no de la afirmación del propio workload.
 - **admission controller (atestación de workload)** — *¿puede esa tarea tener esta identidad de servicio?* En `POST /admit` crea una entrada de registro cuyo **`parentID` es exactamente ese SVID de nodo**. Ese enlace padre-hijo es la costura: el controller solo puede otorgar una identidad de workload a un nodo que el plugin ya avaló.
+
+**Cómo la entrada encuentra a su agente.** La llamada `CreateEntry` lleva tres campos que importan aquí:
+
+```go
+CreateEntry(ctx, parentID, spiffeID, selectors)
+// parentID  = spiffe://proteus.local/agent/ecs/<task-id>  ← el SVID de nodo del agente
+// spiffeID  = spiffe://proteus.local/service-a            ← la identidad de workload
+// selectors = [unix:uid:1000]                             ← qué proceso en ese nodo
+```
+
+Cuando después Envoy le pide a su agente local el SVID de `service-a` vía SDS, el SPIRE Server decide si emitirlo haciendo coincidir **dos cosas a la vez**:
+
+1. **`parentID`** — ¿el SVID de nodo del *agente solicitante* es igual al `parentID` de la entrada? Esto ata la entrada a un agente específico. La entrada de `service-a` solo puede servirla el agente cuyo SVID de nodo es `spiffe://proteus.local/agent/ecs/<task-id>` — es decir, el agente dentro de la propia tarea de `service-a`. Ningún agente de otra tarea coincide.
+2. **`selectors`** — ¿el workload que llama cumple los selectores (`unix:uid:1000`)? Esto lo acota al proceso correcto *dentro* de ese nodo.
+
+Solo cuando ambos coinciden el Server emite y transmite el SVID. Esta es la propiedad de seguridad: aunque un atacante conociera el SPIFFE ID de `service-a`, no podría obtener su SVID desde otra tarea, porque la identidad de nodo de su agente no sería igual al `parentID` de la entrada. Y por eso la atestación de nodo debe correr primero — sin un SVID de nodo no hay `parentID` al cual apuntar la entrada.
 
 Así, el plugin establece la *confianza de infraestructura* (una tarea ECS genuina con un rol aprobado); el admission controller añade *política de aplicación* encima (esta tarea puede ser `service-a`). Ninguno basta por sí solo — el SVID se emite solo cuando el nodo verificado tiene una entrada admitida que coincida.
 
