@@ -21,6 +21,7 @@ We create the architecture using:
 - SPIRE Server +  Admission Controller to allow/deny regiser in a service discovery
 - SPIRE-Agent + Envoy sidecar to provide mTLS
 - envoy sidecar to provide mTLS between services
+- a custom `proteus_ecs` node attestor (two plugin halves: agent-side gathers the task claim, server-side verifies it against the ECS API) — because Fargate has no EC2 host for the usual `aws_iid` attestor
 
 
 We have configured the envoy to go from service-a to service-b using mtls, for this goal we configured the envoy to use SDS (Secret Discovery Service) to get the SVIDs from SPIRE-Agent, and we configured the SPIRE-Agent to get the SVIDs from SPIRE-Server.
@@ -215,6 +216,7 @@ Construimos la arquitectura usando:
 
 - SPIRE Server + Admission Controller para permitir/denegar el registro en el service discovery
 - SPIRE-Agent + sidecar Envoy para proveer mTLS entre servicios
+- un atestador de nodo propio `proteus_ecs` (dos mitades de plugin: el lado del agente reúne la afirmación de la tarea, el lado del servidor la verifica contra la API de ECS) — porque Fargate no tiene host EC2 para el atestador `aws_iid` habitual
 
 Configuramos Envoy para ir de `service-a` a `service-b` usando mTLS; para ello configuramos Envoy para usar SDS (Secret Discovery Service) y obtener los SVIDs desde el SPIRE-Agent, y configuramos el SPIRE-Agent para obtener los SVIDs desde el SPIRE-Server.
 
