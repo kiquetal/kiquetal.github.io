@@ -18,7 +18,9 @@ The goal was very clear: implement a mTLS solution for ECS, a poor's version of 
 We create the architecture using:
 
 - SPIRE Server +  Admission Controller to allow/deny regiser in a service discovery
-- SPIRE-AGENT + Envoy sidecar to provide mTLS
+- SPIRE-Agent + Envoy sidecar to provide mTLS
+- envoy sidecar to provide mTLS between services
+
 
 
 
