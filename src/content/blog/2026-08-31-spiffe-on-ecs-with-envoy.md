@@ -22,6 +22,19 @@ We create the architecture using:
 - envoy sidecar to provide mTLS between services
 
 
+We have configured the envoy to go from service-a to service-b using mtls, for this goal we configured the envoy to use SDS (Secret Discovery Service) to get the SVIDs from SPIRE-Agent, and we configured the SPIRE-Agent to get the SVIDs from SPIRE-Server.
+
+The admission controller is used to allow/deny the registration of the service in the service discovery, this is a very important step to avoid that a malicious service can register in the service discovery and get access to the other services.
+
+A very simple architecture which works in the following way:
+
+- A ecs task is started, the envoy sidecar is started and it connects to the SPIRE-Agent to get the SVIDs.
+- The SPIRE-Agent connects to the SPIRE-Server to get the SVIDs.
+- At first not service were admitted, so the service discovery fails when try to obtain the CERTS, 
+showing operation not authozized.
+- Once the service is admitted, the service discovery the envoy recevies the SVIDS.
+
+
 
 
 
