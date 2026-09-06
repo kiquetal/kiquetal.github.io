@@ -4,7 +4,7 @@ title:
   es: 'SPIFFE en ECS con Envoy'
 excerpt:
   en: 'Building a poor man''s zero-trust mesh on ECS Fargate: mTLS between services with SPIFFE/SPIRE and Envoy. A custom node attestor proves the task via the ECS API, an admission controller gates which service identity it may hold, and identity is deny-by-default until admitted.'
-  es: 'Construyendo una malla zero-trust casera en ECS Fargate: mTLS entre servicios con SPIFFE/SPIRE y Envoy. Un atestador de nodo propio prueba la tarea vía la API de ECS, un admission controller decide qué identidad de servicio puede tener, y la identidad es denegada por defecto hasta ser admitida.'
+  es: 'Construyendo una malla zero-trust casera en ECS Fargate: mTLS entre servicios con SPIFFE/SPIRE y Envoy. Un verificador de nodo propio prueba la tarea vía la API de ECS, un admission controller decide qué identidad de servicio puede tener, y la identidad es denegada por defecto hasta ser admitida.'
 date: 2026-08-31
 updated: 2026-09-05
 tags: ['spiffe', 'spire', 'ecs', 'envoy', 'aws', 'security', 'mtls']
@@ -190,7 +190,7 @@ Construimos la arquitectura usando:
 
 - SPIRE Server + Admission Controller para permitir/denegar el registro en el service discovery
 - SPIRE-Agent + sidecar Envoy para proveer mTLS entre servicios
-- un atestador de nodo propio `proteus_ecs` (dos mitades de plugin: el lado del agente reúne la afirmación de la tarea, el lado del servidor la verifica contra la API de ECS) — porque Fargate no tiene host EC2 para el atestador `aws_iid` habitual
+- un verificador de nodo propio `proteus_ecs` (dos mitades de plugin: el lado del agente reúne la afirmación de la tarea, el lado del servidor la verifica contra la API de ECS) — porque Fargate no tiene host EC2 para el verificador `aws_iid` habitual
 
 Configuramos Envoy para ir de `service-a` a `service-b` usando mTLS; para ello configuramos Envoy para usar SDS (Secret Discovery Service) y obtener los SVIDs desde el SPIRE-Agent, y configuramos el SPIRE-Agent para obtener los SVIDs desde el SPIRE-Server.
 
@@ -198,13 +198,13 @@ El Admission Controller se usa para permitir/denegar el registro del servicio en
 
 ## Arquitectura
 
-La identidad se establece en dos capas: primero SPIRE decide en qué *tarea* confía (atestación de nodo) y luego el admission controller decide qué *identidad de servicio* puede obtener esa tarea (atestación de workload).
+La identidad se establece en dos capas: primero SPIRE decide en qué *tarea* confía (verificación de nodo) y luego el admission controller decide qué *identidad de servicio* puede obtener esa tarea (verificación de workload).
 
 ![Vista de contenedores de Proteus — tarea de SPIRE Server + Admission Controller, y dos tareas de servicio con app, sidecar Envoy (egress :9903 / ingress :9902) y SPIRE Agent](/blog/2026-08-31-spiffe-on-ecs-with-envoy/proteus-container.png)
 
-### Atestación de nodo — probando la tarea ECS
+### Verificación de nodo — probando la tarea ECS
 
-En Fargate no hay una instancia EC2, así que el atestador de nodo habitual `aws_iid` no aplica. Escribí un atestador de nodo propio, `proteus_ecs` — y como todo atestador de nodo de SPIRE viene en **dos mitades**: un plugin del *lado del agente* que reúne y envía la afirmación, y un plugin del *lado del servidor* que la verifica y decide si emite el SVID de nodo. El lado del agente lee el endpoint de metadata de la tarea y reenvía el ARN de la tarea, el cluster y la family:
+En Fargate no hay una instancia EC2, así que el verificador de nodo habitual `aws_iid` no aplica. Escribí un verificador de nodo propio, `proteus_ecs` — y como todo verificador de nodo de SPIRE viene en **dos mitades**: un plugin del *lado del agente* que reúne y envía la afirmación, y un plugin del *lado del servidor* que la verifica y decide si emite el SVID de nodo. El lado del agente lee el endpoint de metadata de la tarea y reenvía el ARN de la tarea, el cluster y la family:
 
 ```go
 metadataURI := os.Getenv("ECS_CONTAINER_METADATA_URI_V4")
@@ -224,13 +224,13 @@ if !isRoleAllowed(taskInfo.TaskRoleARN) {
 
 Así, una tarea puede *afirmar* un ARN, pero el servidor lo verifica por fuera con `DescribeTasks` y solo acepta roles IAM previamente aprobados.
 
-![Secuencia de atestación de nodo — el SPIRE Agent afirma un ARN de tarea; el SPIRE Server lo verifica contra la API de ECS y una lista de roles IAM permitidos antes de emitir el SVID de nodo](/blog/2026-08-31-spiffe-on-ecs-with-envoy/proteus-node-attestation.png)
+![Secuencia de verificación de nodo — el SPIRE Agent afirma un ARN de tarea; el SPIRE Server lo verifica contra la API de ECS y una lista de roles IAM permitidos antes de emitir el SVID de nodo](/blog/2026-08-31-spiffe-on-ecs-with-envoy/proteus-node-attestation.png)
 
 **Cómo leerlo:** el **SPIRE Agent** solo *afirma* una identidad (reenvía el ARN de la tarea que leyó de la metadata). El **SPIRE Server** es el ancla de confianza — llama a la **API de ECS** (`DescribeTasks`) para confirmar que la tarea existe y obtener su rol IAM, y luego verifica ese rol contra una lista permitida. Solo si el rol pasa, emite el SVID de nodo. Por eso una tarea comprometida no puede falsificar una identidad: la prueba viene de AWS, no de la afirmación del agente.
 
-### Atestación de workload + admisión — probando el servicio
+### Verificación de workload + admisión — probando el servicio
 
-La atestación de nodo dice *qué tarea*; el admission controller dice *qué identidad de servicio puede tener esa tarea*. En `POST /admit` crea una entrada de registro en SPIRE vía la Entry API:
+La verificación de nodo dice *qué tarea*; el admission controller dice *qué identidad de servicio puede tener esa tarea*. En `POST /admit` crea una entrada de registro en SPIRE vía la Entry API:
 
 ```go
 spiffeID  := "spiffe://" + trustDomain + "/" + serviceName // p.ej. .../service-a
@@ -245,8 +245,8 @@ Hasta que esa entrada existe, el agente no tiene nada que coincidir y SDS devuel
 
 **Cómo se relacionan las dos capas.** El plugin `proteus_ecs` y el admission controller responden dos preguntas distintas, y un workload solo obtiene una identidad usable cuando ambas pasan:
 
-- **plugin `proteus_ecs` (atestación de nodo)** — *¿es realmente la tarea ECS que dice ser?* Su lado servidor llama a la API de ECS (`DescribeTasks`) para verificar la tarea y su rol IAM, y luego emite un **SVID de nodo** (`spiffe://proteus.local/agent/ecs/<task-id>`). La confianza viene de AWS, no de la afirmación del propio workload.
-- **admission controller (atestación de workload)** — *¿puede esa tarea tener esta identidad de servicio?* En `POST /admit` crea una entrada de registro cuyo **`parentID` es exactamente ese SVID de nodo**. Ese enlace padre-hijo es la costura: el controller solo puede otorgar una identidad de workload a un nodo que el plugin ya avaló.
+- **plugin `proteus_ecs` (verificación de nodo)** — *¿es realmente la tarea ECS que dice ser?* Su lado servidor llama a la API de ECS (`DescribeTasks`) para verificar la tarea y su rol IAM, y luego emite un **SVID de nodo** (`spiffe://proteus.local/agent/ecs/<task-id>`). La confianza viene de AWS, no de la afirmación del propio workload.
+- **admission controller (verificación de workload)** — *¿puede esa tarea tener esta identidad de servicio?* En `POST /admit` crea una entrada de registro cuyo **`parentID` es exactamente ese SVID de nodo**. Ese enlace padre-hijo es la costura: el controller solo puede otorgar una identidad de workload a un nodo que el plugin ya avaló.
 
 **Cómo la entrada encuentra a su agente.** La llamada `CreateEntry` lleva tres campos que importan aquí:
 
@@ -262,7 +262,7 @@ Cuando después Envoy le pide a su agente local el SVID de `service-a` vía SDS,
 1. **`parentID`** — ¿el SVID de nodo del *agente solicitante* es igual al `parentID` de la entrada? Esto ata la entrada a un agente específico. La entrada de `service-a` solo puede servirla el agente cuyo SVID de nodo es `spiffe://proteus.local/agent/ecs/<task-id>` — es decir, el agente dentro de la propia tarea de `service-a`. Ningún agente de otra tarea coincide.
 2. **`selectors`** — ¿el workload que llama cumple los selectores (`unix:uid:1000`)? Esto lo acota al proceso correcto *dentro* de ese nodo.
 
-Solo cuando ambos coinciden el Server emite y transmite el SVID. Esta es la propiedad de seguridad: aunque un atacante conociera el SPIFFE ID de `service-a`, no podría obtener su SVID desde otra tarea, porque la identidad de nodo de su agente no sería igual al `parentID` de la entrada. Y por eso la atestación de nodo debe correr primero — sin un SVID de nodo no hay `parentID` al cual apuntar la entrada.
+Solo cuando ambos coinciden el Server emite y transmite el SVID. Esta es la propiedad de seguridad: aunque un atacante conociera el SPIFFE ID de `service-a`, no podría obtener su SVID desde otra tarea, porque la identidad de nodo de su agente no sería igual al `parentID` de la entrada. Y por eso la verificación de nodo debe correr primero — sin un SVID de nodo no hay `parentID` al cual apuntar la entrada.
 
 Así, el plugin establece la *confianza de infraestructura* (una tarea ECS genuina con un rol aprobado); el admission controller añade *política de aplicación* encima (esta tarea puede ser `service-a`). Ninguno basta por sí solo — el SVID se emite solo cuando el nodo verificado tiene una entrada admitida que coincida.
 
@@ -292,7 +292,7 @@ Del lado de `service-b`, el SPIRE Agent reporta lo mismo desde su perspectiva �
 
 Este es justamente el punto del diseño: la identidad es denegada por defecto.
 
-> **Qué prueban realmente estos logs.** Los errores `workload is not authorized` son una falla de *atestación de workload* — todavía no existe una entrada de registro que coincida con el SPIFFE ID solicitado. **No** son atestación de nodo. De hecho, para que el agente llegue a este punto ya tuvo que haber hecho la atestación de nodo con éxito al arrancar (de lo contrario no podría ni hablar con el Server). La atestación de nodo ocurre primero, casi de inmediato al iniciar la tarea; simplemente no es lo que capturan estas capturas del estado oscuro. Para verla directamente mirarías los logs de arranque del agente/servidor donde se emite el SVID de nodo (`spiffe://proteus.local/agent/ecs/<task-id>`).
+> **Qué prueban realmente estos logs.** Los errores `workload is not authorized` son una falla de *verificación de workload* — todavía no existe una entrada de registro que coincida con el SPIFFE ID solicitado. **No** son verificación de nodo. De hecho, para que el agente llegue a este punto ya tuvo que haber hecho la verificación de nodo con éxito al arrancar (de lo contrario no podría ni hablar con el Server). La verificación de nodo ocurre primero, casi de inmediato al iniciar la tarea; simplemente no es lo que capturan estas capturas del estado oscuro. Para verla directamente mirarías los logs de arranque del agente/servidor donde se emite el SVID de nodo (`spiffe://proteus.local/agent/ecs/<task-id>`).
 
 ### Paso 2 — Admitir service-a
 
