@@ -6,7 +6,7 @@ excerpt:
   en: 'Building a poor man''s zero-trust mesh on ECS Fargate: mTLS between services with SPIFFE/SPIRE and Envoy. A custom node attestor proves the task via the ECS API, an admission controller gates which service identity it may hold, and identity is deny-by-default until admitted.'
   es: 'Construyendo una malla zero-trust casera en ECS Fargate: mTLS entre servicios con SPIFFE/SPIRE y Envoy. Un verificador de nodo propio prueba la tarea vía la API de ECS, un admission controller decide qué identidad de servicio puede tener, y la identidad es denegada por defecto hasta ser admitida.'
 date: 2026-08-31
-updated: 2026-09-05
+updated: 2026-09-06
 tags: ['spiffe', 'spire', 'ecs', 'envoy', 'aws', 'security', 'mtls']
 draft: false
 ---
@@ -97,6 +97,8 @@ When Envoy later asks its local agent for `service-a`'s SVID over SDS, the SPIRE
 Only when both match does the Server mint and stream the SVID. This is the security property: even if an attacker knew `service-a`'s SPIFFE ID, they couldn't obtain its SVID from a different task, because their agent's node identity wouldn't equal the entry's `parentID`. And it's why node attestation must run first — without a node SVID there is no `parentID` to point the entry at.
 
 So the plugin establishes *infrastructure trust* (a genuine ECS task with an approved role); the admission controller layers *application policy* on top (this task may be `service-a`). Neither alone is enough — the SVID is minted only when the verified node has an admitted entry to match.
+
+> All three control-plane hops run over gRPC: the attestor plugin (streaming RPC), the admission controller's `CreateEntry` (SPIRE Entry API), and Envoy's SDS (gRPC/HTTP2) — the SPIRE-local ones over a Unix socket.
 
 ## Testing the architecture
 
@@ -265,6 +267,8 @@ Cuando después Envoy le pide a su agente local el SVID de `service-a` vía SDS,
 Solo cuando ambos coinciden el Server emite y transmite el SVID. Esta es la propiedad de seguridad: aunque un atacante conociera el SPIFFE ID de `service-a`, no podría obtener su SVID desde otra tarea, porque la identidad de nodo de su agente no sería igual al `parentID` de la entrada. Y por eso la verificación de nodo debe correr primero — sin un SVID de nodo no hay `parentID` al cual apuntar la entrada.
 
 Así, el plugin establece la *confianza de infraestructura* (una tarea ECS genuina con un rol aprobado); el admission controller añade *política de aplicación* encima (esta tarea puede ser `service-a`). Ninguno basta por sí solo — el SVID se emite solo cuando el nodo verificado tiene una entrada admitida que coincida.
+
+> Los tres saltos del plano de control usan gRPC: el plugin verificador (RPC en streaming), el `CreateEntry` del admission controller (Entry API de SPIRE) y el SDS de Envoy (gRPC/HTTP2) — los locales a SPIRE sobre un socket Unix.
 
 ## Probando la arquitectura
 
