@@ -6,7 +6,7 @@ excerpt:
   en: 'Building a poor man''s zero-trust mesh on ECS Fargate: mTLS between services with SPIFFE/SPIRE and Envoy. A custom node attestor proves the task via the ECS API, an admission controller gates which service identity it may hold, and identity is deny-by-default until admitted.'
   es: 'Construyendo una malla zero-trust casera en ECS Fargate: mTLS entre servicios con SPIFFE/SPIRE y Envoy. Un verificador de nodo propio prueba la tarea vía la API de ECS, un admission controller decide qué identidad de servicio puede tener, y la identidad es denegada por defecto hasta ser admitida.'
 date: 2026-08-31
-updated: 2026-09-06
+updated: 2026-09-07
 tags: ['spiffe', 'spire', 'ecs', 'envoy', 'aws', 'security', 'mtls']
 draft: false
 ---
@@ -36,7 +36,7 @@ Identity is established in two layers: first SPIRE decides which *task* it trust
 
 ### Node attestation — proving the ECS task
 
-On Fargate there is no EC2 instance, so the usual `aws_iid` node attestor doesn't apply. I wrote a small custom node attestor, `proteus_ecs` — and like every SPIRE node attestor it comes in **two halves**: an *agent-side* plugin that gathers and sends the claim, and a *server-side* plugin that verifies it and decides whether to issue the node SVID. The agent side reads the task metadata endpoint and forwards the task ARN, cluster and family:
+On Fargate there is no EC2 instance, so the usual `aws_iid` node attestor doesn't apply. I wrote a small custom node attestor, `proteus_ecs` — and like every SPIRE node attestor it comes in **two halves**: an *agent-side* plugin that gathers and sends the claim, and a *server-side* plugin that verifies it and decides whether to issue the node SVID. This runs automatically when the SPIRE Agent starts — SPIRE invokes the plugin as part of the agent's boot handshake; nothing triggers it manually. The agent side reads the task metadata endpoint and forwards the task ARN, cluster and family:
 
 ```go
 metadataURI := os.Getenv("ECS_CONTAINER_METADATA_URI_V4")
@@ -206,7 +206,7 @@ La identidad se establece en dos capas: primero SPIRE decide en qué *tarea* con
 
 ### Verificación de nodo — probando la tarea ECS
 
-En Fargate no hay una instancia EC2, así que el verificador de nodo habitual `aws_iid` no aplica. Escribí un verificador de nodo propio, `proteus_ecs` — y como todo verificador de nodo de SPIRE viene en **dos mitades**: un plugin del *lado del agente* que reúne y envía la afirmación, y un plugin del *lado del servidor* que la verifica y decide si emite el SVID de nodo. El lado del agente lee el endpoint de metadata de la tarea y reenvía el ARN de la tarea, el cluster y la family:
+En Fargate no hay una instancia EC2, así que el verificador de nodo habitual `aws_iid` no aplica. Escribí un verificador de nodo propio, `proteus_ecs` — y como todo verificador de nodo de SPIRE viene en **dos mitades**: un plugin del *lado del agente* que reúne y envía la afirmación, y un plugin del *lado del servidor* que la verifica y decide si emite el SVID de nodo. Esto ocurre automáticamente cuando arranca el SPIRE Agent — SPIRE invoca el plugin como parte del handshake de arranque del agente; nada lo dispara manualmente. El lado del agente lee el endpoint de metadata de la tarea y reenvía el ARN de la tarea, el cluster y la family:
 
 ```go
 metadataURI := os.Getenv("ECS_CONTAINER_METADATA_URI_V4")
