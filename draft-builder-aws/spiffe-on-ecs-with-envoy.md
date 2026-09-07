@@ -4,6 +4,17 @@
 > Wherever you see `[📷 UPLOAD IMAGE HERE: ...]`, delete that line and upload
 > the named image manually at that position in the editor.
 >
+> **Title (paste into the editor's Title field):**
+> SPIFFE on ECS with Envoy — A Poor Man's Zero Trust on Fargate
+>
+> **Brief description / summary (paste into the editor's Description field):**
+> How do you get zero-trust mTLS between services on ECS Fargate when there's
+> no EC2 host to attest against? I built Proteus — a from-scratch mesh using
+> SPIFFE/SPIRE + Envoy — with a custom node attestor that verifies each task
+> via the ECS API and an admission controller that keeps identity deny-by-default
+> until explicitly admitted. Architecture, reasoning, and a dark → admit → live
+> walkthrough.
+>
 > **Canonical URL (set this in the editor):**
 > https://kiquetal.dev/blog/2026-08-31-spiffe-on-ecs-with-envoy
 >
