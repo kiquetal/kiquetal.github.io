@@ -28,6 +28,7 @@ easy to miss, and the study plan I put together to hit the required 700 points.
 - [Tracking progress](#progress)
 - [Course 01: Protecting and Encrypting Data](#course-01)
 - [Course 02: Edge Security](#course-02)
+- [Labs: SimuLearn hands-on](#labs)
 - [Why write this down](#why)
 
 <h2 id="two-ways">Two ways to keep a certification current</h2>
@@ -192,6 +193,47 @@ Verified Access, Route 53, Global Accelerator, CloudWatch, EventBridge**. Full
 notes and diagrams are in the
 [recert tracker repo](https://github.com/kiquetal/recert-aws-pro-skill-builder).
 
+<h2 id="labs">Labs: SimuLearn hands-on (2 done)</h2>
+
+Two of the four practical activities are complete. SimuLearn drops you into a
+live AWS environment with a broken scenario to fix — much closer to real work
+than a video lecture.
+
+**Lab 01 — Resolve VPC Routing Conflicts.** Three VPCs (ALB → app servers →
+RDS) linked by two VPC peering connections, with traffic not flowing. The fixes
+and the lessons:
+
+- **Peering only enables the link; routes do the work.** Each VPC's route table
+  must send the *other* VPC's CIDR to the peering connection (`pcx`) — and a
+  request and its reply are two separate outbound decisions, so **both sides need
+  a route**. The data VPC's route table was empty, which is why RDS *received*
+  requests but the replies were dropped (classic one-way hang).
+- **Peering is not transitive** — the ALB VPC can't reach the data VPC "through"
+  the APP VPC; each pair needs its own peering + routes. The APP VPC is the hub
+  with two routes; the ALB and data VPCs have one each.
+- **A route table's destination is the *other* side** — you never add your own
+  CIDR (the `local` route covers it). And healthy targets need both the return
+  route *and* a security group that allows the ALB (app + health-check ports).
+
+**Lab 02 — Inter-Region Peering.** Peering two Regions' **Transit Gateways** and
+controlling cross-Region routing:
+
+- **TGW inter-Region peering = attachment + accept + routes.** Create the peering
+  attachment from one Region, **accept it in the peer Region**, then add routes on
+  **both** TGW route tables (symmetric, or traffic is one-way).
+- **Association vs. routes** — associating the peering attachment with a route
+  table wires it in; the route *entries* (`destination → attachment`) do the
+  forwarding. One route table can hold many attachments (local VPC + peering).
+- **Blackhole routes explicitly deny** — a more-specific blackhole (e.g.,
+  `10.2.0.0/24 → blackhole`) carves a deny-hole out of a broader allow;
+  longest-prefix match means the `/24` beats a `/16` allow. Used it to make VPC C
+  unreachable while the rest of the Region stayed connected.
+
+That's **2 of 2 labs** (the practical minimum) satisfied — and the recurring
+theme across both is that **connectivity is routing plus explicit allow/deny**,
+in both directions, on every hop. Full lab logs, diagrams, and screenshots are
+in the [recert tracker repo](https://github.com/kiquetal/recert-aws-pro-skill-builder).
+
 <h2 id="why">Why write this down</h2>
 
 Most AWS certification content is about *passing* exams. The Maintain path is
@@ -230,6 +272,7 @@ armé para alcanzar los 700 puntos requeridos.
 - [Seguimiento del progreso](#progreso)
 - [Curso 01: Protecting and Encrypting Data](#curso-01)
 - [Curso 02: Edge Security](#curso-02)
+- [Laboratorios: prácticas SimuLearn](#labs-es)
 - [Por qué documentarlo](#por-que)
 
 <h2 id="dos-formas">Dos formas de mantener vigente una certificación</h2>
@@ -406,6 +449,50 @@ Servicios cubiertos: **Shield, WAF, CloudFront, Lambda@Edge, API Gateway, IoT
 Core, Verified Access, Route 53, Global Accelerator, CloudWatch, EventBridge**.
 Las notas completas y los diagramas están en el
 [repo de seguimiento de recertificación](https://github.com/kiquetal/recert-aws-pro-skill-builder).
+
+<h2 id="labs-es">Laboratorios: prácticas SimuLearn (2 completados)</h2>
+
+Dos de las cuatro actividades prácticas están completas. SimuLearn te coloca en
+un entorno de AWS en vivo con un escenario roto para arreglar — mucho más cerca
+del trabajo real que una clase en video.
+
+**Lab 01 — Resolve VPC Routing Conflicts.** Tres VPCs (ALB → servidores de app →
+RDS) unidas por dos conexiones de VPC peering, con el tráfico sin fluir. Las
+correcciones y las lecciones:
+
+- **El peering solo habilita el enlace; las rutas hacen el trabajo.** La tabla de
+  rutas de cada VPC debe enviar el CIDR de la *otra* VPC a la conexión de peering
+  (`pcx`) — y una petición y su respuesta son dos decisiones de salida separadas,
+  así que **ambos lados necesitan una ruta**. La tabla de rutas de la data VPC
+  estaba vacía, por eso RDS *recibía* las peticiones pero las respuestas se
+  descartaban (el clásico cuelgue unidireccional).
+- **El peering no es transitivo** — la ALB VPC no puede alcanzar la data VPC "a
+  través" de la APP VPC; cada par necesita su propio peering + rutas. La APP VPC
+  es el hub con dos rutas; la ALB y la data VPC tienen una cada una.
+- **El destino de una tabla de rutas es el *otro* lado** — nunca agregás tu
+  propio CIDR (la ruta `local` lo cubre). Y los targets sanos necesitan tanto la
+  ruta de retorno *como* un security group que permita al ALB (puertos de app +
+  health-check).
+
+**Lab 02 — Inter-Region Peering.** Peering de los **Transit Gateways** de dos
+Regiones y control del ruteo entre regiones:
+
+- **TGW inter-Región = attachment + aceptar + rutas.** Creá el peering attachment
+  desde una Región, **aceptalo en la Región par**, y luego agregá rutas en
+  **ambas** tablas de rutas de TGW (simétricas, o el tráfico es unidireccional).
+- **Asociación vs. rutas** — asociar el peering attachment con una tabla de rutas
+  lo conecta; las *entradas* de ruta (`destino → attachment`) hacen el reenvío.
+  Una tabla de rutas puede tener muchos attachments (VPC local + peering).
+- **Las rutas blackhole deniegan explícitamente** — un blackhole más específico
+  (p. ej. `10.2.0.0/24 → blackhole`) recorta un agujero de denegación de un
+  permiso más amplio; longest-prefix match hace que el `/24` gane sobre un
+  permiso `/16`. Lo usé para dejar la VPC C inalcanzable mientras el resto de la
+  Región seguía conectada.
+
+Eso es **2 de 2 laboratorios** (el mínimo práctico) cumplido — y el tema
+recurrente en ambos es que **la conectividad es ruteo más allow/deny explícito**,
+en ambas direcciones, en cada salto. Los logs completos, diagramas y capturas
+están en el [repo de seguimiento de recertificación](https://github.com/kiquetal/recert-aws-pro-skill-builder).
 
 <h2 id="por-que">Por qué documentarlo</h2>
 
