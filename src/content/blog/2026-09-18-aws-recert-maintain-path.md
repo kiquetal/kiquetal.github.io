@@ -73,11 +73,12 @@ SimuLearn labs are worth 100 each. Rather than grab points at random, I weighted
 my plan toward SA-Professional exam domains — architecture, networking, hybrid
 connectivity, and security — so the points do double duty as real study.
 
-Here is the route I planned. The recertification only *requires* two labs, but
-Skill Builder flags four SimuLearn labs as the highest-value practice for
-SA-Professional domains — complex networking, hybrid connectivity, multi-region,
-and data security. Since the point of this is to actually get better, not just
-to tick the box, I chose to do all four:
+Here is the route I planned. The recertification only *requires* two labs and
+700 points, but Skill Builder flags four SimuLearn labs as the highest-value
+practice for SA-Professional domains — complex networking, hybrid connectivity,
+multi-region, and data security. Since the point of this is to actually get
+better, not just to tick the box, I chose to do all four and aim past the
+minimum, for a target of **at least 800 points**:
 
 | Item                                                                   | Type   | Points |
 | ---------------------------------------------------------------------- | ------ | ------ |
@@ -88,14 +89,17 @@ to tick the box, I chose to do all four:
 | Advanced Architecting on AWS - Online Course Supplement                | Course | 160    |
 | AWS Security Engineer - Edge Security                                  | Course | 100    |
 | AWS Security Engineer - Protecting and Encrypting Data                 | Course | 80     |
-| **Total**                                                              |        | **740** |
+| AWS Security Engineer - Centralized Account Management                 | Course | 80     |
+| **Total**                                                              |        | **820** |
 
-That is 740 points — a comfortable buffer over 700 — with the two-lab minimum
-well exceeded (four labs). It leans deliberately toward hands-on activities
-because that is where the real learning is. The nice property of this planning
-is that items are swappable: the 700-point total is what gates the
-recertification, so you can trade one item for another as long as the total
-holds.
+That is 820 points — well over the 700 minimum — with the two-lab requirement
+exceeded (four labs). I added **Centralized Account Management** to clear 800:
+multi-account governance (AWS Organizations, SCPs) is a core SA-Professional
+domain, so it earns its place on learning value, not just points. The route
+leans deliberately toward hands-on activities because that is where the real
+learning is, and the nice property of this planning is that items are swappable
+— the point total is the binding constraint, so you can trade one item for
+another as long as the total holds.
 
 ## Where I am right now
 
@@ -202,10 +206,11 @@ redes, conectividad híbrida y seguridad — para que los puntos sirvan también
 como estudio real.
 
 Esta es la ruta que planifiqué. La recertificación solo *exige* dos
-laboratorios, pero Skill Builder marca cuatro laboratorios SimuLearn como la
-práctica de mayor valor para los dominios de SA-Professional — redes complejas,
-conectividad híbrida, multi-región y seguridad de datos. Como el objetivo es
-realmente mejorar, no solo cumplir el requisito, elegí hacer los cuatro:
+laboratorios y 700 puntos, pero Skill Builder marca cuatro laboratorios
+SimuLearn como la práctica de mayor valor para los dominios de SA-Professional —
+redes complejas, conectividad híbrida, multi-región y seguridad de datos. Como
+el objetivo es realmente mejorar, no solo cumplir el requisito, elegí hacer los
+cuatro y apuntar por encima del mínimo, con una meta de **al menos 800 puntos**:
 
 | Ítem                                                                    | Tipo   | Puntos |
 | ----------------------------------------------------------------------- | ------ | ------ |
@@ -216,14 +221,18 @@ realmente mejorar, no solo cumplir el requisito, elegí hacer los cuatro:
 | Advanced Architecting on AWS - Online Course Supplement                 | Curso  | 160    |
 | AWS Security Engineer - Edge Security                                   | Curso  | 100    |
 | AWS Security Engineer - Protecting and Encrypting Data                  | Curso  | 80     |
-| **Total**                                                               |        | **740** |
+| AWS Security Engineer - Centralized Account Management                  | Curso  | 80     |
+| **Total**                                                               |        | **820** |
 
-Son 740 puntos — un margen cómodo sobre 700 — superando ampliamente el mínimo de
-dos laboratorios (cuatro laboratorios). Se inclina deliberadamente hacia las
-actividades prácticas, porque ahí está el aprendizaje real. Lo bueno de esta
-planificación es que los ítems son intercambiables: el total de 700 puntos es lo
-que habilita la recertificación, así que puedes cambiar un ítem por otro
-mientras el total se mantenga.
+Son 820 puntos — bastante por encima del mínimo de 700 — superando el requisito
+de dos laboratorios (cuatro laboratorios). Agregué **Centralized Account
+Management** para superar los 800: la gobernanza multi-cuenta (AWS
+Organizations, SCPs) es un dominio central de SA-Professional, así que se gana
+su lugar por valor de aprendizaje, no solo por puntos. La ruta se inclina
+deliberadamente hacia las actividades prácticas, porque ahí está el aprendizaje
+real, y lo bueno de esta planificación es que los ítems son intercambiables — el
+total de puntos es la restricción vinculante, así que puedes cambiar un ítem por
+otro mientras el total se mantenga.
 
 ## Dónde estoy ahora mismo
 
