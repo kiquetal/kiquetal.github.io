@@ -149,7 +149,8 @@ AWS stack. The parts worth remembering:
   ingestion (guarded by the `logs:Unmask` permission).
 
 Services covered: **KMS, ACM, S3 encryption, Secrets Manager, Macie**. Full
-notes and diagrams live in the course's folder in my recert tracker repo.
+notes and diagrams live in the course's folder in my
+[recert tracker repo](https://github.com/kiquetal/recert-aws-pro-skill-builder).
 
 <h2 id="why">Why write this down</h2>
 
@@ -167,6 +168,7 @@ and labs were actually worth the time.
 - [AWS Certification Renewal (official)](https://aws.amazon.com/certification/recertification/)
 - [A new way to keep your AWS Certification current (announcement)](https://aws.amazon.com/blogs/training-and-certification/a-new-way-to-keep-your-aws-certification-current/)
 - [Recertify on AWS Skill Builder](https://skillbuilder.aws/certification/recertification)
+- [My recert tracker repo (courses, notes, diagrams, point math)](https://github.com/kiquetal/recert-aws-pro-skill-builder)
 
 </div>
 
@@ -319,8 +321,8 @@ stack de AWS. Lo que vale la pena recordar:
   PII/credenciales en la ingesta (protegidas por el permiso `logs:Unmask`).
 
 Servicios cubiertos: **KMS, ACM, cifrado de S3, Secrets Manager, Macie**. Las
-notas completas y los diagramas están en la carpeta del curso en mi repo de
-seguimiento de recertificación.
+notas completas y los diagramas están en la carpeta del curso en mi
+[repo de seguimiento de recertificación](https://github.com/kiquetal/recert-aws-pro-skill-builder).
 
 <h2 id="por-que">Por qué documentarlo</h2>
 
@@ -339,5 +341,6 @@ cursos y laboratorios realmente valieron la pena.
 - [AWS Certification Renewal (oficial)](https://aws.amazon.com/certification/recertification/)
 - [Una nueva forma de mantener tu certificación de AWS vigente (anuncio)](https://aws.amazon.com/blogs/training-and-certification/a-new-way-to-keep-your-aws-certification-current/)
 - [Recertify en AWS Skill Builder](https://skillbuilder.aws/certification/recertification)
+- [Mi repo de seguimiento de recertificación (cursos, notas, diagramas, matemática de puntos)](https://github.com/kiquetal/recert-aws-pro-skill-builder)
 
 </div>
