@@ -118,6 +118,37 @@ Once we have enrolled to the course, we need to reach the minimum points look at
 
 ![AWS Skill Builder Recertify page for Solutions Architect – Professional, showing 80 of 700 points and the two-lab practical requirement not yet met](/blog/2026-09-18-aws-recert-maintain-path/skillbuilder-recertify-progress.png)
 
+## Course 01: Protecting and Encrypting Data (done)
+
+The first course I finished, **AWS Security Engineer: Protecting and Encrypting
+Data** (80 points, ~1h), was a solid refresher on data protection across the
+AWS stack. The parts worth remembering:
+
+- **Encryption fundamentals** — symmetric (same key to encrypt and decrypt) vs
+  asymmetric (a key pair: one encrypts, the other decrypts); hashing as a
+  *one-way* operation for integrity, not confidentiality; and digital
+  certificates as identity proof via public-key cryptography.
+- **KMS key material origins** — the distinction between the KMS *key* (the
+  object you control) and the *key material* (the bytes that do the crypto),
+  and the four origins: `AWS_KMS` (default), `EXTERNAL` (you import material,
+  but it ends up inside KMS), `AWS_CLOUDHSM`, and `EXTERNAL_KEY_STORE` / XKS
+  (material never enters AWS; crypto is proxied out). The confusing pair is
+  `EXTERNAL` vs `EXTERNAL_KEY_STORE`: import-into-KMS vs stays-outside-forever.
+- **Data at rest** — S3 encryption (SSE-S3 / SSE-KMS / SSE-C) and the S3 Bucket
+  Key cost optimization; the gotcha that EBS/FSx encryption and KMS key are set
+  **at creation** (re-keying means snapshot-copy or backup→restore, never
+  in place); S3 Object Lock (WORM) in Governance vs Compliance modes; and
+  lifecycle/retention across S3, EFS, and FSx.
+- **Data in transit** — choosing between PrivateLink, Client VPN, Verified
+  Access (zero-trust, no VPN), Site-to-Site VPN, Direct Connect (not encrypted
+  on its own — add VPN/MACsec), and Nitro instance-to-instance encryption.
+- **Discovery & masking** — Macie for sensitive-data discovery in S3, and
+  CloudWatch Logs data protection policies that mask PII/credentials at
+  ingestion (guarded by the `logs:Unmask` permission).
+
+Services covered: **KMS, ACM, S3 encryption, Secrets Manager, Macie**. Full
+notes and diagrams live in the course's folder in my recert tracker repo.
+
 ## Why write this down
 
 Most AWS certification content is about *passing* exams. The Maintain path is
@@ -250,6 +281,40 @@ y los días restantes se mantengan honestos a medida que avanzo.
 Una vez inscritos en el curso, necesitamos alcanzar el mínimo de puntos — mira esta captura de pantalla
 
 ![Página de recertificación de AWS Skill Builder para Solutions Architect – Professional, mostrando 80 de 700 puntos y el requisito de dos laboratorios prácticos aún sin cumplir](/blog/2026-09-18-aws-recert-maintain-path/skillbuilder-recertify-progress.png)
+
+## Curso 01: Protecting and Encrypting Data (completado)
+
+El primer curso que terminé, **AWS Security Engineer: Protecting and Encrypting
+Data** (80 puntos, ~1h), fue un buen repaso de la protección de datos en todo el
+stack de AWS. Lo que vale la pena recordar:
+
+- **Fundamentos de cifrado** — simétrico (misma clave para cifrar y descifrar)
+  vs asimétrico (un par de claves: una cifra, la otra descifra); el hashing como
+  operación *unidireccional* para integridad, no confidencialidad; y los
+  certificados digitales como prueba de identidad mediante criptografía de clave
+  pública.
+- **Orígenes del material de clave en KMS** — la distinción entre la *clave* de
+  KMS (el objeto que controlas) y el *material de clave* (los bytes que hacen la
+  criptografía), y los cuatro orígenes: `AWS_KMS` (por defecto), `EXTERNAL`
+  (importas el material, pero termina dentro de KMS), `AWS_CLOUDHSM` y
+  `EXTERNAL_KEY_STORE` / XKS (el material nunca entra a AWS; la criptografía se
+  delega hacia afuera). El par confuso es `EXTERNAL` vs `EXTERNAL_KEY_STORE`:
+  importar-a-KMS vs quedarse-afuera-para-siempre.
+- **Datos en reposo** — cifrado de S3 (SSE-S3 / SSE-KMS / SSE-C) y la
+  optimización de costo con S3 Bucket Key; el detalle de que el cifrado y la
+  clave KMS de EBS/FSx se fijan **en la creación** (re-cifrar implica copia de
+  snapshot o backup→restore, nunca en el lugar); S3 Object Lock (WORM) en modos
+  Governance vs Compliance; y ciclo de vida/retención en S3, EFS y FSx.
+- **Datos en tránsito** — elegir entre PrivateLink, Client VPN, Verified Access
+  (zero-trust, sin VPN), Site-to-Site VPN, Direct Connect (no cifrado por sí
+  solo — añade VPN/MACsec) y el cifrado entre instancias de Nitro.
+- **Descubrimiento y enmascaramiento** — Macie para descubrir datos sensibles en
+  S3, y las políticas de protección de datos de CloudWatch Logs que enmascaran
+  PII/credenciales en la ingesta (protegidas por el permiso `logs:Unmask`).
+
+Servicios cubiertos: **KMS, ACM, cifrado de S3, Secrets Manager, Macie**. Las
+notas completas y los diagramas están en la carpeta del curso en mi repo de
+seguimiento de recertificación.
 
 ## Por qué documentarlo
 
