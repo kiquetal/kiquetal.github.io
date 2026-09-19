@@ -31,7 +31,7 @@ easy to miss, and the study plan I put together to hit the required 700 points.
 
 <h2 id="two-ways">Two ways to keep a certification current</h2>
 
-<img src="/blog/2026-09-18-aws-recert-maintain-path/renew-vs-maintain.svg" alt="Decision flowchart: an expiring AWS certification branches into Renew (pass the latest exam, +3 years) or Maintain (700 points plus 2 labs on Skill Builder within 90 days of expiry, +1 year), where Maintain also extends a related lower-level certification" width="320" style="display:block; margin:0 auto; max-width:100%; height:auto;" />
+<img src="/blog/2026-09-18-aws-recert-maintain-path/renew-vs-maintain.svg" alt="Decision flowchart: an expiring AWS certification branches into Renew (pass the latest exam, +3 years) or Maintain (700 points plus 2 labs on Skill Builder within 90 days of expiry, +1 year), where Maintain also extends a related lower-level certification" class="img-small" />
 
 AWS certifications are valid for three years. You can keep them current in two
 ways:
@@ -198,7 +198,7 @@ armé para alcanzar los 700 puntos requeridos.
 
 <h2 id="dos-formas">Dos formas de mantener vigente una certificación</h2>
 
-<img src="/blog/2026-09-18-aws-recert-maintain-path/renew-vs-maintain.svg" alt="Diagrama de decisión: una certificación de AWS por vencer se bifurca en Renew (aprobar el último examen, +3 años) o Maintain (700 puntos más 2 laboratorios en Skill Builder dentro de los 90 días previos al vencimiento, +1 año), donde Maintain también extiende una certificación de nivel inferior relacionada" width="320" style="display:block; margin:0 auto; max-width:100%; height:auto;" />
+<img src="/blog/2026-09-18-aws-recert-maintain-path/renew-vs-maintain.svg" alt="Diagrama de decisión: una certificación de AWS por vencer se bifurca en Renew (aprobar el último examen, +3 años) o Maintain (700 puntos más 2 laboratorios en Skill Builder dentro de los 90 días previos al vencimiento, +1 año), donde Maintain también extiende una certificación de nivel inferior relacionada" class="img-small" />
 
 Las certificaciones de AWS son válidas por tres años. Puedes mantenerlas
 vigentes de dos formas:
