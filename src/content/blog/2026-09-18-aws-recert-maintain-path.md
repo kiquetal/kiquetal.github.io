@@ -73,24 +73,29 @@ SimuLearn labs are worth 100 each. Rather than grab points at random, I weighted
 my plan toward SA-Professional exam domains — architecture, networking, hybrid
 connectivity, and security — so the points do double duty as real study.
 
-Here is the route I planned:
+Here is the route I planned. The recertification only *requires* two labs, but
+Skill Builder flags four SimuLearn labs as the highest-value practice for
+SA-Professional domains — complex networking, hybrid connectivity, multi-region,
+and data security. Since the point of this is to actually get better, not just
+to tick the box, I chose to do all four:
 
 | Item                                                                   | Type   | Points |
 | ---------------------------------------------------------------------- | ------ | ------ |
 | AWS SimuLearn: Resolve VPC Routing Conflicts                           | Lab    | 100    |
 | AWS SimuLearn: Inter-Region Peering                                    | Lab    | 100    |
+| AWS SimuLearn: Securing Hybrid Access                                  | Lab    | 100    |
+| AWS SimuLearn: Securing a Banking Data Lake                            | Lab    | 100    |
 | Advanced Architecting on AWS - Online Course Supplement                | Course | 160    |
-| AWS Security Engineer - Network Security and Secure Hybrid Connectivity | Course | 100    |
 | AWS Security Engineer - Edge Security                                  | Course | 100    |
 | AWS Security Engineer - Protecting and Encrypting Data                 | Course | 80     |
-| Well-Architected For Enterprises                                       | Course | 80     |
-| **Total**                                                              |        | **720** |
+| **Total**                                                              |        | **740** |
 
-That is 720 points — a small buffer over 700 — with the two-lab minimum
-satisfied by the two SimuLearn activities, in roughly nine hours of content.
-The nice property of this planning is that items are swappable: the 700-point
-total is what gates the recertification, so you can trade one course for another
-as long as the total holds.
+That is 740 points — a comfortable buffer over 700 — with the two-lab minimum
+well exceeded (four labs). It leans deliberately toward hands-on activities
+because that is where the real learning is. The nice property of this planning
+is that items are swappable: the 700-point total is what gates the
+recertification, so you can trade one item for another as long as the total
+holds.
 
 ## Where I am right now
 
@@ -196,24 +201,29 @@ orienté mi plan hacia los dominios del examen SA-Professional — arquitectura,
 redes, conectividad híbrida y seguridad — para que los puntos sirvan también
 como estudio real.
 
-Esta es la ruta que planifiqué:
+Esta es la ruta que planifiqué. La recertificación solo *exige* dos
+laboratorios, pero Skill Builder marca cuatro laboratorios SimuLearn como la
+práctica de mayor valor para los dominios de SA-Professional — redes complejas,
+conectividad híbrida, multi-región y seguridad de datos. Como el objetivo es
+realmente mejorar, no solo cumplir el requisito, elegí hacer los cuatro:
 
 | Ítem                                                                    | Tipo   | Puntos |
 | ----------------------------------------------------------------------- | ------ | ------ |
 | AWS SimuLearn: Resolve VPC Routing Conflicts                            | Lab    | 100    |
 | AWS SimuLearn: Inter-Region Peering                                     | Lab    | 100    |
+| AWS SimuLearn: Securing Hybrid Access                                   | Lab    | 100    |
+| AWS SimuLearn: Securing a Banking Data Lake                             | Lab    | 100    |
 | Advanced Architecting on AWS - Online Course Supplement                 | Curso  | 160    |
-| AWS Security Engineer - Network Security and Secure Hybrid Connectivity | Curso  | 100    |
 | AWS Security Engineer - Edge Security                                   | Curso  | 100    |
 | AWS Security Engineer - Protecting and Encrypting Data                  | Curso  | 80     |
-| Well-Architected For Enterprises                                        | Curso  | 80     |
-| **Total**                                                               |        | **720** |
+| **Total**                                                               |        | **740** |
 
-Son 720 puntos — un pequeño margen sobre 700 — con el mínimo de dos laboratorios
-cubierto por las dos actividades SimuLearn, en aproximadamente nueve horas de
-contenido. Lo bueno de esta planificación es que los ítems son
-intercambiables: el total de 700 puntos es lo que habilita la recertificación,
-así que puedes cambiar un curso por otro mientras el total se mantenga.
+Son 740 puntos — un margen cómodo sobre 700 — superando ampliamente el mínimo de
+dos laboratorios (cuatro laboratorios). Se inclina deliberadamente hacia las
+actividades prácticas, porque ahí está el aprendizaje real. Lo bueno de esta
+planificación es que los ítems son intercambiables: el total de 700 puntos es lo
+que habilita la recertificación, así que puedes cambiar un ítem por otro
+mientras el total se mantenga.
 
 ## Dónde estoy ahora mismo
 
