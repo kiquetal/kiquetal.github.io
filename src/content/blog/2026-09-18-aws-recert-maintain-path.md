@@ -20,7 +20,16 @@ complete curated training and hands-on labs to extend the credential by one
 year. This post explains how that path works, the eligibility details that are
 easy to miss, and the study plan I put together to hit the required 700 points.
 
-## Two ways to keep a certification current
+**Contents**
+
+- [Two ways to keep a certification current](#two-ways)
+- [How the Maintain path works](#how-it-works)
+- [The math: planning a route to 700](#the-math)
+- [Where I am right now](#where-i-am)
+- [Course 01: Protecting and Encrypting Data](#course-01)
+- [Why write this down](#why)
+
+<h2 id="two-ways">Two ways to keep a certification current</h2>
 
 ![Decision flowchart: an expiring AWS certification branches into Renew (pass the latest exam, +3 years) or Maintain (700 points plus 2 labs on Skill Builder within 90 days of expiry, +1 year), where Maintain also extends a related lower-level certification](/blog/2026-09-18-aws-recert-maintain-path/renew-vs-maintain.svg)
 
@@ -38,7 +47,7 @@ learning. Since I recently went deep on security topics (I just passed the
 Security Specialty), the Maintain path lets me keep the Pro credential current
 while continuing to learn in the same domain, without the exam overhead.
 
-## How the Maintain path works
+<h2 id="how-it-works">How the Maintain path works</h2>
 
 These are the mechanics, verified against official AWS sources:
 
@@ -66,7 +75,7 @@ still active** (the 90-day window is a window, not a grace period), and the
 **700-point total is the binding constraint** — the two-lab minimum is easy to
 hit, but reaching 700 takes planning.
 
-## The math: planning a route to 700
+<h2 id="the-math">The math: planning a route to 700</h2>
 
 Courses on the recert path are worth anywhere from 40 to 160 points; the
 SimuLearn labs are worth 100 each. Rather than grab points at random, I weighted
@@ -101,7 +110,7 @@ learning is, and the nice property of this planning is that items are swappable
 — the point total is the binding constraint, so you can trade one item for
 another as long as the total holds.
 
-## Where I am right now
+<h2 id="where-i-am">Where I am right now</h2>
 
 I am just getting started, working through the courses I flagged as **Start**
 (highest Pro-level learning value). So far:
@@ -118,7 +127,7 @@ Once we have enrolled to the course, we need to reach the minimum points look at
 
 ![AWS Skill Builder Recertify page for Solutions Architect – Professional, showing 80 of 700 points and the two-lab practical requirement not yet met](/blog/2026-09-18-aws-recert-maintain-path/skillbuilder-recertify-progress.png)
 
-## Course 01: Protecting and Encrypting Data (done)
+<h2 id="course-01">Course 01: Protecting and Encrypting Data (done)</h2>
 
 The first course I finished, **AWS Security Engineer: Protecting and Encrypting
 Data** (80 points, ~1h), was a solid refresher on data protection across the
@@ -149,7 +158,7 @@ AWS stack. The parts worth remembering:
 Services covered: **KMS, ACM, S3 encryption, Secrets Manager, Macie**. Full
 notes and diagrams live in the course's folder in my recert tracker repo.
 
-## Why write this down
+<h2 id="why">Why write this down</h2>
 
 Most AWS certification content is about *passing* exams. The Maintain path is
 newer, still in Beta, and under-documented — so the eligibility rules and the
@@ -178,7 +187,16 @@ extender la credencial un año. Este post explica cómo funciona esa ruta, los
 detalles de elegibilidad que es fácil pasar por alto, y el plan de estudio que
 armé para alcanzar los 700 puntos requeridos.
 
-## Dos formas de mantener vigente una certificación
+**Contenido**
+
+- [Dos formas de mantener vigente una certificación](#dos-formas)
+- [Cómo funciona la ruta Maintain](#como-funciona)
+- [La matemática: planificar una ruta hacia 700](#la-matematica)
+- [Dónde estoy ahora mismo](#donde-estoy)
+- [Curso 01: Protecting and Encrypting Data](#curso-01)
+- [Por qué documentarlo](#por-que)
+
+<h2 id="dos-formas">Dos formas de mantener vigente una certificación</h2>
 
 ![Diagrama de decisión: una certificación de AWS por vencer se bifurca en Renew (aprobar el último examen, +3 años) o Maintain (700 puntos más 2 laboratorios en Skill Builder dentro de los 90 días previos al vencimiento, +1 año), donde Maintain también extiende una certificación de nivel inferior relacionada](/blog/2026-09-18-aws-recert-maintain-path/renew-vs-maintain.svg)
 
@@ -197,7 +215,7 @@ Como hace poco profundicé en temas de seguridad (acabo de aprobar la Security
 Specialty), la ruta Maintain me permite mantener vigente la credencial Pro
 mientras sigo aprendiendo en el mismo dominio, sin la carga del examen.
 
-## Cómo funciona la ruta Maintain
+<h2 id="como-funciona">Cómo funciona la ruta Maintain</h2>
 
 Estos son los detalles, verificados con fuentes oficiales de AWS:
 
@@ -228,7 +246,7 @@ período de gracia), y el **total de 700 puntos es la restricción vinculante** 
 el mínimo de dos laboratorios es fácil de cumplir, pero llegar a 700 requiere
 planificación.
 
-## La matemática: planificar una ruta hacia 700
+<h2 id="la-matematica">La matemática: planificar una ruta hacia 700</h2>
 
 Los cursos de la ruta de recertificación valen entre 40 y 160 puntos; los
 laboratorios SimuLearn valen 100 cada uno. En lugar de sumar puntos al azar,
@@ -265,7 +283,7 @@ real, y lo bueno de esta planificación es que los ítems son intercambiables �
 total de puntos es la restricción vinculante, así que puedes cambiar un ítem por
 otro mientras el total se mantenga.
 
-## Dónde estoy ahora mismo
+<h2 id="donde-estoy">Dónde estoy ahora mismo</h2>
 
 Recién estoy empezando, avanzando por los cursos que marqué como **Start**
 (mayor valor de aprendizaje a nivel Pro). Hasta ahora:
@@ -282,7 +300,7 @@ Una vez inscritos en el curso, necesitamos alcanzar el mínimo de puntos — mir
 
 ![Página de recertificación de AWS Skill Builder para Solutions Architect – Professional, mostrando 80 de 700 puntos y el requisito de dos laboratorios prácticos aún sin cumplir](/blog/2026-09-18-aws-recert-maintain-path/skillbuilder-recertify-progress.png)
 
-## Curso 01: Protecting and Encrypting Data (completado)
+<h2 id="curso-01">Curso 01: Protecting and Encrypting Data (completado)</h2>
 
 El primer curso que terminé, **AWS Security Engineer: Protecting and Encrypting
 Data** (80 puntos, ~1h), fue un buen repaso de la protección de datos en todo el
@@ -316,7 +334,7 @@ Servicios cubiertos: **KMS, ACM, cifrado de S3, Secrets Manager, Macie**. Las
 notas completas y los diagramas están en la carpeta del curso en mi repo de
 seguimiento de recertificación.
 
-## Por qué documentarlo
+<h2 id="por-que">Por qué documentarlo</h2>
 
 La mayoría del contenido sobre certificaciones de AWS trata sobre *aprobar*
 exámenes. La ruta Maintain es más reciente, sigue en Beta y está poco
