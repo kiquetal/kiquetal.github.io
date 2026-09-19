@@ -6,7 +6,7 @@ excerpt:
   en: 'AWS certifications expire every three years. Instead of retaking the SA-Professional exam, I am using the Skill Builder "Maintain" path — earning 700 points and two hands-on labs to extend the credential by one year. Here is how the path works, the eligibility gotchas, and the curated route I planned to reach 700.'
   es: 'Las certificaciones de AWS caducan cada tres años. En lugar de volver a rendir el examen SA-Professional, estoy usando la ruta "Maintain" de Skill Builder — sumando 700 puntos y dos laboratorios prácticos para extender la credencial un año. Aquí explico cómo funciona la ruta, los detalles de elegibilidad y la ruta que planifiqué para llegar a 700.'
 date: 2026-09-18
-updated: 2026-09-18
+updated: 2026-09-19
 tags: ['aws', 'certification', 'aws-pro', 'solutions-architect', 'skill-builder', 'recertification']
 draft: true
 ---
@@ -27,6 +27,7 @@ easy to miss, and the study plan I put together to hit the required 700 points.
 - [The math: planning a route to 700](#the-math)
 - [Tracking progress](#progress)
 - [Course 01: Protecting and Encrypting Data](#course-01)
+- [Course 02: Edge Security](#course-02)
 - [Why write this down](#why)
 
 <h2 id="two-ways">Two ways to keep a certification current</h2>
@@ -152,6 +153,45 @@ Services covered: **KMS, ACM, S3 encryption, Secrets Manager, Macie**. Full
 notes and diagrams live in the course's folder in my
 [recert tracker repo](https://github.com/kiquetal/recert-aws-pro-skill-builder).
 
+<h2 id="course-02">Course 02: Edge Security (done)</h2>
+
+The second course, **AWS Security Engineer: Edge Security** (100 points,
+~1h15m), is about defending the *perimeter* — where the public internet meets
+your AWS environment — before traffic ever reaches the VPC. What stuck:
+
+- **Edge vs. network controls** — edge services (CloudFront, WAF, Shield) filter
+  internet traffic at AWS's points of presence ("border security"); network
+  controls (security groups, NACLs, Network Firewall, Transit Gateway) are the
+  *internal* checkpoints once traffic is inside the VPC.
+- **The layered edge defense** — Shield (L3/L4 always-on, or Advanced for L7 +
+  the DDoS Response Team + cost protection) → CloudFront (CDN, HTTPS, Origin
+  Access Control, Lambda@Edge) → WAF (L7 filtering: SQLi, XSS, OWASP Top 10,
+  rate-based, geo, custom rules) → API Gateway (throttling, usage plans, request
+  validation) → origin. CloudWatch + EventBridge close the monitoring/response
+  loop.
+- **Geo-control granularity** (a useful exam distinction) — WAF geo-match +
+  URL-path is the *most precise* (restrict `/admin` by country while the rest
+  stays global); CloudFront geo-restriction is whole-distribution; Route 53
+  geolocation is DNS/endpoint routing.
+- **Advanced controls** — adaptive/behavioral rate limiting, JA4 TLS
+  fingerprinting, CAPTCHA/challenge actions, signed URLs vs. signed cookies, and
+  **Verified Access** (zero-trust, VPN-less, evaluates identity *and* device
+  posture per request — not to be confused with Verified *Permissions*, which is
+  Cedar-based app authorization).
+- **IoT edge** — IoT policies with `${iot:ClientId}` policy variables scope each
+  device to connect only as itself and publish only to its own topic
+  (least-privilege across a fleet).
+- **Third-party integration & OCSF** — normalizing security events with the Open
+  Cybersecurity Schema Framework, isolating third-party WAF rule groups (start in
+  Count mode, internal rules take priority, easy rollback), and structuring OCSF
+  data in S3 with `vendor=/category=/classification=/year=...` prefixes for
+  scoped access and cheap event filtering.
+
+Services covered: **Shield, WAF, CloudFront, Lambda@Edge, API Gateway, IoT Core,
+Verified Access, Route 53, Global Accelerator, CloudWatch, EventBridge**. Full
+notes and diagrams are in the
+[recert tracker repo](https://github.com/kiquetal/recert-aws-pro-skill-builder).
+
 <h2 id="why">Why write this down</h2>
 
 Most AWS certification content is about *passing* exams. The Maintain path is
@@ -189,6 +229,7 @@ armé para alcanzar los 700 puntos requeridos.
 - [La matemática: planificar una ruta hacia 700](#la-matematica)
 - [Seguimiento del progreso](#progreso)
 - [Curso 01: Protecting and Encrypting Data](#curso-01)
+- [Curso 02: Edge Security](#curso-02)
 - [Por qué documentarlo](#por-que)
 
 <h2 id="dos-formas">Dos formas de mantener vigente una certificación</h2>
@@ -322,6 +363,48 @@ stack de AWS. Lo que vale la pena recordar:
 
 Servicios cubiertos: **KMS, ACM, cifrado de S3, Secrets Manager, Macie**. Las
 notas completas y los diagramas están en la carpeta del curso en mi
+[repo de seguimiento de recertificación](https://github.com/kiquetal/recert-aws-pro-skill-builder).
+
+<h2 id="curso-02">Curso 02: Edge Security (completado)</h2>
+
+El segundo curso, **AWS Security Engineer: Edge Security** (100 puntos,
+~1h15m), trata sobre defender el *perímetro* — donde el internet público se
+encuentra con tu entorno de AWS — antes de que el tráfico llegue a la VPC. Lo
+que quedó:
+
+- **Controles de edge vs. de red** — los servicios de edge (CloudFront, WAF,
+  Shield) filtran el tráfico de internet en los puntos de presencia de AWS
+  ("seguridad de frontera"); los controles de red (security groups, NACLs,
+  Network Firewall, Transit Gateway) son los checkpoints *internos* una vez que
+  el tráfico está dentro de la VPC.
+- **La defensa de edge por capas** — Shield (L3/L4 siempre activo, o Advanced
+  para L7 + el DDoS Response Team + protección de costos) → CloudFront (CDN,
+  HTTPS, Origin Access Control, Lambda@Edge) → WAF (filtrado L7: SQLi, XSS, OWASP
+  Top 10, reglas rate-based, geo y custom) → API Gateway (throttling, usage
+  plans, validación de requests) → origen. CloudWatch + EventBridge cierran el
+  bucle de monitoreo/respuesta.
+- **Granularidad del control geo** (una distinción útil para el examen) — WAF
+  geo-match + ruta URL es el *más preciso* (restringir `/admin` por país mientras
+  el resto queda global); la geo-restricción de CloudFront es a nivel de toda la
+  distribución; Route 53 geolocation es ruteo DNS/endpoint.
+- **Controles avanzados** — rate limiting adaptativo/conductual, fingerprinting
+  TLS JA4, acciones CAPTCHA/challenge, signed URLs vs. signed cookies, y
+  **Verified Access** (zero-trust, sin VPN, evalúa identidad *y* postura del
+  dispositivo por request — no confundir con Verified *Permissions*, que es
+  autorización de app basada en Cedar).
+- **Edge de IoT** — políticas de IoT con variables `${iot:ClientId}` que limitan
+  a cada dispositivo a conectarse solo como sí mismo y publicar solo en su propio
+  topic (menor privilegio en toda la flota).
+- **Integración de terceros y OCSF** — normalizar eventos de seguridad con el
+  Open Cybersecurity Schema Framework, aislar los rule groups de WAF de terceros
+  (empezar en modo Count, las reglas internas tienen prioridad, rollback fácil),
+  y estructurar los datos OCSF en S3 con prefijos
+  `vendor=/category=/classification=/year=...` para acceso acotado y filtrado
+  barato de eventos.
+
+Servicios cubiertos: **Shield, WAF, CloudFront, Lambda@Edge, API Gateway, IoT
+Core, Verified Access, Route 53, Global Accelerator, CloudWatch, EventBridge**.
+Las notas completas y los diagramas están en el
 [repo de seguimiento de recertificación](https://github.com/kiquetal/recert-aws-pro-skill-builder).
 
 <h2 id="por-que">Por qué documentarlo</h2>
