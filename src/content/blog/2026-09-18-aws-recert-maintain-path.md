@@ -25,7 +25,7 @@ easy to miss, and the study plan I put together to hit the required 700 points.
 - [Two ways to keep a certification current](#two-ways)
 - [How the Maintain path works](#how-it-works)
 - [The math: planning a route to 700](#the-math)
-- [Where I am right now](#where-i-am)
+- [Tracking progress](#progress)
 - [Course 01: Protecting and Encrypting Data](#course-01)
 - [Why write this down](#why)
 
@@ -110,22 +110,15 @@ learning is, and the nice property of this planning is that items are swappable
 — the point total is the binding constraint, so you can trade one item for
 another as long as the total holds.
 
-<h2 id="where-i-am">Where I am right now</h2>
+<h2 id="progress">Tracking progress</h2>
 
-I am just getting started, working through the courses I flagged as **Start**
-(highest Pro-level learning value). So far:
+Once enrolled, you work toward the minimum points; Skill Builder shows a live
+progress bar against the 700-point threshold and the two-lab requirement:
 
-- **Protecting and Encrypting Data** — done (80 points).
-- **Edge Security** — in progress.
+![AWS Skill Builder Recertify page for Solutions Architect – Professional, showing points progress against the 700-point threshold and the two-lab practical requirement](/blog/2026-09-18-aws-recert-maintain-path/skillbuilder-recertify-progress.png)
 
-That puts me at 80 of 700 confirmed, with a clear path to the rest. I am
-tracking each course in its own notes folder — one source of truth per course,
-mirrored into a summary tracker — so the point total and days-remaining stay
-honest as I go.
-
-Once we have enrolled to the course, we need to reach the minimum points look at this screenshot
-
-![AWS Skill Builder Recertify page for Solutions Architect – Professional, showing 80 of 700 points and the two-lab practical requirement not yet met](/blog/2026-09-18-aws-recert-maintain-path/skillbuilder-recertify-progress.png)
+I track each course in its own notes folder — one source of truth per course —
+and record what I learned in the sections below as I complete them.
 
 <h2 id="course-01">Course 01: Protecting and Encrypting Data (done)</h2>
 
@@ -192,7 +185,7 @@ armé para alcanzar los 700 puntos requeridos.
 - [Dos formas de mantener vigente una certificación](#dos-formas)
 - [Cómo funciona la ruta Maintain](#como-funciona)
 - [La matemática: planificar una ruta hacia 700](#la-matematica)
-- [Dónde estoy ahora mismo](#donde-estoy)
+- [Seguimiento del progreso](#progreso)
 - [Curso 01: Protecting and Encrypting Data](#curso-01)
 - [Por qué documentarlo](#por-que)
 
@@ -283,22 +276,17 @@ real, y lo bueno de esta planificación es que los ítems son intercambiables �
 total de puntos es la restricción vinculante, así que puedes cambiar un ítem por
 otro mientras el total se mantenga.
 
-<h2 id="donde-estoy">Dónde estoy ahora mismo</h2>
+<h2 id="progreso">Seguimiento del progreso</h2>
 
-Recién estoy empezando, avanzando por los cursos que marqué como **Start**
-(mayor valor de aprendizaje a nivel Pro). Hasta ahora:
+Una vez inscrito, avanzas hacia el mínimo de puntos; Skill Builder muestra una
+barra de progreso en vivo contra el umbral de 700 puntos y el requisito de dos
+laboratorios:
 
-- **Protecting and Encrypting Data** — completado (80 puntos).
-- **Edge Security** — en progreso.
+![Página de recertificación de AWS Skill Builder para Solutions Architect – Professional, mostrando el progreso de puntos contra el umbral de 700 y el requisito de dos laboratorios prácticos](/blog/2026-09-18-aws-recert-maintain-path/skillbuilder-recertify-progress.png)
 
-Eso me deja en 80 de 700 confirmados, con una ruta clara para el resto. Llevo
-el seguimiento de cada curso en su propia carpeta de notas — una fuente de
-verdad por curso, reflejada en un tracker resumen — para que el total de puntos
-y los días restantes se mantengan honestos a medida que avanzo.
-
-Una vez inscritos en el curso, necesitamos alcanzar el mínimo de puntos — mira esta captura de pantalla
-
-![Página de recertificación de AWS Skill Builder para Solutions Architect – Professional, mostrando 80 de 700 puntos y el requisito de dos laboratorios prácticos aún sin cumplir](/blog/2026-09-18-aws-recert-maintain-path/skillbuilder-recertify-progress.png)
+Llevo el seguimiento de cada curso en su propia carpeta de notas — una fuente de
+verdad por curso — y registro lo que aprendí en las secciones de abajo a medida
+que los completo.
 
 <h2 id="curso-01">Curso 01: Protecting and Encrypting Data (completado)</h2>
 
