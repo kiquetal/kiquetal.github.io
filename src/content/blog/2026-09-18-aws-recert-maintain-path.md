@@ -6,6 +6,7 @@ excerpt:
   en: 'AWS certifications expire every three years. Instead of retaking the SA-Professional exam, I am using the Skill Builder "Maintain" path — earning 700 points and two hands-on labs to extend the credential by one year. Here is how the path works, the eligibility gotchas, and the curated route I planned to reach 700.'
   es: 'Las certificaciones de AWS caducan cada tres años. En lugar de volver a rendir el examen SA-Professional, estoy usando la ruta "Maintain" de Skill Builder — sumando 700 puntos y dos laboratorios prácticos para extender la credencial un año. Aquí explico cómo funciona la ruta, los detalles de elegibilidad y la ruta que planifiqué para llegar a 700.'
 date: 2026-09-18
+updated: 2026-09-18
 tags: ['aws', 'certification', 'aws-pro', 'solutions-architect', 'skill-builder', 'recertification']
 draft: true
 ---
@@ -20,6 +21,8 @@ year. This post explains how that path works, the eligibility details that are
 easy to miss, and the study plan I put together to hit the required 700 points.
 
 ## Two ways to keep a certification current
+
+![Decision flowchart: an expiring AWS certification branches into Renew (pass the latest exam, +3 years) or Maintain (700 points plus 2 labs on Skill Builder within 90 days of expiry, +1 year), where Maintain also extends a related lower-level certification](/blog/2026-09-18-aws-recert-maintain-path/renew-vs-maintain.svg)
 
 AWS certifications are valid for three years. You can keep them current in two
 ways:
@@ -102,6 +105,10 @@ tracking each course in its own notes folder — one source of truth per course,
 mirrored into a summary tracker — so the point total and days-remaining stay
 honest as I go.
 
+Once we have enrolled to the course, we need to reach the minimum points look at this screenshot
+
+![AWS Skill Builder Recertify page for Solutions Architect – Professional, showing 80 of 700 points and the two-lab practical requirement not yet met](/blog/2026-09-18-aws-recert-maintain-path/skillbuilder-recertify-progress.png)
+
 ## Why write this down
 
 Most AWS certification content is about *passing* exams. The Maintain path is
@@ -132,6 +139,8 @@ detalles de elegibilidad que es fácil pasar por alto, y el plan de estudio que
 armé para alcanzar los 700 puntos requeridos.
 
 ## Dos formas de mantener vigente una certificación
+
+![Diagrama de decisión: una certificación de AWS por vencer se bifurca en Renew (aprobar el último examen, +3 años) o Maintain (700 puntos más 2 laboratorios en Skill Builder dentro de los 90 días previos al vencimiento, +1 año), donde Maintain también extiende una certificación de nivel inferior relacionada](/blog/2026-09-18-aws-recert-maintain-path/renew-vs-maintain.svg)
 
 Las certificaciones de AWS son válidas por tres años. Puedes mantenerlas
 vigentes de dos formas:
@@ -218,6 +227,10 @@ Eso me deja en 80 de 700 confirmados, con una ruta clara para el resto. Llevo
 el seguimiento de cada curso en su propia carpeta de notas — una fuente de
 verdad por curso, reflejada en un tracker resumen — para que el total de puntos
 y los días restantes se mantengan honestos a medida que avanzo.
+
+Una vez inscritos en el curso, necesitamos alcanzar el mínimo de puntos — mira esta captura de pantalla
+
+![Página de recertificación de AWS Skill Builder para Solutions Architect – Professional, mostrando 80 de 700 puntos y el requisito de dos laboratorios prácticos aún sin cumplir](/blog/2026-09-18-aws-recert-maintain-path/skillbuilder-recertify-progress.png)
 
 ## Por qué documentarlo
 
