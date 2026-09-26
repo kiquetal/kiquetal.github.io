@@ -14,7 +14,7 @@
 > plugins, and why it's more scalable than pre-shared tokens.
 >
 > **Canonical URL (set this in the editor):**
-> https://kiquetal.dev/blog/2026-09-26-ecs-attestation-in-proteus
+> https://github.com/kiquetal/proteus-oss
 >
 > **Suggested tags/topics (add in the editor):**
 > `Amazon ECS`, `AWS Fargate`, `Security`, `SPIFFE`, `SPIRE`, `Zero Trust`, `Attestation`,
@@ -139,65 +139,18 @@ I built `proteus_ecs` — a two-part SPIRE plugin (agent-side + server-side) tha
 
 **1. Agent-side plugin (runs inside the Fargate task):**
 
-```go
-// Read the ECS metadata endpoint (link-local, only accessible from inside the task)
-metadata_uri := os.Getenv("ECS_CONTAINER_METADATA_URI_V4")
-// e.g., http://169.254.170.2/v4/abc123def456
+The agent plugin reads the ECS task metadata endpoint (link-local address 169.254.170.2 — only reachable from within the task). It extracts the task ARN, cluster, and family information, then sends this claim to the SPIRE server for verification.
 
-// Fetch task metadata
-body := httpGet(metadata_uri + "/task")
-// Returns:
-// {
-//   "TaskARN": "arn:aws:ecs:us-east-1:123456:task/cluster/id",
-//   "Cluster": "proteus",
-//   "Family": "service-a",
-//   "DesiredStatus": "RUNNING"
-// }
-
-// Extract and send to SPIRE Server
-payload := {
-  task_arn: taskARN,
-  cluster: cluster,
-  family: family
-}
-agent.send(payload)
-```
-
-**Key:** The metadata endpoint is **link-local** (169.254.170.2) — it's only reachable from within the Fargate task. An attacker outside the task can't hit it.
+**Key security property:** The metadata endpoint is **link-local** (169.254.170.2) — it's only reachable from within the Fargate task. An attacker outside the task can't reach it.
 
 **2. Server-side plugin (runs in the SPIRE Server task):**
 
-```go
-// Receive the claim from the agent
-claim := agent.receive()
+The server plugin receives the claim and verifies it against AWS APIs (`DescribeTasks`, `DescribeTaskDefinition`). It checks that:
+- The task exists and is in RUNNING state
+- The task role ARN matches the allowed list
+- Only then issues the node SVID
 
-// Verify it against the ECS API (not the agent's word)
-task := ecsDescribeTasks(
-  region: "us-east-1",
-  cluster: claim.cluster,
-  taskARN: claim.task_arn
-)
-
-// Check: does the task exist?
-if task.LastStatus != "RUNNING" {
-  return PermissionDenied("task not running")
-}
-
-// Check: is the task role in the allowed list?
-task_role_arn := ecsDescribeTaskDefinition(task.TaskDefinitionArn).TaskRoleArn
-
-if !isRoleAllowed(task_role_arn) {
-  return PermissionDenied("role not in allow-list")
-}
-
-// ✅ Verification passed
-return nodeIdentity(
-  spiffe_id: "spiffe://proteus.local/agent/ecs/<task-id>",
-  selectors: ["ecs:cluster:proteus", "ecs:family:service-a", "ecs:task-role:..."]
-)
-```
-
-**Key:** The server calls **AWS APIs** (`DescribeTasks`, `DescribeTaskDefinition`) to verify the claim. It never trusts the agent's word.
+**Key security property:** The server calls **AWS APIs** to verify the claim — it never trusts the agent's word alone.
 
 ### The Integration Flow
 
@@ -351,10 +304,8 @@ The full implementation (with tests, Dockerfiles, and Terraform) is in the [Prot
 
 ### Resources
 
-- Full Proteus blog post (architecture, dark → admit → live walkthrough):
-  https://kiquetal.dev/blog/2026-08-31-spiffe-on-ecs-with-envoy
-- ECS custom attestor details (integration flow, plugin code):
-  https://kiquetal.dev/blog/2026-09-26-ecs-attestation-in-proteus
+- **Full Proteus OSS project:** https://github.com/kiquetal/proteus-oss
+- **Blog post (SPIFFE on ECS overview):** https://kiquetal.dev/blog/2026-08-31-spiffe-on-ecs-with-envoy
 - SPIRE documentation: https://spiffe.io/docs/latest/spire-about/
 - SPIRE node attestor plugin SDK: https://github.com/spiffe/spire-plugin-sdk
 - AWS ECS Metadata Endpoint v4: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-metadata-endpoint-v4-fargate.html
