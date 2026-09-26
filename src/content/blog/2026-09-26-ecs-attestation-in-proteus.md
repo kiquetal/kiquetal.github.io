@@ -423,7 +423,7 @@ aws ecs execute-command --cluster proteus --task $SPIRE_TASK \
 
 ## Resources
 
-- **Full Proteus project:** https://github.com/kiquetal/proteus
+- **Full Proteus project:** https://github.com/kiquetal/proteus-oss
 - **Original SPIFFE on ECS blog post:** https://kiquetal.dev/blog/2026-08-31-spiffe-on-ecs-with-envoy
 - **SPIRE documentation:** https://spiffe.io/docs/latest/spire-about/
 - **SPIRE plugin SDK:** https://github.com/spiffe/spire-plugin-sdk
@@ -537,7 +537,7 @@ Aquí está el flujo completo:
 │                                        │
 │  App + Envoy + Agente SPIRE            │
 │         │                              │
-│         └─��� Plugin de agente envía     │
+│         └─▶ Plugin de agente envía     │
 │            "Soy TaskARN:xyz"           │
 │            "Cluster: proteus"          │
 │            "Family: service-a"         │
@@ -639,4 +639,19 @@ Aquí está el flujo completo:
 - **HashiCorp go-plugin:** https://github.com/hashicorp/go-plugin
 
 </div>
+
+
+````
+This is the description of what the code block changes:
+<changeDescription>
+Update the English resources repo URL from proteus to proteus-oss on master.
+</changeDescription>
+
+This is the code block that represents the suggested code change:
+```markdown
+...existing code...
+- **Full Proteus project:** https://github.com/kiquetal/proteus
++ **Full Proteus project:** https://github.com/kiquetal/proteus-oss
+...existing code...
+```
 
