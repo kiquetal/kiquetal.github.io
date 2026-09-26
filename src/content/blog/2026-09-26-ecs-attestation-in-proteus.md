@@ -423,7 +423,7 @@ aws ecs execute-command --cluster proteus --task $SPIRE_TASK \
 
 ## Resources
 
-- **Full Proteus project:** https://github.com/kiquetal/proteus-ss
+- **Full Proteus project:** https://github.com/kiquetal/proteus-oss
 - **Original SPIFFE on ECS blog post:** https://kiquetal.dev/blog/2026-08-31-spiffe-on-ecs-with-envoy
 - **SPIRE documentation:** https://spiffe.io/docs/latest/spire-about/
 - **SPIRE plugin SDK:** https://github.com/spiffe/spire-plugin-sdk
@@ -631,7 +631,7 @@ Aquí está el flujo completo:
 
 ## Recursos
 
-- **Proyecto completo Proteus:** https://github.com/kiquetal/proteus-ss
+- **Proyecto completo Proteus:** https://github.com/kiquetal/proteus-oss
 - **Blog original SPIFFE en ECS:** https://kiquetal.dev/blog/2026-08-31-spiffe-on-ecs-with-envoy
 - **Documentación SPIRE:** https://spiffe.io/docs/latest/spire-about/
 - **SDK de plugin SPIRE:** https://github.com/spiffe/spire-plugin-sdk
