@@ -31,6 +31,7 @@ easy to miss, and the study plan I put together to hit the required 700 points.
 - [Course 03 (Lab): Resolve VPC Routing Conflicts](#course-03)
 - [Course 04 (Lab): Inter-Region Peering](#course-04)
 - [Course 05: Advanced Architecting on AWS](#course-05)
+- [Course 06: Centralized Account Management](#course-06)
 - [Why write this down](#why)
 
 <h2 id="two-ways">Two ways to keep a certification current</h2>
@@ -217,9 +218,9 @@ theme across both is that **connectivity is routing plus explicit allow/deny**,
 in both directions, on every hop. Full lab logs, diagrams, and screenshots are
 in the [recert tracker repo](https://github.com/kiquetal/recert-aws-pro-skill-builder).
 
-<h2 id="course-05">Course 05: Advanced Architecting on AWS (in progress)</h2>
+<h2 id="course-05">Course 05: Advanced Architecting on AWS (done)</h2>
 
-The third course on my path, **Advanced Architecting on AWS** (160 points, ~2h), is a heavy, multi-module course that covers deep architectural patterns. While currently in progress, I have fully documented the core domains. Here are the pro-level insights and patterns that stand out:
+The third course on my path, **Advanced Architecting on AWS** (160 points, ~2h), is a heavy, multi-module course that covers deep architectural patterns. I have fully completed it and documented the core domains. Here are the pro-level insights and patterns that stand out:
 
 - **Hybrid Networking & Direct Connect:**
   - **Managed over DIY:** Always prioritize managed services (Transit Gateway, Direct Connect, Virtual Private Gateway) over DIY EC2 appliances to ensure high availability and keep operational overhead low.
@@ -247,6 +248,17 @@ The third course on my path, **Advanced Architecting on AWS** (160 points, ~2h),
   - **Outposts vs. Local Zones:** Outposts bring AWS-managed hardware physically into your on-premises datacenter. Local Zones are AWS-managed datacenters in metropolitan areas for single-digit millisecond latency. Wavelength extends this to the 5G carrier network edge.
 
 Services covered: **AWS Organizations, IAM Identity Center, Transit Gateway, Route 53 Resolver, Direct Connect, Gateway Load Balancer, AWS Network Firewall, ECS/EKS, AWS CDK, RDS, AWS Storage Gateway, Outposts, Local Zones, Wavelength**. Detailed notes and puml/png diagrams are in the [recert tracker repo](https://github.com/kiquetal/recert-aws-pro-skill-builder).
+
+<h2 id="course-06">Course 06: Centralized Account Management (done)</h2>
+
+The fourth course I finished on my path, **AWS Security Engineer: Centralized Account Management** (80 points, ~1h), was a vital dive into multi-account governance and access control at scale. Here is what is essential:
+
+- **AWS Organizations & SCPs:** Organizations allow managing accounts centrally using Organizational Units (OUs). **Service Control Policies (SCPs)** act as guardrails that define the *maximum permission boundary* (the intersection of the SCP and the IAM policy is the effective permission). SCPs *never* grant permissions on their own—they only filter them. The Management account is immune to SCP restrictions.
+- **Delegated Administrator:** A core security best practice is to assign dedicated member accounts as administrators for security tools (like GuardDuty, IAM Access Analyzer, Security Hub, Config, or Macie). This avoids executing day-to-day security operations in the Management account.
+- **IAM Identity Center & ABAC:** Centralizes workforce directory access. **Attribute-Based Access Control (ABAC)** uses identity attributes from your external Identity Provider (IdP) as *session tags* to dynamically authorize access to AWS resources. This scales exponentially better than Role-Based Access Control (RBAC), as you don't need to define separate roles for every new team or project.
+- **AWS Control Tower:** Automatically provisions a governed multi-account landing zone, applying pre-packaged preventive (SCPs) and detective (Config rules) guardrails.
+
+Services covered: **AWS Organizations, AWS Control Tower, IAM Identity Center, AWS Service Catalog, AWS Resource Access Manager (RAM)**. Full notes are in my [recert tracker repo](https://github.com/kiquetal/recert-aws-pro-skill-builder).
 
 <h2 id="why">Why write this down</h2>
 
@@ -289,6 +301,7 @@ armé para alcanzar los 700 puntos requeridos.
 - [Curso 03 (Lab): Resolve VPC Routing Conflicts](#course-03-es)
 - [Curso 04 (Lab): Inter-Region Peering](#course-04-es)
 - [Curso 05: Advanced Architecting on AWS](#course-05-es)
+- [Curso 06: Centralized Account Management](#course-06-es)
 - [Por qué documentarlo](#por-que)
 
 <h2 id="dos-formas">Dos formas de mantener vigente una certificación</h2>
@@ -488,9 +501,9 @@ recurrente en ambos es que **la conectividad es ruteo más allow/deny explícito
 en ambas direcciones, en cada salto. Los logs completos, diagramas y capturas
 están en el [repo de seguimiento de recertificación](https://github.com/kiquetal/recert-aws-pro-skill-builder).
 
-<h2 id="course-05-es">Curso 05: Advanced Architecting on AWS (en progreso)</h2>
+<h2 id="course-05-es">Curso 05: Advanced Architecting on AWS (completado)</h2>
 
-El tercer curso de mi ruta, **Advanced Architecting on AWS** (160 puntos, ~2h), es un contenido denso y multi-módulo que cubre patrones de arquitectura profundos. Aunque actualmente está en progreso, he documentado completamente los dominios clave. Aquí están los aprendizajes y patrones de nivel profesional más destacados:
+El tercer curso de mi ruta, **Advanced Architecting on AWS** (160 puntos, ~2h), es un contenido denso y multi-módulo que cubre patrones de arquitectura profundos. Lo he completado en su totalidad y he documentado los dominios clave. Aquí están los aprendizajes y patrones de nivel profesional más destacados:
 
 - **Redes Híbridas y Direct Connect:**
   - **Servicios gestionados > DIY:** Siempre se deben priorizar los servicios gestionados (Transit Gateway, Direct Connect, Virtual Private Gateway) sobre appliances virtuales en EC2 autogestionados para garantizar la alta disponibilidad y reducir la carga operativa.
@@ -518,6 +531,17 @@ El tercer curso de mi ruta, **Advanced Architecting on AWS** (160 puntos, ~2h), 
   - **Outposts vs. Local Zones:** Outposts lleva hardware gestionado por AWS físicamente a tu centro de datos local. Las Local Zones son centros de datos gestionados por AWS en áreas metropolitanas para ofrecer latencias de un solo dígito de milisegundo. Wavelength extiende esto al borde de la red de operadores 5G.
 
 Servicios cubiertos: **AWS Organizations, IAM Identity Center, Transit Gateway, Route 53 Resolver, Direct Connect, Gateway Load Balancer, AWS Network Firewall, ECS/EKS, AWS CDK, RDS, AWS Storage Gateway, Outposts, Local Zones, Wavelength**. Las notas detalladas y los diagramas puml/png están en el [repo de seguimiento de recertificación](https://github.com/kiquetal/recert-aws-pro-skill-builder).
+
+<h2 id="course-06-es">Curso 06: Centralized Account Management (completado)</h2>
+
+El cuarto curso que completé en mi ruta, **AWS Security Engineer: Centralized Account Management** (80 puntos, ~1h), fue una inmersión vital en la gobernanza multi-cuenta y el control de accesos a escala. Lo fundamental de recordar:
+
+- **AWS Organizations y SCPs:** Organizations permite administrar cuentas de forma centralizada mediante Unidades Organizativas (OUs). Las **Service Control Policies (SCPs)** actúan como barreras de seguridad que definen el *límite máximo de permisos* (la intersección entre la SCP y la política de IAM son los permisos efectivos). Las SCPs *nunca* otorgan permisos por sí solas, solo los limitan. La cuenta de administración (Management Account) es inmune a las restricciones de las SCPs.
+- **Administrador Delegado:** Una buena práctica de seguridad clave es asignar cuentas miembro dedicadas como administradores delegados para herramientas de seguridad (como GuardDuty, IAM Access Analyzer, Security Hub, Config o Macie). Esto evita realizar operaciones de seguridad del día a día en la cuenta de administración.
+- **IAM Identity Center y ABAC:** Centraliza el acceso al directorio de la fuerza laboral. El **Control de Accesos Basado en Atributos (ABAC)** utiliza atributos de identidad de tu proveedor de identidades (IdP) externo como *session tags* para autorizar de manera dinámica el acceso a los recursos de AWS. Esto escala exponencialmente mejor que el Control de Accesos Basado en Roles (RBAC), ya que evita tener que crear roles separados para cada nuevo equipo o proyecto.
+- **AWS Control Tower:** Aprovisiona automáticamente una landing zone multi-cuenta gobernada, aplicando reglas preventivas (SCPs) y detectives (reglas de Config) preempaquetadas.
+
+Servicios cubiertos: **AWS Organizations, AWS Control Tower, IAM Identity Center, AWS Service Catalog, AWS Resource Access Manager (RAM)**. Las notas completas están en mi [repo de seguimiento de recertificación](https://github.com/kiquetal/recert-aws-pro-skill-builder).
 
 <h2 id="por-que">Por qué documentarlo</h2>
 
