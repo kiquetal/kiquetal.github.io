@@ -6,7 +6,7 @@ excerpt:
   en: 'AWS certifications expire every three years. Instead of retaking the SA-Professional exam, I am using the Skill Builder "Maintain" path — earning 700 points and two hands-on labs to extend the credential by one year. Here is how the path works, the eligibility gotchas, and the curated route I planned to reach 700.'
   es: 'Las certificaciones de AWS caducan cada tres años. En lugar de volver a rendir el examen SA-Professional, estoy usando la ruta "Maintain" de Skill Builder — sumando 700 puntos y dos laboratorios prácticos para extender la credencial un año. Aquí explico cómo funciona la ruta, los detalles de elegibilidad y la ruta que planifiqué para llegar a 700.'
 date: 2026-09-18
-updated: 2026-09-19
+updated: 2026-09-26
 tags: ['aws', 'certification', 'aws-pro', 'solutions-architect', 'skill-builder', 'recertification']
 draft: true
 ---
@@ -28,7 +28,9 @@ easy to miss, and the study plan I put together to hit the required 700 points.
 - [Tracking progress](#progress)
 - [Course 01: Protecting and Encrypting Data](#course-01)
 - [Course 02: Edge Security](#course-02)
-- [Labs: SimuLearn hands-on](#labs)
+- [Course 03 (Lab): Resolve VPC Routing Conflicts](#course-03)
+- [Course 04 (Lab): Inter-Region Peering](#course-04)
+- [Course 05: Advanced Architecting on AWS](#course-05)
 - [Why write this down](#why)
 
 <h2 id="two-ways">Two ways to keep a certification current</h2>
@@ -193,46 +195,58 @@ Verified Access, Route 53, Global Accelerator, CloudWatch, EventBridge**. Full
 notes and diagrams are in the
 [recert tracker repo](https://github.com/kiquetal/recert-aws-pro-skill-builder).
 
-<h2 id="labs">Labs: SimuLearn hands-on (2 done)</h2>
+<h2 id="course-03">Course 03 (Lab): Resolve VPC Routing Conflicts (done)</h2>
 
-Two of the four practical activities are complete. SimuLearn drops you into a
-live AWS environment with a broken scenario to fix — much closer to real work
-than a video lecture.
+SimuLearn drops you into a live AWS environment with a broken scenario to fix — much closer to real work than a video lecture. In this lab, we had three VPCs (ALB → app servers → RDS) linked by two VPC peering connections, with traffic not flowing.
 
-**Lab 01 — Resolve VPC Routing Conflicts.** Three VPCs (ALB → app servers →
-RDS) linked by two VPC peering connections, with traffic not flowing. The fixes
-and the lessons:
+The fixes and the lessons:
+- **Peering only enables the link; routes do the work.** Each VPC's route table must send the *other* VPC's CIDR to the peering connection (`pcx`) — and a request and its reply are two separate outbound decisions, so **both sides need a route**. The data VPC's route table was empty, which is why RDS *received* requests but the replies were dropped (classic one-way hang).
+- **Peering is not transitive** — the ALB VPC can't reach the data VPC "through" the APP VPC; each pair needs its own peering + routes. The APP VPC is the hub with two routes; the ALB and data VPCs have one each.
+- **A route table's destination is the *other* side** — you never add your own CIDR (the `local` route covers it). And healthy targets need both the return route *and* a security group that allows the ALB (app + health-check ports).
 
-- **Peering only enables the link; routes do the work.** Each VPC's route table
-  must send the *other* VPC's CIDR to the peering connection (`pcx`) — and a
-  request and its reply are two separate outbound decisions, so **both sides need
-  a route**. The data VPC's route table was empty, which is why RDS *received*
-  requests but the replies were dropped (classic one-way hang).
-- **Peering is not transitive** — the ALB VPC can't reach the data VPC "through"
-  the APP VPC; each pair needs its own peering + routes. The APP VPC is the hub
-  with two routes; the ALB and data VPCs have one each.
-- **A route table's destination is the *other* side** — you never add your own
-  CIDR (the `local` route covers it). And healthy targets need both the return
-  route *and* a security group that allows the ALB (app + health-check ports).
+<h2 id="course-04">Course 04 (Lab): Inter-Region Peering (done)</h2>
 
-**Lab 02 — Inter-Region Peering.** Peering two Regions' **Transit Gateways** and
-controlling cross-Region routing:
+Peering two Regions' **Transit Gateways** and controlling cross-Region routing:
 
-- **TGW inter-Region peering = attachment + accept + routes.** Create the peering
-  attachment from one Region, **accept it in the peer Region**, then add routes on
-  **both** TGW route tables (symmetric, or traffic is one-way).
-- **Association vs. routes** — associating the peering attachment with a route
-  table wires it in; the route *entries* (`destination → attachment`) do the
-  forwarding. One route table can hold many attachments (local VPC + peering).
-- **Blackhole routes explicitly deny** — a more-specific blackhole (e.g.,
-  `10.2.0.0/24 → blackhole`) carves a deny-hole out of a broader allow;
-  longest-prefix match means the `/24` beats a `/16` allow. Used it to make VPC C
-  unreachable while the rest of the Region stayed connected.
+- **TGW inter-Region peering = attachment + accept + routes.** Create the peering attachment from one Region, **accept it in the peer Region**, then add routes on **both** TGW route tables (symmetric, or traffic is one-way).
+- **Association vs. routes** — associating the peering attachment with a route table wires it in; the route *entries* (`destination → attachment`) do the forwarding. One route table can hold many attachments (local VPC + peering).
+- **Blackhole routes explicitly deny** — a more-specific blackhole (e.g., `10.2.0.0/24 → blackhole`) carves a deny-hole out of a broader allow; longest-prefix match means the `/24` beats a `/16` allow. Used it to make VPC C unreachable while the rest of the Region stayed connected.
 
 That's **2 of 2 labs** (the practical minimum) satisfied — and the recurring
 theme across both is that **connectivity is routing plus explicit allow/deny**,
 in both directions, on every hop. Full lab logs, diagrams, and screenshots are
 in the [recert tracker repo](https://github.com/kiquetal/recert-aws-pro-skill-builder).
+
+<h2 id="course-05">Course 05: Advanced Architecting on AWS (in progress)</h2>
+
+The third course on my path, **Advanced Architecting on AWS** (160 points, ~2h), is a heavy, multi-module course that covers deep architectural patterns. While currently in progress, I have fully documented the core domains. Here are the pro-level insights and patterns that stand out:
+
+- **Hybrid Networking & Direct Connect:**
+  - **Managed over DIY:** Always prioritize managed services (Transit Gateway, Direct Connect, Virtual Private Gateway) over DIY EC2 appliances to ensure high availability and keep operational overhead low.
+  - **TGW Segmentation:** Remember that **Association = Isolation**. We achieve environment separation (like Prod vs Dev) by routing traffic through distinct Transit Gateway Route Tables.
+  - **Direct Connect Encryption:** DX is *not* encrypted out of the box. Security requires layering a VPN on top of the connection or using MACsec.
+- **DNS & Hybrid Resolution:**
+  - **Resolver Endpoints:** Route 53 Inbound/Outbound Resolver Endpoints are Elastic Network Interfaces (ENIs) with private IPs. They follow the exact same routing rules (VPN or DX paths) as standard application traffic.
+  - **Rule Precedence:** In hybrid DNS forwarding, the **most specific rule wins**. Also, system rules (such as `amazonaws.com`) always take precedence for AWS native service endpoints.
+  - **PHZs:** A single Private Hosted Zone (PHZ) can be associated with multiple VPCs across different accounts to centralize domain management.
+- **Governance & Multi-Account:**
+  - **Service Control Policies (SCPs):** SCPs act as guardrails defining the **maximum permission boundary** for an organization or OU. They **do not grant** access by themselves, and they do *not* restrict the management account.
+  - **Delegated Administrator:** To follow security best practices, always delegate administrative rights for services (like GuardDuty, Config, Macie) to a dedicated security member account rather than running operations in the Management account.
+  - **AWS CDK Constructs:** L1 constructs represent raw 1:1 CloudFormation resources; L2 constructs add sensible defaults; L3 constructs (Patterns) package multiple services into opinionated reference architectures (such as an ALB Fargate Service).
+- **VPC Design & Advanced Capabilities:**
+  - **Gateway Load Balancer (GWLB):** Transparently scales virtual appliances (firewalls, IDS/IPS). It uses the **GENEVE** protocol (port 6081) to encapsulate and pass packet metadata to the appliances.
+  - **AWS Network Firewall:** Offers stateless (drops packets based on 5-tuple in isolation) and stateful (inspects packet flow context, supports domain allow/deny lists like `*.example.com`) rules. Routing through an inspection VPC requires **symmetric routing** to prevent the firewall from dropping return traffic.
+- **Containers on AWS:**
+  - **Fargate Isolation & Limits:** Fargate provides kernel-level task isolation, but has explicit constraints: no privileged containers/pods, no host-level DaemonSets, no GPU support, and no EBS volumes (persistent shared storage must use EFS via the EFS CSI Driver).
+  - **EKS Node Management:** EKS Managed Node Groups automate patching and updates, whereas Self-Managed Nodes are reserved only for deep OS customization or custom AMIs.
+- **CI/CD & Databases:**
+  - **CI/CD as a Fail-Safe:** Pipelines aren't just for pushing code; they dictate the rollback strategy. Green/Blue deployments provide an instant rollback path when deployment alarms (CloudWatch) are triggered.
+  - **RDS Blue/Green Deployments:** While AWS handles the replication, the switchover timing is an architectural decision. We must coordinate it during low-traffic maintenance windows, ensure schema compatibility, and design the application with robust connection retry logic to handle the brief DNS cutover.
+- **Specialized Storage & Infrastructure:**
+  - **Storage Gateways:** Choose **Stored** volumes for 100% local latency and data residency (with async S3 backups), or **Cached** volumes to scale using cheap S3 storage while keeping active data cached locally. Use **Tape Gateway** with Glacier Deep Archive to replace physical VTLs.
+  - **Outposts vs. Local Zones:** Outposts bring AWS-managed hardware physically into your on-premises datacenter. Local Zones are AWS-managed datacenters in metropolitan areas for single-digit millisecond latency. Wavelength extends this to the 5G carrier network edge.
+
+Services covered: **AWS Organizations, IAM Identity Center, Transit Gateway, Route 53 Resolver, Direct Connect, Gateway Load Balancer, AWS Network Firewall, ECS/EKS, AWS CDK, RDS, AWS Storage Gateway, Outposts, Local Zones, Wavelength**. Detailed notes and puml/png diagrams are in the [recert tracker repo](https://github.com/kiquetal/recert-aws-pro-skill-builder).
 
 <h2 id="why">Why write this down</h2>
 
@@ -272,7 +286,9 @@ armé para alcanzar los 700 puntos requeridos.
 - [Seguimiento del progreso](#progreso)
 - [Curso 01: Protecting and Encrypting Data](#curso-01)
 - [Curso 02: Edge Security](#curso-02)
-- [Laboratorios: prácticas SimuLearn](#labs-es)
+- [Curso 03 (Lab): Resolve VPC Routing Conflicts](#course-03-es)
+- [Curso 04 (Lab): Inter-Region Peering](#course-04-es)
+- [Curso 05: Advanced Architecting on AWS](#course-05-es)
 - [Por qué documentarlo](#por-que)
 
 <h2 id="dos-formas">Dos formas de mantener vigente una certificación</h2>
@@ -450,49 +466,58 @@ Core, Verified Access, Route 53, Global Accelerator, CloudWatch, EventBridge**.
 Las notas completas y los diagramas están en el
 [repo de seguimiento de recertificación](https://github.com/kiquetal/recert-aws-pro-skill-builder).
 
-<h2 id="labs-es">Laboratorios: prácticas SimuLearn (2 completados)</h2>
+<h2 id="course-03-es">Curso 03 (Lab): Resolve VPC Routing Conflicts (completado)</h2>
 
-Dos de las cuatro actividades prácticas están completas. SimuLearn te coloca en
-un entorno de AWS en vivo con un escenario roto para arreglar — mucho más cerca
-del trabajo real que una clase en video.
+SimuLearn te coloca en un entorno de AWS en vivo con un escenario roto para arreglar — mucho más cerca del trabajo real que una clase en video. En este laboratorio, teníamos tres VPCs (ALB → servidores de app → RDS) unidas por dos conexiones de VPC peering, con el tráfico sin fluir.
 
-**Lab 01 — Resolve VPC Routing Conflicts.** Tres VPCs (ALB → servidores de app →
-RDS) unidas por dos conexiones de VPC peering, con el tráfico sin fluir. Las
-correcciones y las lecciones:
+Las correcciones y las lecciones:
+- **El peering solo habilita el enlace; las rutas hacen el trabajo.** La tabla de rutas de cada VPC debe enviar el CIDR de la *otra* VPC a la conexión de peering (`pcx`) — y una petición y su respuesta son dos decisiones de salida separadas, así que **ambos lados necesitan una ruta**. La tabla de rutas de la data VPC estaba vacía, por eso RDS *recibía* las peticiones pero las respuestas se descartaban (el clásico cuelgue unidireccional).
+- **El peering no es transitivo** — la ALB VPC no puede alcanzar la data VPC "a través" de la APP VPC; cada par necesita su propio peering + rutas. La APP VPC es el hub con dos rutas; la ALB y la data VPC tienen una cada una.
+- **El destino de una tabla de rutas es el *otro* lado** — nunca agregás tu propio CIDR (la ruta `local` lo cubre). Y los targets sanos necesitan tanto la ruta de retorno *como* un security group que permita al ALB (puertos de app + health-check).
 
-- **El peering solo habilita el enlace; las rutas hacen el trabajo.** La tabla de
-  rutas de cada VPC debe enviar el CIDR de la *otra* VPC a la conexión de peering
-  (`pcx`) — y una petición y su respuesta son dos decisiones de salida separadas,
-  así que **ambos lados necesitan una ruta**. La tabla de rutas de la data VPC
-  estaba vacía, por eso RDS *recibía* las peticiones pero las respuestas se
-  descartaban (el clásico cuelgue unidireccional).
-- **El peering no es transitivo** — la ALB VPC no puede alcanzar la data VPC "a
-  través" de la APP VPC; cada par necesita su propio peering + rutas. La APP VPC
-  es el hub con dos rutas; la ALB y la data VPC tienen una cada una.
-- **El destino de una tabla de rutas es el *otro* lado** — nunca agregás tu
-  propio CIDR (la ruta `local` lo cubre). Y los targets sanos necesitan tanto la
-  ruta de retorno *como* un security group que permita al ALB (puertos de app +
-  health-check).
+<h2 id="course-04-es">Curso 04 (Lab): Inter-Region Peering (completado)</h2>
 
-**Lab 02 — Inter-Region Peering.** Peering de los **Transit Gateways** de dos
-Regiones y control del ruteo entre regiones:
+Peering de los **Transit Gateways** de dos Regiones y control del ruteo entre regiones:
 
-- **TGW inter-Región = attachment + aceptar + rutas.** Creá el peering attachment
-  desde una Región, **aceptalo en la Región par**, y luego agregá rutas en
-  **ambas** tablas de rutas de TGW (simétricas, o el tráfico es unidireccional).
-- **Asociación vs. rutas** — asociar el peering attachment con una tabla de rutas
-  lo conecta; las *entradas* de ruta (`destino → attachment`) hacen el reenvío.
-  Una tabla de rutas puede tener muchos attachments (VPC local + peering).
-- **Las rutas blackhole deniegan explícitamente** — un blackhole más específico
-  (p. ej. `10.2.0.0/24 → blackhole`) recorta un agujero de denegación de un
-  permiso más amplio; longest-prefix match hace que el `/24` gane sobre un
-  permiso `/16`. Lo usé para dejar la VPC C inalcanzable mientras el resto de la
-  Región seguía conectada.
+- **TGW inter-Región = attachment + aceptar + rutas.** Creá el peering attachment desde una Región, **aceptalo en la Región par**, y luego agregá rutas en **ambas** tablas de rutas de TGW (simétricas, o el tráfico es unidireccional).
+- **Asociación vs. rutas** — asociar el peering attachment con una tabla de rutas lo conecta; las *entradas* de ruta (`destino → attachment`) hacen el reenvío. Una tabla de rutas puede tener muchos attachments (VPC local + peering).
+- **Las rutas blackhole deniegan explícitamente** — un blackhole más específico (p. ej. `10.2.0.0/24 → blackhole`) recorta un agujero de denegación de un permiso más amplio; longest-prefix match hace que el `/24` gane sobre un permiso `/16`. Lo usé para dejar la VPC C inalcanzable mientras el resto de la Región seguía conectada.
 
 Eso es **2 de 2 laboratorios** (el mínimo práctico) cumplido — y el tema
 recurrente en ambos es que **la conectividad es ruteo más allow/deny explícito**,
 en ambas direcciones, en cada salto. Los logs completos, diagramas y capturas
 están en el [repo de seguimiento de recertificación](https://github.com/kiquetal/recert-aws-pro-skill-builder).
+
+<h2 id="course-05-es">Curso 05: Advanced Architecting on AWS (en progreso)</h2>
+
+El tercer curso de mi ruta, **Advanced Architecting on AWS** (160 puntos, ~2h), es un contenido denso y multi-módulo que cubre patrones de arquitectura profundos. Aunque actualmente está en progreso, he documentado completamente los dominios clave. Aquí están los aprendizajes y patrones de nivel profesional más destacados:
+
+- **Redes Híbridas y Direct Connect:**
+  - **Servicios gestionados > DIY:** Siempre se deben priorizar los servicios gestionados (Transit Gateway, Direct Connect, Virtual Private Gateway) sobre appliances virtuales en EC2 autogestionados para garantizar la alta disponibilidad y reducir la carga operativa.
+  - **Segmentación de TGW:** Recordar que **Asociación = Aislamiento**. Logramos separar entornos (como Prod vs Dev) ruteando el tráfico a través de distintas tablas de rutas de Transit Gateway.
+  - **Cifrado en Direct Connect:** DX *no* viene cifrado por defecto. La seguridad requiere superponer una VPN sobre la conexión o utilizar MACsec.
+- **DNS y Resolución Híbrida:**
+  - **Resolver Endpoints:** Los endpoints de Route 53 Resolver (Inbound/Outbound) son interfaces de red elásticas (ENIs) con IPs privadas. Siguen las mismas reglas de enrutamiento (rutas de VPN o DX) que el tráfico de aplicación estándar.
+  - **Precedencia de Reglas:** En el reenvío híbrido de DNS, la **regla más específica es la que gana**. Además, las reglas de sistema (como `amazonaws.com`) siempre tienen precedencia para endpoints de servicios nativos de AWS.
+  - **PHZs:** Una sola zona alojada privada (PHZ) se puede asociar con múltiples VPCs de distintas cuentas para centralizar la gestión de dominios.
+- **Gobernanza y Multi-cuenta:**
+  - **Service Control Policies (SCPs):** Las SCPs actúan como guardas de seguridad que definen el **límite máximo de permisos** para una organización o unidad organizativa (OU). **No otorgan** acceso por sí solas, y no restringen a la cuenta de administración.
+  - **Administrador Delegado:** Para seguir las mejores prácticas de seguridad, delega siempre la administración de servicios (como GuardDuty, Config, Macie) a una cuenta miembro dedicada de seguridad, en lugar de operar en la cuenta de administración.
+  - **Constructos de AWS CDK:** Los constructos L1 representan recursos de CloudFormation 1:1; los L2 añaden valores predeterminados razonables; los L3 (Patrones) empaquetan múltiples servicios en arquitecturas de referencia (como un servicio Fargate con balanceador de carga).
+- **Diseño de VPC y Capacidades Avanzadas:**
+  - **Gateway Load Balancer (GWLB):** Escala de forma transparente appliances virtuales (firewalls, IDS/IPS). Utiliza el protocolo **GENEVE** (puerto 6081) para encapsular y transmitir metadatos de paquetes a los appliances.
+  - **AWS Network Firewall:** Ofrece reglas sin estado (descarta paquetes basándose estrictamente en la 5-tupla de forma aislada) y con estado (inspecciona el contexto del flujo de paquetes, soporta listas de permitir/denegar dominios como `*.example.com`). El tráfico a través de una VPC de inspección requiere **enrutamiento simétrico** para evitar que el firewall descarte el tráfico de retorno.
+- **Contenedores en AWS:**
+  - **Aislamiento y Límites de Fargate:** Fargate proporciona aislamiento de tareas a nivel de kernel, pero tiene restricciones claras: no soporta contenedores/pods privilegiados, no permite DaemonSets a nivel de host, no tiene soporte para GPUs, y no admite volúmenes EBS (el almacenamiento persistente compartido debe usar EFS mediante el driver EFS CSI).
+  - **Gestión de Nodos en EKS:** Los Managed Node Groups de EKS automatizan parches y actualizaciones, mientras que los Self-Managed Nodes se reservan solo para personalizaciones profundas del SO o AMIs personalizadas.
+- **CI/CD y Bases de Datos:**
+  - **CI/CD como salvaguarda:** Los pipelines no son solo para subir código; dictan la estrategia de rollback. Los despliegues Blue/Green proporcionan una ruta de rollback instantánea cuando se activan las alarmas de despliegue (CloudWatch).
+  - **Despliegues RDS Blue/Green:** Aunque AWS gestiona la replicación, el momento de realizar el cambio definitivo (switchover) es una decisión arquitectónica. Debemos coordinarlo durante ventanas de mantenimiento de bajo tráfico, garantizar la compatibilidad del esquema y diseñar la aplicación con lógica de reintentos robusta para tolerar el breve corte de DNS.
+- **Almacenamiento Especializado e Infraestructura:**
+  - **Storage Gateways:** Elige volúmenes **Stored** para un 100% de latencia local y residencia de datos (con backups asíncronos a S3), o volúmenes **Cached** para escalar usando el almacenamiento barato de S3 manteniendo los datos activos en caché local. Usa **Tape Gateway** con Glacier Deep Archive para reemplazar bibliotecas de cintas físicas.
+  - **Outposts vs. Local Zones:** Outposts lleva hardware gestionado por AWS físicamente a tu centro de datos local. Las Local Zones son centros de datos gestionados por AWS en áreas metropolitanas para ofrecer latencias de un solo dígito de milisegundo. Wavelength extiende esto al borde de la red de operadores 5G.
+
+Servicios cubiertos: **AWS Organizations, IAM Identity Center, Transit Gateway, Route 53 Resolver, Direct Connect, Gateway Load Balancer, AWS Network Firewall, ECS/EKS, AWS CDK, RDS, AWS Storage Gateway, Outposts, Local Zones, Wavelength**. Las notas detalladas y los diagramas puml/png están en el [repo de seguimiento de recertificación](https://github.com/kiquetal/recert-aws-pro-skill-builder).
 
 <h2 id="por-que">Por qué documentarlo</h2>
 
