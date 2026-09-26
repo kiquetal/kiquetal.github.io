@@ -15,7 +15,7 @@ Three weeks on "the simple part" of Proteus — SPIRE agents on ECS Fargate. Tur
 
 Started with `join_token` attestor:
 1. Generate token (one-time use, 10-min TTL)
-2. Scale to 0 → apply Terraform → scale to 1
+2. Scale to 0 → update config → scale to 1
 3. Pray token doesn't expire
 4. If task restarts? Token burned. Start over.
 
@@ -31,16 +31,16 @@ So I built a custom SPIRE plugin (agent + server):
 That's it. No token generation. No TTL. No one-time use.
 
 ```
-BEFORE: Manual token → scale to 0 → Terraform → scale to 1 → risk
+BEFORE: Manual token → scale to 0 → reconfigure → scale to 1 → risk
 
-AFTER: terraform apply → done. Task restarts? Re-attests automatically. Scale to 100? All auto-attest.
+AFTER: deploy with same setup → done. Task restarts? Re-attests automatically. Scale to 100? All auto-attest.
 ```
 
 **Why it works:** You don't need a pre-shared secret. The task already has proof of identity: its IAM role. The server verifies it via AWS APIs. The agent proves it using a link-local endpoint only it can access.
 
-The whole plugin: ~500 lines of Go, HashiCorp go-plugin framework (gRPC). Agent and server completely decoupled.
+The architecture is simple: agent claim + server verification + node SVID.
 
-Full details: https://kiquetal.dev/blog/2026-09-26-ecs-attestation-in-proteus
+Flow diagram and context: https://kiquetal.dev/blog/2026-09-26-ecs-attestation-in-proteus
 
 #SPIRE #SPIFFE #AWS #ECS #Fargate #ZeroTrust #DevSecOps
 
@@ -53,7 +53,7 @@ Pasé tres semanas en "la parte simple" de Proteus — lograr que los agentes SP
 Al principio, usé el verificador de token incorporado `join_token` de SPIRE. Cada deploy se veía así:
 1. Generar token (de un solo uso, TTL de 10 min)
 2. Reducir los servicios mesh a 0
-3. Aplicar Terraform con el token
+3. Aplicar configuración con el token
 4. Volver a escalar los servicios a 1
 5. Rezar para que el token no expire durante el despliegue
 
@@ -156,21 +156,21 @@ Así que construí un sistema de plugin SPIRE donde **agente y servidor están e
 
 ```
 ANTES (join_token):
-  Generación manual de token → reducir a 0 → Terraform → escalar a 1 → riesgo
+  Generación manual de token → reducir a 0 → reconfigurar → escalar a 1 → riesgo
 
 DESPUÉS (rol de tarea ECS):
-  terraform apply → listo. Cualquier réplica se atestigua automáticamente.
+  desplegar con la misma configuración → listo. Cualquier réplica se atestigua automáticamente.
   ¿Se reinicia una tarea? Se atestigua automáticamente. ¿Escalar a 100? Todas se atestiguan automáticamente.
 ```
 
 **La clave:** No necesitas un secreto pre-compartido. La tarea ya tiene prueba de identidad: su rol IAM. El servidor puede verificarlo llamando a las APIs de AWS. El agente lo prueba leyendo un endpoint link-local solo al que puede acceder.
 
-Sin tokens. Sin TTL. Sin uso de un solo uso. Sin secretos en el estado de Terraform. Solo criptografía y APIs de la nube.
+Sin tokens. Sin TTL. Sin uso de un solo uso. Solo criptografía y APIs de la nube.
 
 **Nota:** Esto es solo atestación de nodo — probar la *tarea*. El admission controller es una puerta separada que decide qué *identidad de servicio* puede tener esa tarea. Ambas deben pasar para que una aplicación funcione con mTLS (el post de blog cubre ambas capas en detalle).
 
-Todo el plugin es ~500 líneas de Go. Usa el framework go-plugin de HashiCorp (gRPC sobre stdio). Agente y servidor están completamente desacoplados — si uno falla, no bloquea SPIRE.
+La arquitectura es simple: reclamación del agente + verificación del servidor + SVID de nodo.
 
-Lo documenté en detalle con diagramas de arquitectura y logs de despliegue en el proyecto Proteus. Link en bio.
+Comparto el flujo con diagramas de arquitectura en el proyecto Proteus. Link en bio.
 
 #SPIRE #SPIFFE #AWS #ECS #Fargate #ZeroTrust #DevSecOps #Kubernetes #GestiónddeIdentidad
