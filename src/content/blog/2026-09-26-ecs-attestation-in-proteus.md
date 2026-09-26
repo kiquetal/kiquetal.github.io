@@ -88,76 +88,18 @@ Instead of relying on Instance Identity Documents, I built `proteus_ecs` — a t
 
 #### Part 1: Agent-Side Plugin
 
-The agent runs inside the Fargate task and has access to the ECS metadata endpoint (link-local address 169.254.170.2 — only reachable from within the task):
-
-```go
-// Read the ECS metadata endpoint
-metadata_uri := os.Getenv("ECS_CONTAINER_METADATA_URI_V4")
-// Returns something like: http://169.254.170.2/v4/abc123def456
-
-// Fetch task metadata
-response := httpGet(metadata_uri + "/task")
-// Returns JSON with:
-// {
-//   "TaskARN": "arn:aws:ecs:us-east-1:123456:task/proteus/xyz",
-//   "Cluster": "proteus",
-//   "Family": "service-a",
-//   "DesiredStatus": "RUNNING"
-// }
-
-// Extract and send to SPIRE Server
-payload := {
-  task_arn: response.TaskARN,
-  cluster: response.Cluster,
-  family: response.Family
-}
-agent.sendToServer(payload)
-```
+The agent runs inside the Fargate task and reads the ECS task metadata endpoint (link-local address 169.254.170.2 — only reachable from within the task). It extracts the task ARN, cluster, and family information, then sends this claim to the SPIRE server for verification.
 
 **Key security property:** The metadata endpoint is **link-local** (169.254.170.2) — it can only be reached from inside the Fargate task. An attacker outside the task cannot reach it.
 
 #### Part 2: Server-Side Plugin
 
-The server plugin verifies the claim by calling AWS APIs (not trusting the agent's word):
+The server plugin receives the claim and verifies it against AWS APIs (`DescribeTasks`, `DescribeTaskDefinition`). It checks that:
+- The task exists and is in RUNNING state
+- The task role ARN matches the allowed list
+- Only then issues the node SVID
 
-```go
-// Receive the claim from the agent
-claim := receiveFromAgent()
-
-// Verify it against the ECS API
-task := ecsDescribeTasks(
-  region: "us-east-1",
-  cluster: claim.cluster,
-  taskARN: claim.task_arn
-)
-
-// Check 1: Does the task exist and is it RUNNING?
-if task.LastStatus != "RUNNING" {
-  return error("Task not in acceptable state")
-}
-
-// Check 2: Get the task role ARN
-taskDef := ecsDescribeTaskDefinition(task.TaskDefinitionArn)
-task_role_arn := taskDef.TaskRoleArn
-
-// Check 3: Is the role in the allowed list?
-allowed_roles := ["arn:aws:iam::123456:role/proteus-ecs-task"]
-if !contains(allowed_roles, task_role_arn) {
-  return error("Task role not in allow-list")
-}
-
-// ✅ All checks passed
-return nodeIdentity(
-  spiffe_id: "spiffe://proteus.local/agent/ecs/<task-id>",
-  selectors: [
-    "ecs:cluster:proteus",
-    "ecs:family:service-a",
-    "ecs:task-role:" + task_role_arn
-  ]
-)
-```
-
-**Key security property:** The server calls **AWS APIs** (`DescribeTasks`, `DescribeTaskDefinition`) to verify the claim. It never trusts the agent's word. The proof comes from AWS.
+**Key security property:** The server calls **AWS APIs** to verify the claim. It never trusts the agent's word. The proof comes from AWS.
 
 ---
 
@@ -568,76 +510,18 @@ En lugar de confiar en Documentos de Identidad de Instancia, construí `proteus_
 
 #### Parte 1: Plugin del Lado del Agente
 
-El agente se ejecuta dentro de la tarea Fargate y tiene acceso al endpoint de metadatos ECS (dirección link-local 169.254.170.2 — solo accesible desde dentro de la tarea):
-
-```go
-// Leer el endpoint de metadatos ECS
-metadata_uri := os.Getenv("ECS_CONTAINER_METADATA_URI_V4")
-// Devuelve algo como: http://169.254.170.2/v4/abc123def456
-
-// Obtener metadatos de la tarea
-response := httpGet(metadata_uri + "/task")
-// Devuelve JSON con:
-// {
-//   "TaskARN": "arn:aws:ecs:us-east-1:123456:task/proteus/xyz",
-//   "Cluster": "proteus",
-//   "Family": "service-a",
-//   "DesiredStatus": "RUNNING"
-// }
-
-// Extraer y enviar al Servidor SPIRE
-payload := {
-  task_arn: response.TaskARN,
-  cluster: response.Cluster,
-  family: response.Family
-}
-agent.sendToServer(payload)
-```
+El agente se ejecuta dentro de la tarea Fargate y lee el endpoint de metadatos ECS (dirección link-local 169.254.170.2 — solo accesible desde dentro de la tarea). Extrae la información del ARN de la tarea, cluster y familia, y luego envía esta reclamación al servidor SPIRE para verificación.
 
 **Propiedad de seguridad clave:** El endpoint de metadatos es **link-local** (169.254.170.2) — solo se puede acceder desde dentro de la tarea Fargate. Un atacante fuera de la tarea no puede alcanzarlo.
 
 #### Parte 2: Plugin del Lado del Servidor
 
-El plugin del servidor verifica la reclamación llamando a las APIs de AWS (sin confiar en la palabra del agente):
+El plugin del servidor recibe la reclamación y la verifica contra las APIs de AWS (`DescribeTasks`, `DescribeTaskDefinition`). Verifica que:
+- La tarea existe y está en estado RUNNING
+- El ARN del rol de la tarea coincide con la lista permitida
+- Solo entonces emite el SVID de nodo
 
-```go
-// Recibir la reclamación del agente
-claim := receiveFromAgent()
-
-// Verificar contra la API de ECS
-task := ecsDescribeTasks(
-  region: "us-east-1",
-  cluster: claim.cluster,
-  taskARN: claim.task_arn
-)
-
-// Verificación 1: ¿La tarea existe y está en RUNNING?
-if task.LastStatus != "RUNNING" {
-  return error("Task not in acceptable state")
-}
-
-// Verificación 2: Obtener el ARN del rol de la tarea
-taskDef := ecsDescribeTaskDefinition(task.TaskDefinitionArn)
-task_role_arn := taskDef.TaskRoleArn
-
-// Verificación 3: ¿El rol está en la lista permitida?
-allowed_roles := ["arn:aws:iam::123456:role/proteus-ecs-task"]
-if !contains(allowed_roles, task_role_arn) {
-  return error("Task role not in allow-list")
-}
-
-// ✅ Todas las verificaciones pasaron
-return nodeIdentity(
-  spiffe_id: "spiffe://proteus.local/agent/ecs/<task-id>",
-  selectors: [
-    "ecs:cluster:proteus",
-    "ecs:family:service-a",
-    "ecs:task-role:" + task_role_arn
-  ]
-)
-```
-
-**Propiedad de seguridad clave:** El servidor llama a **APIs de AWS** (`DescribeTasks`, `DescribeTaskDefinition`) para verificar la reclamación. Nunca confía en la palabra del agente. La prueba proviene de AWS.
+**Propiedad de seguridad clave:** El servidor llama a **APIs de AWS** para verificar la reclamación. Nunca confía en la palabra del agente. La prueba proviene de AWS.
 
 ---
 
