@@ -298,7 +298,7 @@ If you're running SPIRE on Fargate and hit the "no aws_iid" wall:
 3. **Use IAM role as proof** — it's already there, no extra infrastructure needed
 4. **Layer admission on top** — separate which *task* you trust from which *service identity* it may hold
 
-The full implementation (with tests, Dockerfiles, and Terraform) is in the [Proteus GitHub repo](https://github.com/kiquetal/proteus).
+The full implementation (with tests, Dockerfiles, and Terraform) is in the [Proteus GitHub repo](https://github.com/kiquetal/proteus-oss).
 
 ---
 
@@ -306,6 +306,7 @@ The full implementation (with tests, Dockerfiles, and Terraform) is in the [Prot
 
 - **Full Proteus OSS project:** https://github.com/kiquetal/proteus-oss
 - **Blog post (SPIFFE on ECS overview):** https://kiquetal.dev/blog/2026-08-31-spiffe-on-ecs-with-envoy
+- **Blog post (ECS attestation deep dive):** https://kiquetal.dev/blog/2026-09-26-ecs-attestation-in-proteus
 - SPIRE documentation: https://spiffe.io/docs/latest/spire-about/
 - SPIRE node attestor plugin SDK: https://github.com/spiffe/spire-plugin-sdk
 - AWS ECS Metadata Endpoint v4: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-metadata-endpoint-v4-fargate.html
