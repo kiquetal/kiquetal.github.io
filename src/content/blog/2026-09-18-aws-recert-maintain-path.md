@@ -146,7 +146,7 @@ toward the total. Here is the actual set of activities that earned the 740:
 | AWS Security Engineer: Protecting and Encrypting Data    | Course | 80     | 2026-09-18 |
 | AWS Security Engineer: Edge Security                     | Course | 100    | 2026-09-19 |
 | AWS Security Engineer: Centralized Account Management    | Course | 80     | 2026-09-25 |
-| Advanced Architecting on AWS - Online Course Supplement  | Course | 160    | 2026       |
+| Advanced Architecting on AWS - Online Course Supplement  | Course | 160    | 2026-09-24 |
 | Deploying Serverless Applications                        | Course | 120    | 2022-12-14 |
 | AWS SimuLearn: Resolve VPC Routing Conflicts             | Lab    | 100    | 2026-09-19 |
 | AWS SimuLearn: Inter-Region Peering                      | Lab    | 100    | 2026-09-19 |
@@ -460,7 +460,7 @@ conjunto real de actividades que sumaron los 740:
 | AWS Security Engineer: Protecting and Encrypting Data    | Curso  | 80     | 2026-09-18 |
 | AWS Security Engineer: Edge Security                     | Curso  | 100    | 2026-09-19 |
 | AWS Security Engineer: Centralized Account Management    | Curso  | 80     | 2026-09-25 |
-| Advanced Architecting on AWS - Online Course Supplement  | Curso  | 160    | 2026       |
+| Advanced Architecting on AWS - Online Course Supplement  | Curso  | 160    | 2026-09-24 |
 | Deploying Serverless Applications                        | Curso  | 120    | 2022-12-14 |
 | AWS SimuLearn: Resolve VPC Routing Conflicts             | Lab    | 100    | 2026-09-19 |
 | AWS SimuLearn: Inter-Region Peering                      | Lab    | 100    | 2026-09-19 |
