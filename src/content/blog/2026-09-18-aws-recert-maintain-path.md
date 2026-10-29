@@ -6,9 +6,9 @@ excerpt:
   en: 'AWS certifications expire every three years. Instead of retaking the SA-Professional exam, I am using the Skill Builder "Maintain" path — earning 700 points and two hands-on labs to extend the credential by one year. Here is how the path works, the eligibility gotchas, and the curated route I planned to reach 700.'
   es: 'Las certificaciones de AWS caducan cada tres años. En lugar de volver a rendir el examen SA-Professional, estoy usando la ruta "Maintain" de Skill Builder — sumando 700 puntos y dos laboratorios prácticos para extender la credencial un año. Aquí explico cómo funciona la ruta, los detalles de elegibilidad y la ruta que planifiqué para llegar a 700.'
 date: 2026-09-18
-updated: 2026-09-26
+updated: 2026-10-28
 tags: ['aws', 'certification', 'aws-pro', 'solutions-architect', 'skill-builder', 'recertification']
-draft: true
+draft: false
 ---
 
 <div class="lang-en">
@@ -26,6 +26,7 @@ easy to miss, and the study plan I put together to hit the required 700 points.
 - [How the Maintain path works](#how-it-works)
 - [The math: planning a route to 700](#the-math)
 - [Tracking progress](#progress)
+- [Result: passing score reached (740/700)](#result)
 - [Course 01: Protecting and Encrypting Data](#course-01)
 - [Course 02: Edge Security](#course-02)
 - [Course 03 (Lab): Resolve VPC Routing Conflicts](#course-03)
@@ -124,6 +125,37 @@ progress bar against the 700-point threshold and the two-lab requirement:
 
 I track each course in its own notes folder — one source of truth per course —
 and record what I learned in the sections below as I complete them.
+
+<h2 id="result">Result: passing score reached (740/700)</h2>
+
+The credential is now extended. Skill Builder shows **740 points** against the
+700-point threshold and **2 of 2** practical activities completed — the new
+expiration is **2027-09-24**:
+
+![AWS Skill Builder Recertify page showing a passing score reached: 740 of 700 points earned and 2 of 2 practical activities completed, with the certification extended to expire 09/24/2027](/blog/2026-09-18-aws-recert-maintain-path/recert-740-points-passed.png)
+
+How it actually went versus the plan is worth being honest about: I reached the
+threshold with **two labs, not four**. The planned "Securing Hybrid Access" and
+"Securing a Banking Data Lake" labs turned out to be unnecessary once the points
+added up. What pushed me over 700 was a course I had **already completed back in
+2022** — *Deploying Serverless Applications* (120 points) — which still counted
+toward the total. Here is the actual set of activities that earned the 740:
+
+| Item                                                     | Type   | Points | Completed  |
+| -------------------------------------------------------- | ------ | ------ | ---------- |
+| AWS Security Engineer: Protecting and Encrypting Data    | Course | 80     | 2026-09-18 |
+| AWS Security Engineer: Edge Security                     | Course | 100    | 2026-09-19 |
+| AWS Security Engineer: Centralized Account Management    | Course | 80     | 2026-09-25 |
+| Advanced Architecting on AWS - Online Course Supplement  | Course | 160    | 2026       |
+| Deploying Serverless Applications                        | Course | 120    | 2022-12-14 |
+| AWS SimuLearn: Resolve VPC Routing Conflicts             | Lab    | 100    | 2026-09-19 |
+| AWS SimuLearn: Inter-Region Peering                      | Lab    | 100    | 2026-09-19 |
+| **Total**                                                |        | **740**|            |
+
+The practical lesson: the 700-point total is the only binding constraint, and
+**prior eligible completions count**. If you have taken Skill Builder courses in
+the past, check whether they still apply before planning a route from scratch —
+mine saved me two labs.
 
 <h2 id="course-01">Course 01: Protecting and Encrypting Data (done)</h2>
 
@@ -268,8 +300,11 @@ point math are genuinely hard to find in one place. Writing it down keeps me
 accountable to the plan, and hopefully saves someone else the time of piecing
 the rules together.
 
-I will follow up when the credential is extended, with notes on which courses
-and labs were actually worth the time.
+The follow-up is now in: the credential is extended to **2027-09-24**. The
+biggest surprise was that a course completed years earlier still counted, so I
+hit 700 with two labs instead of the four I planned. Of the activities I did do,
+the SimuLearn labs were the most worthwhile — fixing a broken live environment
+beats watching a lecture every time.
 
 ### References
 
@@ -296,6 +331,7 @@ armé para alcanzar los 700 puntos requeridos.
 - [Cómo funciona la ruta Maintain](#como-funciona)
 - [La matemática: planificar una ruta hacia 700](#la-matematica)
 - [Seguimiento del progreso](#progreso)
+- [Resultado: puntaje de aprobación alcanzado (740/700)](#resultado)
 - [Curso 01: Protecting and Encrypting Data](#curso-01)
 - [Curso 02: Edge Security](#curso-02)
 - [Curso 03 (Lab): Resolve VPC Routing Conflicts](#course-03-es)
@@ -402,6 +438,38 @@ laboratorios:
 Llevo el seguimiento de cada curso en su propia carpeta de notas — una fuente de
 verdad por curso — y registro lo que aprendí en las secciones de abajo a medida
 que los completo.
+
+<h2 id="resultado">Resultado: puntaje de aprobación alcanzado (740/700)</h2>
+
+La credencial ya está extendida. Skill Builder muestra **740 puntos** contra el
+umbral de 700 y **2 de 2** actividades prácticas completadas — la nueva fecha de
+expiración es **2027-09-24**:
+
+![Página de recertificación de AWS Skill Builder mostrando el puntaje de aprobación alcanzado: 740 de 700 puntos y 2 de 2 actividades prácticas completadas, con la certificación extendida hasta el 09/24/2027](/blog/2026-09-18-aws-recert-maintain-path/recert-740-points-passed.png)
+
+Cómo resultó en realidad frente al plan vale la pena ser honesto: alcancé el
+umbral con **dos laboratorios, no cuatro**. Los laboratorios planificados
+"Securing Hybrid Access" y "Securing a Banking Data Lake" resultaron
+innecesarios una vez que los puntos sumaron. Lo que me hizo superar los 700 fue
+un curso que **ya había completado en 2022** — *Deploying Serverless
+Applications* (120 puntos) — que seguía contando para el total. Este es el
+conjunto real de actividades que sumaron los 740:
+
+| Ítem                                                     | Tipo   | Puntos | Completado |
+| -------------------------------------------------------- | ------ | ------ | ---------- |
+| AWS Security Engineer: Protecting and Encrypting Data    | Curso  | 80     | 2026-09-18 |
+| AWS Security Engineer: Edge Security                     | Curso  | 100    | 2026-09-19 |
+| AWS Security Engineer: Centralized Account Management    | Curso  | 80     | 2026-09-25 |
+| Advanced Architecting on AWS - Online Course Supplement  | Curso  | 160    | 2026       |
+| Deploying Serverless Applications                        | Curso  | 120    | 2022-12-14 |
+| AWS SimuLearn: Resolve VPC Routing Conflicts             | Lab    | 100    | 2026-09-19 |
+| AWS SimuLearn: Inter-Region Peering                      | Lab    | 100    | 2026-09-19 |
+| **Total**                                                |        | **740**|            |
+
+La lección práctica: el total de 700 puntos es la única restricción vinculante, y
+**las finalizaciones previas elegibles cuentan**. Si tomaste cursos de Skill
+Builder en el pasado, verificá si todavía aplican antes de planificar una ruta
+desde cero — los míos me ahorraron dos laboratorios.
 
 <h2 id="curso-01">Curso 01: Protecting and Encrypting Data (completado)</h2>
 
@@ -554,6 +622,12 @@ juntar las reglas.
 
 Haré un seguimiento cuando la credencial esté extendida, con notas sobre qué
 cursos y laboratorios realmente valieron la pena.
+
+El seguimiento ya está: la credencial está extendida hasta el **2027-09-24**. La
+mayor sorpresa fue que un curso completado años atrás todavía contaba, así que
+alcancé los 700 con dos laboratorios en lugar de los cuatro que planifiqué. De
+las actividades que sí hice, los laboratorios SimuLearn fueron los más valiosos
+— arreglar un entorno en vivo roto le gana a ver una clase, siempre.
 
 ### Referencias
 
