@@ -44,6 +44,8 @@ Making this the default would eliminate off-box credential replay for the vast m
 
 Why is this opt-in instead of opt-out, AWS? 👀
 
+📚 AWS docs on the condition keys: https://aws.amazon.com/blogs/security/how-to-use-policies-to-restrict-where-ec2-instance-credentials-can-be-used-from/
+
 #AWS #CloudSecurity #IAM #IMDS #IncidentResponse #DevSecOps #EC2 #CloudComputing #InfoSec
 
 ---
@@ -82,6 +84,8 @@ AWS YA sabe qué VPC emitió la credencial — está ahí mismo en el contexto d
 Hacerlo el comportamiento por defecto eliminaría la reutilización de credenciales fuera de la máquina para la gran mayoría de las cargas de trabajo, prácticamente sin desventajas. En cambio, es una clave de condición opt-in de la que la mayoría de los equipos nunca escuchó.
 
 ¿Por qué es opt-in en lugar de opt-out, AWS? 👀
+
+📚 Documentación de AWS sobre las claves de condición: https://aws.amazon.com/blogs/security/how-to-use-policies-to-restrict-where-ec2-instance-credentials-can-be-used-from/
 
 #AWS #CloudSecurity #IAM #IMDS #IncidentResponse #DevSecOps #EC2 #CloudComputing #InfoSec
 
