@@ -1,6 +1,8 @@
 # LinkedIn Post: Why Locking EC2 Instance Credentials to the VPC Was the Right Call — and Why It Isn't an AWS Default
 
-> 📷 **Image Recommendation**: A simple diagram — compromised EC2 → IMDS creds stolen → replayed from external IP (❌ denied by VPC lock). Or a screenshot of the IAM deny policy with aws:Ec2InstanceSourceVpc highlighted.
+> 📷 **Image to upload**: `assets/2026-11-08-vpc-bound-instance-credentials.png`
+> (attack-flow diagram: compromised EC2 → IMDS creds stolen → replayed from external IP → ❌ denied by the `aws:Ec2InstanceSourceVpc` lock).
+> Note: it's portrait (590×1098), which renders small in the LinkedIn feed. Ask me to re-render it landscape (~1200×627) or square (1200×1200) if you want more feed real estate.
 
 > ⚠️ **LinkedIn formatting rule**: LinkedIn does NOT support Markdown and collapses single line breaks. Everything below the "READY TO POST" marker uses a BLANK LINE between every block and `▸` as manual bullets. Copy it verbatim — keep the blank lines — and it will paste cleanly. Do not re-wrap or remove the empty lines.
 
