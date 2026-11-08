@@ -1,8 +1,7 @@
 # LinkedIn Post: Why Locking EC2 Instance Credentials to the VPC Was the Right Call — and Why It Isn't an AWS Default
 
 > 📷 **Image to upload**: `assets/2026-11-08-vpc-bound-instance-credentials.png`
-> (attack-flow diagram: compromised EC2 → IMDS creds stolen → replayed from external IP → ❌ denied by the `aws:Ec2InstanceSourceVpc` lock).
-> Note: it's portrait (590×1098), which renders small in the LinkedIn feed. Ask me to re-render it landscape (~1200×627) or square (1200×1200) if you want more feed real estate.
+> (landscape attack-flow banner, 1264×249: compromised EC2 → IMDS creds stolen → replayed from external IP → ❌ denied by the `aws:Ec2InstanceSourceVpc` lock; footer cites AWS Mar-2023 launch + "opt-in, not default").
 
 > ⚠️ **LinkedIn formatting rule**: LinkedIn does NOT support Markdown and collapses single line breaks. Everything below the "READY TO POST" marker uses a BLANK LINE between every block and `▸` as manual bullets. Copy it verbatim — keep the blank lines — and it will paste cleanly. Do not re-wrap or remove the empty lines.
 
@@ -85,3 +84,30 @@ Hacerlo el comportamiento por defecto eliminaría la reutilización de credencia
 ¿Por qué es opt-in en lugar de opt-out, AWS? 👀
 
 #AWS #CloudSecurity #IAM #IMDS #IncidentResponse #DevSecOps #EC2 #CloudComputing #InfoSec
+
+---
+## 🔎 Fact-check — verified against AWS documentation (2026-11-08)
+
+Claims in the post, confirmed against official sources:
+
+▸ **The keys exist & what they hold** — `aws:EC2InstanceSourceVPC` (VPC ID) and `aws:EC2InstanceSourcePrivateIPv4` (primary private IPv4). Launched **2023-03-06**, all Regions incl. GovCloud + China, no extra charge.
+  Source: AWS What's New — "IAM Roles for Amazon EC2 now provide Credential Control Properties"
+  https://aws.amazon.com/about-aws/whats-new/2023/03/iam-roles-amazon-ec2-credential-control-properties/
+
+▸ **Purpose = off-box replay defense** — the keys make "EC2 instance credentials work only when used on the instance to which they are issued."
+  Source: AWS Security Blog — "How to use policies to restrict where EC2 instance credentials can be used from" (updated 2025-01-13)
+  https://aws.amazon.com/blogs/security/how-to-use-policies-to-restrict-where-ec2-instance-credentials-can-be-used-from/
+
+▸ **"AWS already attaches the VPC" / auto-populated** — AWS: "You don't have to make configuration changes to activate the new condition keys… available only for use with credentials issued to an EC2 instance." Each role credential now carries these two properties automatically.
+  Source: both links above.
+
+▸ **SourceVpc/SourceVpce caveat** — `aws:SourceVpc` only populates for traffic over a VPC endpoint; without endpoints it won't help. `Ec2InstanceSourceVpc` is bound to the credential and populates regardless of path. Confirmed in the Security Blog.
+
+▸ **"Not a default" framing is correct** — these are opt-in condition keys you must add to an IAM policy / SCP / resource policy. AWS provides no automatic VPC-binding of instance credentials. (No AWS source states a default; the feature is explicitly policy-authored.)
+
+Optional supporting point you can add if challenged on "just use GuardDuty":
+▸ GuardDuty's `InstanceCredentialExfiltration.OutsideAWS` finding can be **bypassed** if the attacker routes the stolen-credential calls through a VPC endpoint — detection alone is not sufficient, which is why the IAM deny matters.
+  Source: hackingthe.cloud — "Bypass Credential Exfiltration Detection" (updated Oct 2025)
+  https://hackingthe.cloud/aws/avoiding-detection/steal-keys-undetected/
+
+Casing note: AWS docs use `aws:EC2InstanceSourceVPC`; IAM condition-key matching is case-insensitive, so `aws:Ec2InstanceSourceVpc` (as used in the incident policy) is equivalent and valid.
