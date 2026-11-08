@@ -1,45 +1,85 @@
-# LinkedIn Comment: Why Locking EC2 Instance Credentials to the VPC Was the Right Call — and Why It Isn't an AWS Default
+# LinkedIn Post: Why Locking EC2 Instance Credentials to the VPC Was the Right Call — and Why It Isn't an AWS Default
 
-> 💬 **Type**: This is a COMMENT (to drop under a post about EC2 credential exfiltration / IMDS security), not a standalone post. Keep it tight.
+> 📷 **Image Recommendation**: A simple diagram — compromised EC2 → IMDS creds stolen → replayed from external IP (❌ denied by VPC lock). Or a screenshot of the IAM deny policy with aws:Ec2InstanceSourceVpc highlighted.
 
-> ⚠️ **LinkedIn formatting rule**: LinkedIn does NOT support Markdown and collapses single line breaks. Everything below the "READY TO POST" marker uses a BLANK LINE between every block. Copy it verbatim — keep the blank lines — and it will paste cleanly.
+> ⚠️ **LinkedIn formatting rule**: LinkedIn does NOT support Markdown and collapses single line breaks. Everything below the "READY TO POST" marker uses a BLANK LINE between every block and `▸` as manual bullets. Copy it verbatim — keep the blank lines — and it will paste cleanly. Do not re-wrap or remove the empty lines.
 
 > 🔒 **Public-safe**: no account IDs, instance IDs, attacker IP, or access keys. Those stay in the private incident report.
 
 ---
 ## ✅ READY TO POST — English (copy verbatim, keep blank lines)
 
-Just worked an incident that's a perfect example of this. 🔍
+An attacker stole an EC2 instance's AWS credentials and used them from their own laptop. One IAM condition key shut that down completely. 🔒
 
-An EC2 instance role's temporary credentials (ASIA… STS, delivered via IMDS) were exfiltrated and replayed from an external, non-AWS IP — textbook InstanceCredentialExfiltration.OutsideAWS.
+Here's the incident, and a question I can't stop asking AWS.
 
-Enforcing IMDSv2 was part of the fix, but it only raises the bar on STEALING the creds (SSRF). It does nothing once an attacker has on-box RCE, or once the credentials are already off the box.
+What happened:
 
-The control that actually neutralized the replay was an IAM deny keyed on aws:Ec2InstanceSourceVpc — it ties the credentials to the VPC that vended them, so any use from OUTSIDE that VPC is denied.
+▸ A compromised EC2 instance leaked its temporary IAM role credentials (the ASIA… STS keys that AWS vends through the Instance Metadata Service / IMDS).
 
-One nuance worth sharing: aws:SourceVpc / aws:SourceVpce don't help without VPC endpoints. aws:Ec2InstanceSourceVpc populates regardless of the network path, which made it the right key here.
+▸ The attacker replayed those credentials from an external, non-AWS IP — the textbook InstanceCredentialExfiltration.OutsideAWS pattern.
 
-So my question to AWS and the community: why is this not a default? 🤔
+The usual advice is "enforce IMDSv2." We did — but here's the uncomfortable truth:
 
-AWS already attaches the source VPC to the credential. Making instance-role credentials VPC-bound by default would eliminate off-box replay for most workloads with essentially zero downside. Why is this opt-in instead of opt-out?
+IMDSv2 only raises the bar on STEALING the credentials (it blocks simple SSRF). It does nothing once an attacker has code execution on the box, and nothing once the credentials are already off the box. The replay still works.
 
-#AWS #CloudSecurity #IAM #IMDS #IncidentResponse #DevSecOps #EC2 #CloudComputing
+What actually neutralized the replay was an IAM deny built on one condition key:
+
+aws:Ec2InstanceSourceVpc
+
+It ties the instance-role credentials to the VPC that issued them. Use them from anywhere outside that VPC — like an attacker's machine — and every call is denied. The stolen keys became worthless the moment they left the network.
+
+One nuance for anyone implementing this:
+
+▸ aws:SourceVpc and aws:SourceVpce only populate for VPC-endpoint traffic. If you don't run endpoints, they won't help.
+
+▸ aws:Ec2InstanceSourceVpc is bound to the instance credentials themselves and populates no matter the network path. That's why it was the right key here.
+
+Now the question. 🤔
+
+AWS ALREADY knows which VPC issued the credential — it's right there in the request context. So why are instance-role credentials not VPC-bound by DEFAULT?
+
+Making this the default would eliminate off-box credential replay for the vast majority of workloads, with essentially zero downside. Instead it's an opt-in condition key most teams have never heard of.
+
+Why is this opt-in instead of opt-out, AWS? 👀
+
+#AWS #CloudSecurity #IAM #IMDS #IncidentResponse #DevSecOps #EC2 #CloudComputing #InfoSec
 
 ---
 ## ✅ READY TO POST — Español (copiar tal cual, mantener líneas en blanco)
 
-Justo trabajé un incidente que es un ejemplo perfecto de esto. 🔍
+Un atacante robó las credenciales AWS de una instancia EC2 y las usó desde su propia laptop. Una sola clave de condición de IAM cortó eso por completo. 🔒
 
-Las credenciales temporales del rol de una instancia EC2 (STS tipo ASIA…, entregadas vía IMDS) fueron exfiltradas y reutilizadas desde una IP externa, fuera de AWS — el caso de manual de InstanceCredentialExfiltration.OutsideAWS.
+Acá va el incidente, y una pregunta que no dejo de hacerle a AWS.
 
-Aplicar IMDSv2 fue parte de la solución, pero solo eleva la barrera para ROBAR las credenciales (SSRF). No hace nada una vez que el atacante logra ejecución de código en el host (RCE), ni una vez que las credenciales ya salieron de la máquina.
+Qué pasó:
 
-El control que realmente neutralizó la reutilización fue un deny de IAM basado en la clave aws:Ec2InstanceSourceVpc — ata las credenciales a la VPC que las emitió, de modo que cualquier uso desde FUERA de esa VPC queda denegado.
+▸ Una instancia EC2 comprometida filtró las credenciales temporales de su rol de IAM (las claves STS tipo ASIA… que AWS entrega a través del Instance Metadata Service / IMDS).
 
-Un matiz que vale la pena compartir: aws:SourceVpc / aws:SourceVpce no sirven sin VPC endpoints. aws:Ec2InstanceSourceVpc se completa sin importar la ruta de red, y por eso fue la clave correcta en este caso.
+▸ El atacante reutilizó esas credenciales desde una IP externa, fuera de AWS — el patrón de manual InstanceCredentialExfiltration.OutsideAWS.
 
-Mi pregunta para AWS y la comunidad: ¿por qué esto no es el comportamiento por defecto? 🤔
+El consejo habitual es "aplicá IMDSv2". Lo hicimos — pero esta es la verdad incómoda:
 
-AWS ya asocia la VPC de origen a la credencial. Hacer que las credenciales del rol de instancia estén ligadas a la VPC por defecto eliminaría la reutilización fuera de la máquina para la mayoría de las cargas de trabajo, prácticamente sin desventajas. ¿Por qué es opt-in en lugar de opt-out?
+IMDSv2 solo eleva la barrera para ROBAR las credenciales (bloquea el SSRF simple). No hace nada una vez que el atacante tiene ejecución de código en la máquina, ni una vez que las credenciales ya salieron del host. La reutilización sigue funcionando.
 
-#AWS #CloudSecurity #IAM #IMDS #IncidentResponse #DevSecOps #EC2 #CloudComputing
+Lo que realmente neutralizó la reutilización fue un deny de IAM construido sobre una sola clave de condición:
+
+aws:Ec2InstanceSourceVpc
+
+Ata las credenciales del rol de la instancia a la VPC que las emitió. Usalas desde cualquier lugar fuera de esa VPC — como la máquina de un atacante — y toda llamada queda denegada. Las claves robadas quedaron inútiles en el momento en que salieron de la red.
+
+Un matiz para quien lo vaya a implementar:
+
+▸ aws:SourceVpc y aws:SourceVpce solo se completan para tráfico que pasa por VPC endpoints. Si no usás endpoints, no te sirven.
+
+▸ aws:Ec2InstanceSourceVpc está ligada a las credenciales de la instancia y se completa sin importar la ruta de red. Por eso fue la clave correcta acá.
+
+Ahora la pregunta. 🤔
+
+AWS YA sabe qué VPC emitió la credencial — está ahí mismo en el contexto de la solicitud. Entonces, ¿por qué las credenciales del rol de instancia no están ligadas a la VPC por DEFECTO?
+
+Hacerlo el comportamiento por defecto eliminaría la reutilización de credenciales fuera de la máquina para la gran mayoría de las cargas de trabajo, prácticamente sin desventajas. En cambio, es una clave de condición opt-in de la que la mayoría de los equipos nunca escuchó.
+
+¿Por qué es opt-in en lugar de opt-out, AWS? 👀
+
+#AWS #CloudSecurity #IAM #IMDS #IncidentResponse #DevSecOps #EC2 #CloudComputing #InfoSec
