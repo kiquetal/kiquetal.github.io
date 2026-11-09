@@ -31,7 +31,7 @@
 
 An attacker stole an EC2 instance's temporary AWS credentials and used them from their own laptop. One IAM condition key shut that down completely. This is the incident, the control that actually worked, its trade-offs, and a question about AWS defaults I can't stop asking.
 
-[📷 UPLOAD IMAGE HERE: Attack-flow diagram — attack-flow-vpc-bound.svg]
+[📷 UPLOAD IMAGE HERE: Attack-flow diagram — attack-flow-vpc-bound.png]
 
 The short version: the credentials were stolen successfully. What saved us was not stopping the theft — it was making the stolen credentials **worthless the moment they left the network**.
 
@@ -62,7 +62,7 @@ So IMDSv2 is necessary, not sufficient. It narrows the ways credentials get *sto
 
 It's worth being precise about *how* IMDSv2 raises the bar, because the mechanism is the reason it stops SSRF but nothing downstream.
 
-[📷 UPLOAD IMAGE HERE: IMDSv2 token handshake + hop-limit explainer — imdsv2-hop-limit.svg]
+[📷 UPLOAD IMAGE HERE: IMDSv2 token handshake + hop-limit explainer — imdsv2-hop-limit.png]
 
 **The token handshake.** IMDSv1 answered a single unauthenticated `GET`. IMDSv2 requires two steps:
 
@@ -84,7 +84,7 @@ Practical guidance: set the hop limit to `1` for workloads that read IMDS direct
 
 The right hop-limit value depends on how many network hops sit between the thing reading IMDS and the metadata service.
 
-[📷 UPLOAD IMAGE HERE: IMDS hop-limit by topology (host / Docker / EKS / NAT) — imds-hop-limit-topologies.svg]
+[📷 UPLOAD IMAGE HERE: IMDS hop-limit by topology (host / Docker / EKS / NAT) — imds-hop-limit-topologies.png]
 
 - **Process on the host (EC2 directly).** Zero extra hops — reply leaves with TTL `1`, arrives with TTL `1`. **Hop limit `1`.** The secure default (and what Amazon Linux 2023 sets).
 - **Container on EC2 (Docker / ECS on EC2).** The packet crosses one extra hop at the `docker0` bridge. With hop limit `1`, TTL decrements to `0` at the bridge and the reply is dropped. **Hop limit `2`** is required — but only if the container itself reads IMDS.
@@ -199,13 +199,20 @@ Why is this opt-in instead of opt-out, AWS?
 
 ### Image upload checklist (for the editor)
 
-1. `attack-flow-vpc-bound.svg` — right after the "incident in one picture" intro.
-2. `imdsv2-hop-limit.svg` — in the "How IMDSv2 actually works" section.
-3. `imds-hop-limit-topologies.svg` — in the "Hop count by topology" subsection.
+Upload the **PNG** versions (Builder Center's editor is unreliable with SVG).
+Each one is also served live on kiquetal.dev, so you can upload the file **or**
+paste the URL directly in the editor:
 
-Source image lives in:
+1. `attack-flow-vpc-bound.png` — right after the "incident in one picture" intro.
+   https://kiquetal.dev/blog/2026-11-09-vpc-bound-instance-credentials/attack-flow-vpc-bound.png
+2. `imdsv2-hop-limit.png` — in the "How IMDSv2 actually works" section.
+   https://kiquetal.dev/blog/2026-11-09-vpc-bound-instance-credentials/imdsv2-hop-limit.png
+3. `imds-hop-limit-topologies.png` — in the "Hop count by topology" subsection.
+   https://kiquetal.dev/blog/2026-11-09-vpc-bound-instance-credentials/imds-hop-limit-topologies.png
+
+Both PNG and SVG source files live in the repo at:
 `public/blog/2026-11-09-vpc-bound-instance-credentials/`
 
-> **Tip:** if the Builder Center editor won't accept an SVG upload, export a PNG
-> first with `python superdesign/screenshot.py` (or any SVG→PNG tool) and upload
-> that instead.
+> **Note:** the PNGs are rendered at 1.5× (1770px wide) for crisp text. To
+> regenerate after editing an SVG:
+> `python3 -c "import cairosvg; cairosvg.svg2png(url='<file>.svg', write_to='<file>.png', output_width=1770)"`
