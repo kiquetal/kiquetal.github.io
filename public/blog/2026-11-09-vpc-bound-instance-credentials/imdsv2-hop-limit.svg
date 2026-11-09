@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 700" font-family="'JetBrains Mono','Courier New',monospace" role="img" aria-label="How IMDSv2 works: token-bound PUT then GET, and how the hop limit stops SSRF-via-proxy">
+  <defs>
+    <marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#4A6B7C"/>
+    </marker>
+    <marker id="aGood" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#5C7A52"/>
+    </marker>
+    <marker id="aBad" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#9B2D20"/>
+    </marker>
+    <style>
+      .title { font-family: 'Playfair Display', Georgia, serif; }
+      .lbl { font-size: 13px; fill: #2C3E4A; }
+      .sub { font-size: 11px; fill: #4A6B7C; }
+      .mono { font-size: 11px; fill: #2C3E4A; }
+      .box { fill: #C8D5DC; stroke: #7A9BAE; stroke-width: 2; }
+      .boxDark { fill: #2C3E4A; stroke: #2C3E4A; }
+      .boxGood { fill: #D6E2D4; stroke: #5C7A52; stroke-width: 2; }
+      .boxBad { fill: #E8D3CF; stroke: #9B2D20; stroke-width: 2; }
+      .imds { fill: #E7A66A; stroke: #B4763D; stroke-width: 2; }
+      .zlbl { font-size: 11px; letter-spacing: 0.08em; }
+      .pill { font-size: 10px; fill: #F0EDE5; }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="1180" height="700" fill="#F0EDE5"/>
+
+  <!-- Title -->
+  <text x="40" y="44" class="title" font-size="26" fill="#2C3E4A" font-weight="700">IMDSv2: token-bound requests + a hop limit that kills SSRF</text>
+  <text x="40" y="68" class="sub" font-size="12">The metadata endpoint lives at 169.254.169.254 (link-local). IMDSv2 adds a session token and a TTL-based hop limit.</text>
+  <line x1="40" y1="80" x2="1140" y2="80" stroke="#7A9BAE" stroke-width="1"/>
+
+  <!-- ===================== PANEL A: how IMDSv2 works ===================== -->
+  <text x="40" y="112" class="title" font-size="16" fill="#2C3E4A" font-weight="700">A &#183; The two-step handshake (what IMDSv1 never required)</text>
+
+  <!-- App box -->
+  <rect x="60" y="134" width="180" height="90" rx="3" class="boxDark"/>
+  <text x="150" y="170" text-anchor="middle" class="pill" font-size="12">App / SDK</text>
+  <text x="150" y="190" text-anchor="middle" class="pill">on the EC2 instance</text>
+  <text x="150" y="208" text-anchor="middle" class="pill">hop count starts here</text>
+
+  <!-- IMDS box -->
+  <rect x="820" y="134" width="260" height="90" rx="3" class="imds"/>
+  <text x="950" y="166" text-anchor="middle" class="lbl" font-weight="bold">IMDS 169.254.169.254</text>
+  <text x="950" y="186" text-anchor="middle" class="sub">vends ASIA... STS role creds</text>
+  <text x="950" y="204" text-anchor="middle" class="sub">link-local &#183; never leaves the host</text>
+
+  <!-- Step 1 PUT -->
+  <path d="M240,160 L816,160" stroke="#4A6B7C" stroke-width="2" fill="none" marker-end="url(#a)"/>
+  <text x="528" y="150" text-anchor="middle" class="mono">(1) PUT /latest/api/token  &#8594;  returns a session token (TTL up to 6h)</text>
+
+  <!-- Step 2 GET -->
+  <path d="M240,200 L816,200" stroke="#5C7A52" stroke-width="2" fill="none" marker-end="url(#aGood)"/>
+  <text x="528" y="218" text-anchor="middle" class="mono" fill="#5C7A52">(2) GET /.../iam/security-credentials  +  X-aws-ec2-metadata-token: &lt;token&gt;  &#8594;  creds</text>
+
+  <text x="60" y="250" class="sub">IMDSv1 allowed a single unauthenticated GET. That is exactly what a reflected-URL SSRF can forge. IMDSv2 requires the PUT-first token, so a blind GET alone fails.</text>
+
+  <line x1="40" y1="272" x2="1140" y2="272" stroke="#7A9BAE" stroke-width="1"/>
+
+  <!-- ===================== PANEL B: hop limit ===================== -->
+  <text x="40" y="304" class="title" font-size="16" fill="#2C3E4A" font-weight="700">B &#183; The hop limit = TTL on the response packet (default 1)</text>
+  <text x="40" y="326" class="sub" font-size="12">IMDS sets the IP TTL of its reply to the configured hop limit. Each network hop decrements TTL by 1. TTL hits 0 &#8594; packet dropped.</text>
+
+  <!-- B1: direct read (allowed) -->
+  <rect x="60" y="348" width="1020" height="118" rx="4" fill="rgba(214,226,212,0.45)" stroke="#5C7A52" stroke-width="1.5" stroke-dasharray="6 4"/>
+  <text x="80" y="372" class="zlbl" fill="#5C7A52">&#9632; LEGIT: app reads IMDS directly &#8212; 1 hop, TTL survives</text>
+
+  <rect x="90" y="388" width="150" height="56" rx="3" class="boxDark"/>
+  <text x="165" y="420" text-anchor="middle" class="pill" font-size="12">App on instance</text>
+
+  <rect x="900" y="388" width="150" height="56" rx="3" class="imds"/>
+  <text x="975" y="420" text-anchor="middle" class="lbl" font-size="12" font-weight="bold">IMDS</text>
+
+  <path d="M240,416 L896,416" stroke="#5C7A52" stroke-width="2" fill="none" marker-end="url(#aGood)"/>
+  <text x="568" y="406" text-anchor="middle" class="mono" fill="#5C7A52">reply leaves IMDS with TTL=1  &#8594;  0 hops crossed  &#8594;  arrives with TTL=1  &#10003; delivered</text>
+
+  <!-- B2: SSRF via proxy (blocked) -->
+  <rect x="60" y="478" width="1020" height="150" rx="4" fill="rgba(155,45,32,0.06)" stroke="#9B2D20" stroke-width="1.5" stroke-dasharray="6 4"/>
+  <text x="80" y="502" class="zlbl" fill="#9B2D20">&#9632; ATTACK: SSRF bounced through a proxy / extra network hop &#8212; TTL dies</text>
+
+  <rect x="90" y="520" width="150" height="56" rx="3" class="boxBad"/>
+  <text x="165" y="546" text-anchor="middle" class="lbl" font-size="11" font-weight="bold" fill="#9B2D20">Attacker</text>
+  <text x="165" y="562" text-anchor="middle" class="sub">crafts SSRF</text>
+
+  <rect x="360" y="520" width="170" height="56" rx="3" class="box"/>
+  <text x="445" y="546" text-anchor="middle" class="lbl" font-size="11" font-weight="bold">Vulnerable app</text>
+  <text x="445" y="562" text-anchor="middle" class="sub">fetches attacker URL</text>
+
+  <rect x="620" y="520" width="150" height="56" rx="3" class="box"/>
+  <text x="695" y="546" text-anchor="middle" class="lbl" font-size="11" font-weight="bold">Proxy / NAT</text>
+  <text x="695" y="562" text-anchor="middle" class="sub">+1 hop</text>
+
+  <rect x="900" y="520" width="150" height="56" rx="3" class="imds"/>
+  <text x="975" y="552" text-anchor="middle" class="lbl" font-size="12" font-weight="bold">IMDS</text>
+
+  <path d="M240,548 L356,548" stroke="#9B2D20" stroke-width="2" fill="none" marker-end="url(#aBad)"/>
+  <path d="M530,548 L616,548" stroke="#9B2D20" stroke-width="2" fill="none" marker-end="url(#aBad)"/>
+  <path d="M770,548 L896,548" stroke="#9B2D20" stroke-width="2" fill="none" marker-end="url(#aBad)"/>
+
+  <text x="568" y="600" text-anchor="middle" class="mono" fill="#9B2D20">reply leaves IMDS with TTL=1  &#8594;  crosses the proxy hop (TTL 1&#8594;0)  &#8594;  dropped before it reaches the attacker &#10007;</text>
+  <text x="568" y="618" text-anchor="middle" class="sub">Set hop limit to 1 for apps that read IMDS directly. Containers that route through the host network may need 2 &#8212; set it as low as the topology allows.</text>
+
+  <!-- footnote -->
+  <text x="60" y="654" class="sub">Note: the hop limit is an SSRF/exfil-path control, not a replay control. Once creds are OFF the box, the hop limit is irrelevant &#8212; that is the job of aws:Ec2InstanceSourceVpc.</text>
+
+  <!-- ribbon -->
+  <rect x="0" y="672" width="1180" height="28" fill="#1a1a1a"/>
+  <text x="590" y="691" text-anchor="middle" fill="#f5f5f5" font-size="11" letter-spacing="0.15em">&#10022; co-designed by kiquetal &#10022;</text>
+</svg>

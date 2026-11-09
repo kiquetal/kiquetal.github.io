@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 640" font-family="'JetBrains Mono','Courier New',monospace" role="img" aria-label="EC2 IMDS credential theft and the aws:Ec2InstanceSourceVpc defense flow">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#4A6B7C"/>
+    </marker>
+    <marker id="arrowDeny" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#9B2D20"/>
+    </marker>
+    <style>
+      .title { font-family: 'Playfair Display', Georgia, serif; }
+      .lbl { font-size: 13px; fill: #2C3E4A; }
+      .sub { font-size: 11px; fill: #4A6B7C; }
+      .num { font-size: 12px; fill: #4A6B7C; font-weight: bold; }
+      .box { fill: #C8D5DC; stroke: #7A9BAE; stroke-width: 2; }
+      .boxDark { fill: #2C3E4A; stroke: #2C3E4A; }
+      .boxDanger { fill: #E8D3CF; stroke: #9B2D20; stroke-width: 2; }
+      .boxGood { fill: #D6E2D4; stroke: #5C7A52; stroke-width: 2; }
+      .zone { fill: rgba(200,213,220,0.35); stroke: #7A9BAE; stroke-width: 1.5; stroke-dasharray: 6 4; }
+      .zoneBad { fill: rgba(155,45,32,0.06); stroke: #9B2D20; stroke-width: 1.5; stroke-dasharray: 6 4; }
+      .wtxt { fill: #F0EDE5; font-size: 12px; }
+      .zlbl { font-size: 11px; letter-spacing: 0.08em; }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="1180" height="640" fill="#F0EDE5"/>
+
+  <!-- Title -->
+  <text x="40" y="44" class="title" font-size="26" fill="#2C3E4A" font-weight="700">Stolen EC2 credentials, replayed off-box &#8212; and the one key that denied them</text>
+  <text x="40" y="68" class="sub" font-size="12">aws:Ec2InstanceSourceVpc binds instance-role STS credentials to the issuing VPC</text>
+  <line x1="40" y1="80" x2="1140" y2="80" stroke="#7A9BAE" stroke-width="1"/>
+
+  <!-- ================= TRUST ZONE: VPC ================= -->
+  <rect x="40" y="110" width="430" height="300" rx="4" class="zone"/>
+  <text x="60" y="134" class="zlbl" fill="#4A6B7C">&#9632; TRUST ZONE &#8212; the VPC that issued the credential</text>
+
+  <!-- Compromised EC2 -->
+  <rect x="64" y="160" width="170" height="64" rx="3" class="boxDark"/>
+  <text x="149" y="188" text-anchor="middle" class="wtxt">Compromised</text>
+  <text x="149" y="206" text-anchor="middle" class="wtxt">EC2 instance</text>
+
+  <!-- IMDS -->
+  <rect x="280" y="150" width="170" height="84" rx="3" class="box"/>
+  <text x="365" y="178" text-anchor="middle" class="lbl" font-weight="bold">IMDS (169.254.169.254)</text>
+  <text x="365" y="198" text-anchor="middle" class="sub">vends temp role creds</text>
+  <text x="365" y="214" text-anchor="middle" class="sub">ASIA... STS keys</text>
+
+  <!-- RCE arrow -->
+  <path d="M234,192 L278,192" stroke="#4A6B7C" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+  <text x="256" y="150" text-anchor="middle" class="num">(1)</text>
+  <text x="256" y="246" text-anchor="middle" class="sub">RCE / web shell reads IMDS</text>
+
+  <!-- legit path -->
+  <rect x="280" y="300" width="170" height="60" rx="3" class="boxGood"/>
+  <text x="365" y="326" text-anchor="middle" class="lbl" font-weight="bold">AWS APIs / STS</text>
+  <text x="365" y="344" text-anchor="middle" class="sub">legit in-VPC calls &#10003;</text>
+  <path d="M149,224 L149,330 L278,330" stroke="#5C7A52" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+  <text x="150" y="294" text-anchor="middle" class="sub" fill="#5C7A52">ALLOWED (source VPC matches)</text>
+
+  <!-- ================= EXFIL ================= -->
+  <text x="520" y="196" text-anchor="middle" class="num">(2)</text>
+  <path d="M470,208 L560,208" stroke="#9B2D20" stroke-width="2" fill="none" marker-end="url(#arrowDeny)"/>
+  <text x="515" y="232" text-anchor="middle" class="sub" fill="#9B2D20">temp creds leaked off the box</text>
+
+  <!-- ================= ATTACKER ZONE ================= -->
+  <rect x="565" y="110" width="250" height="300" rx="4" class="zoneBad"/>
+  <text x="585" y="134" class="zlbl" fill="#9B2D20">&#9632; OUTSIDE THE VPC &#8212; attacker machine</text>
+
+  <rect x="595" y="172" width="190" height="80" rx="3" class="boxDanger"/>
+  <text x="690" y="200" text-anchor="middle" class="lbl" font-weight="bold" fill="#9B2D20">External IP</text>
+  <text x="690" y="220" text-anchor="middle" class="sub">attacker laptop</text>
+  <text x="690" y="236" text-anchor="middle" class="sub">aws-cli with stolen keys</text>
+
+  <!-- replay arrow -->
+  <text x="860" y="196" text-anchor="middle" class="num">(3)</text>
+  <path d="M815,208 L905,208" stroke="#9B2D20" stroke-width="2" fill="none" marker-end="url(#arrowDeny)"/>
+  <text x="860" y="232" text-anchor="middle" class="sub" fill="#9B2D20">replay stolen creds</text>
+
+  <!-- ================= IAM DECISION ================= -->
+  <polygon points="1020,208 1065,150 1110,208 1065,266" fill="#E7A66A" stroke="#B4763D" stroke-width="2"/>
+  <text x="1065" y="196" text-anchor="middle" class="lbl" font-weight="bold" font-size="11">IAM Deny</text>
+  <text x="1065" y="212" text-anchor="middle" class="sub" font-size="10">source VPC</text>
+  <text x="1065" y="226" text-anchor="middle" class="sub" font-size="10">== issuing VPC?</text>
+  <path d="M910,208 L1016,208" stroke="#9B2D20" stroke-width="2" fill="none" marker-end="url(#arrowDeny)"/>
+
+  <!-- Denied result -->
+  <rect x="975" y="300" width="180" height="60" rx="3" class="boxDanger"/>
+  <text x="1065" y="326" text-anchor="middle" class="lbl" font-weight="bold" fill="#9B2D20">&#10007; Access denied</text>
+  <text x="1065" y="344" text-anchor="middle" class="sub">off-box replay blocked</text>
+  <path d="M1065,266 L1065,298" stroke="#9B2D20" stroke-width="2" fill="none" marker-end="url(#arrowDeny)"/>
+
+  <!-- ================= IMDSv2 vs condition key band ================= -->
+  <line x1="40" y1="440" x2="1140" y2="440" stroke="#7A9BAE" stroke-width="1"/>
+  <text x="40" y="470" class="title" font-size="16" fill="#2C3E4A" font-weight="700">Where each control acts</text>
+
+  <rect x="40" y="486" width="540" height="110" rx="3" fill="rgba(200,213,220,0.5)" stroke="#7A9BAE" stroke-width="1.5"/>
+  <text x="60" y="512" class="lbl" font-weight="bold">IMDSv2 &#8212; raises the bar on STEALING (1)</text>
+  <text x="60" y="534" class="sub">Blocks simple SSRF to the metadata endpoint.</text>
+  <text x="60" y="552" class="sub">Does nothing once the attacker has code execution,</text>
+  <text x="60" y="570" class="sub">and nothing once the keys are already off the box.</text>
+  <text x="60" y="588" class="sub" fill="#9B2D20">The replay (3) still works.</text>
+
+  <rect x="600" y="486" width="540" height="110" rx="3" fill="rgba(231,166,106,0.18)" stroke="#B4763D" stroke-width="1.5"/>
+  <text x="620" y="512" class="lbl" font-weight="bold">aws:Ec2InstanceSourceVpc &#8212; kills the REPLAY (3)</text>
+  <text x="620" y="534" class="sub">Bound to the instance credential itself; populates</text>
+  <text x="620" y="552" class="sub">on every request path (not just VPC-endpoint traffic).</text>
+  <text x="620" y="570" class="sub">Use the keys outside the issuing VPC &#8594; every call denied.</text>
+  <text x="620" y="588" class="sub" fill="#5C7A52">Auto-populated on every EC2 role credential &#183; AWS, Mar 2023 &#183; opt-in, not default.</text>
+
+  <!-- ribbon -->
+  <rect x="0" y="612" width="1180" height="28" fill="#1a1a1a"/>
+  <text x="590" y="631" text-anchor="middle" fill="#f5f5f5" font-size="11" letter-spacing="0.15em">&#10022; co-designed by kiquetal &#10022;</text>
+</svg>
