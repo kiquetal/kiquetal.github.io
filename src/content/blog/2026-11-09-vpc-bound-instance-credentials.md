@@ -118,6 +118,39 @@ Practical guidance: set the hop limit to `1` for workloads that read IMDS
 directly. Containers whose traffic routes through the host network namespace
 sometimes need `2` — set it as low as your topology allows, and no lower.
 
+### Hop count by topology
+
+The right hop-limit value depends entirely on how many network hops sit between
+the thing reading IMDS and the metadata service. Here are the cases that come up
+in practice:
+
+![IMDS hop limit by topology — four scenarios. (1) A process on the host reads IMDS across zero extra hops, so hop limit 1 works. (2) A Docker/ECS container on EC2 adds one hop at the docker0 bridge, so with limit 1 the reply's TTL reaches zero at the bridge and is dropped, while limit 2 is needed for the reply to reach the container. (3) An EKS pod should keep limit 1 so pods cannot reach the node role; the correct fix for pods that need AWS credentials is per-pod identity via IRSA or EKS Pod Identity, not raising the hop limit. (4) NAT and internet egress are a separate path: IMDS is link-local at 169.254.169.254 and is never routed, NAT'd, or sent to the internet, so the hop limit has nothing to do with reaching the internet.](/blog/2026-11-09-vpc-bound-instance-credentials/imds-hop-limit-topologies.svg)
+
+- **Process on the host (EC2 directly).** Zero extra hops — the reply leaves IMDS
+  with TTL `1` and arrives with TTL `1`. **Hop limit `1`.** This is the secure
+  default (and what Amazon Linux 2023 sets).
+- **Container on EC2 (Docker / ECS on EC2).** The packet crosses one extra hop at
+  the `docker0` bridge (the veth/NAT boundary into the container network). With
+  hop limit `1`, TTL decrements to `0` at the bridge and the reply is dropped;
+  the container's IMDS call hangs. **Hop limit `2`** is required — but only if
+  the container itself needs to read IMDS.
+- **EKS pod.** Don't reflexively raise the limit to `2`. Doing so lets *any* pod
+  — or an SSRF inside any pod — read the **worker node's** instance role, which
+  is a privilege-escalation path (a pod should not inherit the node's AWS
+  permissions). Keep the hop limit at `1` and give the pod its **own** identity
+  with **IRSA** or **EKS Pod Identity**: the pod receives a projected token and
+  assumes its own IAM role, never touching the node's IMDS credentials.
+- **NAT / internet egress (common misconception).** Raising the hop limit does
+  **not** "help you reach the internet." IMDS lives at the link-local address
+  `169.254.169.254` — it is never routed, never NAT'd, never sent through an
+  Internet Gateway. Internet egress (instance → NAT Gateway → IGW → internet) is
+  a completely separate path that the hop limit does not touch. The hop limit
+  only governs whether an extra *on-host* hop (like a container bridge) can
+  receive the IMDS reply.
+
+Rule of thumb: host / AL2023 default is `1`; a container that must read IMDS
+needs `2`; on EKS keep `1` and use IRSA / Pod Identity.
+
 The crucial caveat, and the bridge to the rest of this post: **the hop limit is
 an SSRF / exfil-path control, not a replay control.** It governs whether a packet
 can *leave* toward the metadata endpoint on the box. Once the credentials are
@@ -399,6 +432,40 @@ descarta.
 Guía práctica: fijá el hop limit en `1` para cargas que leen IMDS directamente.
 Los contenedores cuyo tráfico se enruta por el namespace de red del host a veces
 necesitan `2` — ponelo tan bajo como tu topología permita, y no más bajo.
+
+### Conteo de saltos por topología
+
+El valor correcto del hop limit depende enteramente de cuántos saltos de red hay
+entre lo que lee IMDS y el servicio de metadatos. Los casos que aparecen en la
+práctica:
+
+![Hop limit de IMDS por topología — cuatro escenarios. (1) Un proceso en el host lee IMDS sin saltos extra, así que hop limit 1 funciona. (2) Un contenedor Docker/ECS en EC2 agrega un salto en el bridge docker0, así que con límite 1 el TTL de la respuesta llega a cero en el bridge y se descarta, mientras que se necesita límite 2 para que la respuesta llegue al contenedor. (3) Un pod de EKS debería mantener límite 1 para que los pods no puedan alcanzar el rol del nodo; la solución correcta para pods que necesitan credenciales AWS es identidad por pod vía IRSA o EKS Pod Identity, no subir el hop limit. (4) NAT y la salida a internet son una ruta separada: IMDS es link-local en 169.254.169.254 y nunca se enruta, se NATea ni se envía a internet, así que el hop limit no tiene nada que ver con llegar a internet.](/blog/2026-11-09-vpc-bound-instance-credentials/imds-hop-limit-topologies.svg)
+
+- **Proceso en el host (EC2 directamente).** Cero saltos extra — la respuesta
+  sale de IMDS con TTL `1` y llega con TTL `1`. **Hop limit `1`.** Es el default
+  seguro (y lo que fija Amazon Linux 2023).
+- **Contenedor en EC2 (Docker / ECS en EC2).** El paquete cruza un salto extra en
+  el bridge `docker0` (el límite veth/NAT hacia la red del contenedor). Con hop
+  limit `1`, el TTL decrementa a `0` en el bridge y la respuesta se descarta; la
+  llamada del contenedor a IMDS se cuelga. Se requiere **hop limit `2`** — pero
+  solo si el contenedor mismo necesita leer IMDS.
+- **Pod de EKS.** No subas el límite a `2` por reflejo. Hacerlo deja que
+  *cualquier* pod — o un SSRF dentro de cualquier pod — lea el rol de instancia
+  del **nodo worker**, lo que es una ruta de escalamiento de privilegios (un pod
+  no debería heredar los permisos AWS del nodo). Mantené el hop limit en `1` y
+  dale al pod su **propia** identidad con **IRSA** o **EKS Pod Identity**: el pod
+  recibe un token proyectado y asume su propio rol IAM, sin tocar nunca las
+  credenciales de IMDS del nodo.
+- **NAT / salida a internet (error común).** Subir el hop limit **no** "te ayuda
+  a llegar a internet". IMDS vive en la dirección link-local `169.254.169.254` —
+  nunca se enruta, nunca se NATea, nunca pasa por un Internet Gateway. La salida
+  a internet (instancia → NAT Gateway → IGW → internet) es una ruta
+  completamente separada que el hop limit no toca. El hop limit solo rige si un
+  salto extra *dentro del host* (como un bridge de contenedor) puede recibir la
+  respuesta de IMDS.
+
+Regla práctica: host / default de AL2023 es `1`; un contenedor que deba leer IMDS
+necesita `2`; en EKS mantené `1` y usá IRSA / Pod Identity.
 
 La advertencia crucial, y el puente al resto del post: **el hop limit es un
 control de SSRF / ruta de exfiltración, no un control de reutilización.** Rige si

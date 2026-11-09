@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 940" font-family="'JetBrains Mono','Courier New',monospace" role="img" aria-label="IMDS hop-limit by topology: host direct read, Docker on EC2, EKS pod, and the NAT / internet egress clarification">
+  <defs>
+    <marker id="g" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L8,3 L0,6 Z" fill="#5C7A52"/></marker>
+    <marker id="r" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L8,3 L0,6 Z" fill="#9B2D20"/></marker>
+    <marker id="b" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L8,3 L0,6 Z" fill="#4A6B7C"/></marker>
+    <style>
+      .title { font-family: 'Playfair Display', Georgia, serif; }
+      .h { font-family: 'Playfair Display', Georgia, serif; font-size: 15px; fill: #2C3E4A; font-weight: 700; }
+      .lbl { font-size: 12px; fill: #2C3E4A; }
+      .sub { font-size: 10.5px; fill: #4A6B7C; }
+      .mono { font-size: 10.5px; fill: #2C3E4A; }
+      .node { fill: #C8D5DC; stroke: #7A9BAE; stroke-width: 1.5; }
+      .dark { fill: #2C3E4A; stroke: #2C3E4A; }
+      .imds { fill: #E7A66A; stroke: #B4763D; stroke-width: 1.5; }
+      .ok { fill: #D6E2D4; stroke: #5C7A52; stroke-width: 1.5; }
+      .bad { fill: #E8D3CF; stroke: #9B2D20; stroke-width: 1.5; }
+      .panel { fill: rgba(200,213,220,0.28); stroke: #7A9BAE; stroke-width: 1.2; }
+      .ttl { font-size: 11px; font-weight: bold; }
+      .verdict { font-size: 12px; font-weight: bold; }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="1180" height="940" fill="#F0EDE5"/>
+
+  <text x="40" y="44" class="title" font-size="25" fill="#2C3E4A" font-weight="700">IMDS hop limit by topology: how many hops to 169.254.169.254?</text>
+  <text x="40" y="67" class="sub" font-size="11.5">The IMDS reply leaves with IP TTL = hop limit. Each hop subtracts 1. TTL hits 0 &#8594; dropped. Set the limit to the exact hop count the real path needs &#8212; no higher.</text>
+  <line x1="40" y1="80" x2="1140" y2="80" stroke="#7A9BAE" stroke-width="1"/>
+
+  <!-- ============ SCENARIO 1: HOST DIRECT ============ -->
+  <rect x="40" y="96" width="1100" height="118" rx="4" class="panel"/>
+  <text x="60" y="120" class="h">1 &#183; Process on the host (EC2 directly)</text>
+  <rect x="70" y="134" width="150" height="56" rx="3" class="dark"/>
+  <text x="145" y="160" text-anchor="middle" fill="#F0EDE5" font-size="12">Host process</text>
+  <text x="145" y="178" text-anchor="middle" fill="#C8D5DC" font-size="10">SDK / agent</text>
+  <path d="M220,162 L470,162" stroke="#5C7A52" stroke-width="2" fill="none" marker-end="url(#g)"/>
+  <text x="345" y="152" text-anchor="middle" class="mono">0 extra hops</text>
+  <rect x="478" y="134" width="120" height="56" rx="3" class="imds"/>
+  <text x="538" y="166" text-anchor="middle" class="lbl" font-size="11" font-weight="bold">IMDS</text>
+  <text x="640" y="150" class="ttl" fill="#5C7A52">reply TTL starts 1 &#8594; arrives 1</text>
+  <rect x="860" y="138" width="260" height="48" rx="3" class="ok"/>
+  <text x="990" y="158" text-anchor="middle" class="verdict" fill="#5C7A52">HOP LIMIT = 1</text>
+  <text x="990" y="176" text-anchor="middle" class="sub">delivered &#183; the secure default</text>
+
+  <!-- ============ SCENARIO 2: DOCKER ON EC2 ============ -->
+  <rect x="40" y="226" width="1100" height="150" rx="4" class="panel"/>
+  <text x="60" y="250" class="h">2 &#183; Container (Docker / ECS on EC2) &#8212; the bridge adds a hop</text>
+  <!-- host boundary -->
+  <rect x="70" y="262" width="360" height="96" rx="4" fill="none" stroke="#7A9BAE" stroke-width="1.2" stroke-dasharray="5 4"/>
+  <text x="80" y="279" class="sub" letter-spacing="0.06em">EC2 host network namespace</text>
+  <rect x="86" y="292" width="130" height="50" rx="3" class="node"/>
+  <text x="151" y="314" text-anchor="middle" class="lbl" font-size="11" font-weight="bold">Container</text>
+  <text x="151" y="330" text-anchor="middle" class="sub">app in Docker</text>
+  <rect x="268" y="292" width="140" height="50" rx="3" class="node"/>
+  <text x="338" y="314" text-anchor="middle" class="lbl" font-size="11" font-weight="bold">docker0 bridge</text>
+  <text x="338" y="330" text-anchor="middle" class="sub">+1 hop (NAT/veth)</text>
+  <path d="M216,317 L266,317" stroke="#4A6B7C" stroke-width="2" fill="none" marker-end="url(#b)"/>
+  <rect x="478" y="292" width="120" height="50" rx="3" class="imds"/>
+  <text x="538" y="322" text-anchor="middle" class="lbl" font-size="11" font-weight="bold">IMDS</text>
+  <path d="M408,317 L476,317" stroke="#4A6B7C" stroke-width="2" fill="none" marker-end="url(#b)"/>
+  <text x="640" y="302" class="ttl" fill="#9B2D20">limit 1: TTL 1&#8594;0 at bridge = DROPPED</text>
+  <text x="640" y="322" class="ttl" fill="#5C7A52">limit 2: TTL 2&#8594;1 at bridge = delivered</text>
+  <rect x="860" y="296" width="260" height="56" rx="3" class="ok"/>
+  <text x="990" y="318" text-anchor="middle" class="verdict" fill="#5C7A52">HOP LIMIT = 2</text>
+  <text x="990" y="336" text-anchor="middle" class="sub">needed only if the container itself reads IMDS</text>
+
+  <!-- ============ SCENARIO 3: EKS POD ============ -->
+  <rect x="40" y="388" width="1100" height="176" rx="4" class="panel"/>
+  <text x="60" y="412" class="h">3 &#183; EKS pod &#8212; don't raise the limit; give the pod its own identity</text>
+  <rect x="70" y="424" width="360" height="122" rx="4" fill="none" stroke="#7A9BAE" stroke-width="1.2" stroke-dasharray="5 4"/>
+  <text x="80" y="441" class="sub" letter-spacing="0.06em">Worker node</text>
+  <rect x="86" y="454" width="120" height="48" rx="3" class="node"/>
+  <text x="146" y="474" text-anchor="middle" class="lbl" font-size="11" font-weight="bold">Pod</text>
+  <text x="146" y="490" text-anchor="middle" class="sub">container</text>
+  <rect x="258" y="454" width="150" height="48" rx="3" class="imds"/>
+  <text x="333" y="482" text-anchor="middle" class="lbl" font-size="11" font-weight="bold">node IMDS</text>
+  <!-- blocked path -->
+  <path d="M206,478 L256,478" stroke="#9B2D20" stroke-width="2" fill="none" marker-end="url(#r)" stroke-dasharray="4 3"/>
+  <text x="146" y="520" text-anchor="middle" class="sub" fill="#9B2D20">keep limit 1 &#8594; pod can't reach node role</text>
+  <!-- right: IRSA -->
+  <text x="470" y="446" class="lbl" font-weight="bold">Why not just set 2?</text>
+  <text x="470" y="466" class="sub">Limit 2 lets ANY pod (or an SSRF inside one) read the</text>
+  <text x="470" y="482" class="sub">node's instance role &#8212; a privilege-escalation path.</text>
+  <text x="470" y="506" class="lbl" font-weight="bold" fill="#5C7A52">Correct fix: per-pod IAM identity</text>
+  <text x="470" y="524" class="sub">IRSA or EKS Pod Identity &#8594; pod gets its own role via</text>
+  <text x="470" y="540" class="sub">a projected token, NOT the node's IMDS credentials.</text>
+  <rect x="860" y="452" width="260" height="76" rx="3" class="ok"/>
+  <text x="990" y="474" text-anchor="middle" class="verdict" fill="#5C7A52">HOP LIMIT = 1</text>
+  <text x="990" y="492" text-anchor="middle" class="sub">+ IRSA / Pod Identity</text>
+  <text x="990" y="510" text-anchor="middle" class="sub">pods never touch the</text>
+  <text x="990" y="524" text-anchor="middle" class="sub">node role at all</text>
+
+  <!-- ============ SCENARIO 4: NAT / INTERNET ============ -->
+  <rect x="40" y="576" width="1100" height="210" rx="4" fill="rgba(231,166,106,0.12)" stroke="#B4763D" stroke-width="1.2"/>
+  <text x="60" y="600" class="h">4 &#183; NAT &amp; the internet &#8212; a common misconception</text>
+  <text x="60" y="624" class="sub" font-size="11.5">The hop limit has NOTHING to do with reaching the internet. IMDS is link-local (169.254.169.254) &#8212; it is NEVER routed, NAT'd, or sent to the internet.</text>
+
+  <!-- left: IMDS path (stays local) -->
+  <rect x="70" y="644" width="470" height="118" rx="4" fill="rgba(214,226,212,0.4)" stroke="#5C7A52" stroke-width="1.2" stroke-dasharray="5 4"/>
+  <text x="84" y="662" class="sub" fill="#5C7A52" letter-spacing="0.05em">IMDS traffic &#8212; stays on the host, hop limit applies</text>
+  <rect x="86" y="676" width="120" height="46" rx="3" class="dark"/>
+  <text x="146" y="704" text-anchor="middle" fill="#F0EDE5" font-size="11">Instance</text>
+  <rect x="380" y="676" width="140" height="46" rx="3" class="imds"/>
+  <text x="450" y="704" text-anchor="middle" class="lbl" font-size="11" font-weight="bold">IMDS (link-local)</text>
+  <path d="M206,699 L378,699" stroke="#5C7A52" stroke-width="2" fill="none" marker-end="url(#g)"/>
+  <text x="300" y="742" text-anchor="middle" class="sub">never leaves the host &#183; no NAT, no IGW</text>
+
+  <!-- right: internet path (NAT, unrelated) -->
+  <rect x="560" y="644" width="560" height="118" rx="4" fill="rgba(200,213,220,0.3)" stroke="#7A9BAE" stroke-width="1.2" stroke-dasharray="5 4"/>
+  <text x="574" y="662" class="sub" letter-spacing="0.05em">Internet egress &#8212; separate path, hop limit irrelevant</text>
+  <rect x="574" y="676" width="110" height="46" rx="3" class="dark"/>
+  <text x="629" y="704" text-anchor="middle" fill="#F0EDE5" font-size="11">Instance</text>
+  <rect x="718" y="676" width="90" height="46" rx="3" class="node"/>
+  <text x="763" y="704" text-anchor="middle" class="lbl" font-size="10.5" font-weight="bold">NAT GW</text>
+  <rect x="842" y="676" width="90" height="46" rx="3" class="node"/>
+  <text x="887" y="704" text-anchor="middle" class="lbl" font-size="11" font-weight="bold">IGW</text>
+  <rect x="966" y="676" width="130" height="46" rx="3" class="node"/>
+  <text x="1031" y="704" text-anchor="middle" class="lbl" font-size="11" font-weight="bold">Internet / S3</text>
+  <path d="M684,699 L716,699" stroke="#4A6B7C" stroke-width="2" fill="none" marker-end="url(#b)"/>
+  <path d="M808,699 L840,699" stroke="#4A6B7C" stroke-width="2" fill="none" marker-end="url(#b)"/>
+  <path d="M932,699 L964,699" stroke="#4A6B7C" stroke-width="2" fill="none" marker-end="url(#b)"/>
+
+  <!-- bottom clarifier -->
+  <text x="60" y="778" class="sub" fill="#9B2D20">So: raising the hop limit never "helps you reach the internet." It only controls whether an extra on-host hop (a container bridge) can receive the IMDS reply.</text>
+
+  <!-- summary strip -->
+  <rect x="40" y="800" width="1100" height="68" rx="3" fill="rgba(44,62,74,0.06)" stroke="#7A9BAE" stroke-width="1"/>
+  <text x="60" y="824" class="lbl" font-weight="bold">Rule of thumb &#8594;</text>
+  <text x="200" y="824" class="sub">Host / AL2023 default: <tspan font-weight="bold" fill="#5C7A52">1</tspan>  &#183;  Container that must read IMDS: <tspan font-weight="bold">2</tspan>  &#183;  EKS: keep <tspan font-weight="bold" fill="#5C7A52">1</tspan> + IRSA/Pod Identity</text>
+  <text x="60" y="848" class="sub">The hop limit blocks SSRF/credential forwarding OFF the node. It does NOT stop replay once creds are already off the box &#8212; that is aws:Ec2InstanceSourceVpc's job.</text>
+
+  <rect x="0" y="912" width="1180" height="28" fill="#1a1a1a"/>
+  <text x="590" y="931" text-anchor="middle" fill="#f5f5f5" font-size="11" letter-spacing="0.15em">&#10022; co-designed by kiquetal &#10022;</text>
+</svg>
