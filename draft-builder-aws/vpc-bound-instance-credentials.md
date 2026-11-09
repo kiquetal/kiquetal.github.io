@@ -78,6 +78,21 @@ A reflected-URL SSRF can usually only do a blind `GET`. It can't do the `PUT`-fi
 
 Practical guidance: set the hop limit to `1` for workloads that read IMDS directly. Containers whose traffic routes through the host network namespace sometimes need `2` — set it as low as your topology allows, and no lower.
 
+Practical guidance: set the hop limit to `1` for workloads that read IMDS directly. Containers whose traffic routes through the host network namespace sometimes need `2` — set it as low as your topology allows, and no lower.
+
+### Hop count by topology
+
+The right hop-limit value depends on how many network hops sit between the thing reading IMDS and the metadata service.
+
+[📷 UPLOAD IMAGE HERE: IMDS hop-limit by topology (host / Docker / EKS / NAT) — imds-hop-limit-topologies.svg]
+
+- **Process on the host (EC2 directly).** Zero extra hops — reply leaves with TTL `1`, arrives with TTL `1`. **Hop limit `1`.** The secure default (and what Amazon Linux 2023 sets).
+- **Container on EC2 (Docker / ECS on EC2).** The packet crosses one extra hop at the `docker0` bridge. With hop limit `1`, TTL decrements to `0` at the bridge and the reply is dropped. **Hop limit `2`** is required — but only if the container itself reads IMDS.
+- **EKS pod.** Don't reflexively set `2`. That lets any pod (or an SSRF inside one) read the **node's** instance role — a privilege-escalation path. Keep the limit at `1` and give the pod its own identity with **IRSA** or **EKS Pod Identity** (projected token → its own IAM role, never the node's IMDS creds).
+- **NAT / internet egress (common misconception).** Raising the hop limit does **not** help you reach the internet. IMDS is link-local (`169.254.169.254`) — never routed, NAT'd, or sent through an Internet Gateway. Internet egress (instance → NAT GW → IGW → internet) is a separate path the hop limit doesn't touch. The limit only governs whether an extra *on-host* hop (a container bridge) can receive the IMDS reply.
+
+Rule of thumb: host / AL2023 default `1`; a container that must read IMDS needs `2`; on EKS keep `1` and use IRSA / Pod Identity.
+
 The crucial caveat, and the bridge to the rest of this post: **the hop limit is an SSRF / exfil-path control, not a replay control.** Once the credentials are already off the box — in the attacker's hands on their own machine — the hop limit is irrelevant. That gap is exactly what the next section closes.
 
 ## The control that worked: aws:Ec2InstanceSourceVpc
@@ -186,6 +201,7 @@ Why is this opt-in instead of opt-out, AWS?
 
 1. `attack-flow-vpc-bound.svg` — right after the "incident in one picture" intro.
 2. `imdsv2-hop-limit.svg` — in the "How IMDSv2 actually works" section.
+3. `imds-hop-limit-topologies.svg` — in the "Hop count by topology" subsection.
 
 Source image lives in:
 `public/blog/2026-11-09-vpc-bound-instance-credentials/`
