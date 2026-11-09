@@ -299,4 +299,56 @@ const t = translations[currentLang];
 	.prose-custom .demo-url {
 		@apply font-mono text-sm md:text-base tracking-widest text-brand-text-main hover:text-brand-accent transition-colors normal-case truncate block;
 	}
+
+	/* Tables — vintage ledger style */
+	.prose-custom table {
+		@apply w-full my-16 border-collapse text-base md:text-lg font-serif;
+		display: block;
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+	}
+
+	@screen md {
+		.prose-custom table {
+			display: table;
+		}
+	}
+
+	.prose-custom thead {
+		@apply border-b-2 border-brand-accent/40;
+	}
+
+	.prose-custom th {
+		@apply font-mono text-[11px] md:text-xs tracking-[0.2em] uppercase text-brand-accent font-bold text-left align-bottom leading-relaxed;
+		padding: 0.9rem 1.25rem;
+	}
+
+	/* Give long inline-code header labels room to breathe */
+	.prose-custom th code {
+		@apply inline-block mb-1 leading-normal;
+	}
+
+	.prose-custom td {
+		@apply text-brand-text-muted align-top border-b border-brand-border/40 leading-relaxed;
+		padding: 0.9rem 1.25rem;
+	}
+
+	/* First column reads like a row label */
+	.prose-custom td:first-child {
+		@apply text-brand-text-main font-medium;
+	}
+
+	/* Alternating row tint for scannability */
+	.prose-custom tbody tr:nth-child(odd) {
+		@apply bg-brand-surface-accent/40;
+	}
+
+	.prose-custom tbody tr:hover {
+		@apply bg-brand-surface-accent/70 transition-colors;
+	}
+
+	/* Inline code inside cells shouldn't shout */
+	.prose-custom td code, .prose-custom th code {
+		@apply text-[0.8em] px-1.5 py-0.5 normal-case;
+	}
 </style>
