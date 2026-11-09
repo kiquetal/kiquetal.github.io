@@ -7,6 +7,8 @@
 
 > 🔒 **Public-safe**: no account IDs, instance IDs, attacker IP, or access keys. Those stay in the private incident report.
 
+> 📣 **Amplification**: the full bilingual write-up is published at https://kiquetal.dev/blog/2026-11-09-vpc-bound-instance-credentials — it has the improved attack-flow diagram, the IAM deny policy with the `Null` guard explained, the `SourceVpc` vs `Ec2InstanceSourceVpc` nuance, a trade-offs section, and an IMDSv2-vs-condition-key comparison table. Post this on LinkedIn AND cross-post/syndicate to the **AWS Builder Center** (community articles) linking back to the blog as the canonical source.
+
 ---
 ## ✅ READY TO POST — English (copy verbatim, keep blank lines)
 
@@ -43,6 +45,10 @@ AWS ALREADY knows which VPC issued the credential — it's right there in the re
 Making this the default would eliminate off-box credential replay for the vast majority of workloads, with essentially zero downside. Instead it's an opt-in condition key most teams have never heard of.
 
 Why is this opt-in instead of opt-out, AWS? 👀
+
+Read the full write-up — attack-flow diagram, the IAM deny policy, trade-offs, and an IMDSv2-vs-condition-key comparison:
+
+👉 https://kiquetal.dev/blog/2026-11-09-vpc-bound-instance-credentials
 
 📚 AWS docs on the condition keys: https://aws.amazon.com/blogs/security/how-to-use-policies-to-restrict-where-ec2-instance-credentials-can-be-used-from/
 
@@ -84,6 +90,10 @@ AWS YA sabe qué VPC emitió la credencial — está ahí mismo en el contexto d
 Hacerlo el comportamiento por defecto eliminaría la reutilización de credenciales fuera de la máquina para la gran mayoría de las cargas de trabajo, prácticamente sin desventajas. En cambio, es una clave de condición opt-in de la que la mayoría de los equipos nunca escuchó.
 
 ¿Por qué es opt-in en lugar de opt-out, AWS? 👀
+
+Leé el artículo completo — diagrama del flujo de ataque, la política de deny de IAM, trade-offs y una comparación IMDSv2 vs clave de condición:
+
+👉 https://kiquetal.dev/blog/2026-11-09-vpc-bound-instance-credentials
 
 📚 Documentación de AWS sobre las claves de condición: https://aws.amazon.com/blogs/security/how-to-use-policies-to-restrict-where-ec2-instance-credentials-can-be-used-from/
 
