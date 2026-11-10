@@ -58,7 +58,9 @@ Paraguay • 2008 – 2013
 ## Certificaciones
 
 - AWS Certified Solutions Architect – Professional — Amazon Web Services
+- AWS Certified Security – Specialty — Amazon Web Services
 - AWS Certified Solutions Architect – Associate — Amazon Web Services
+- AWS Certified Developer – Associate — Amazon Web Services
 - Certified Kubernetes Application Developer (CKAD) — Cloud Native Computing Foundation
 - Oracle Certified Professional, Java SE 7 Programmer (OCPJP 7) — Oracle
 - Oracle Certified Associate, Java SE 7 Programmer (OCAJP 7) — Oracle
