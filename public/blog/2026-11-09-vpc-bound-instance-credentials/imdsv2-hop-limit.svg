@@ -102,7 +102,7 @@
   <text x="568" y="618" text-anchor="middle" class="sub">Set hop limit to 1 for apps that read IMDS directly. Containers that route through the host network may need 2 &#8212; set it as low as the topology allows.</text>
 
   <!-- footnote -->
-  <text x="60" y="654" class="sub">Note: the hop limit is an SSRF/exfil-path control, not a replay control. Once creds are OFF the box, the hop limit is irrelevant &#8212; that is the job of aws:Ec2InstanceSourceVpc.</text>
+  <text x="60" y="654" class="sub">Note: the hop limit is an SSRF/theft control, not a replay control. Replay needs aws:Ec2InstanceSourceVpc vs aws:SourceVpc (VPC endpoints).</text>
 
   <!-- ribbon -->
   <rect x="0" y="672" width="1180" height="28" fill="#1a1a1a"/>
