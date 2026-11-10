@@ -26,25 +26,25 @@ The usual advice is "enforce IMDSv2." We did — but here's the uncomfortable tr
 
 IMDSv2 only raises the bar on STEALING the credentials (it blocks simple SSRF). It does nothing once an attacker has code execution on the box, and nothing once the credentials are already off the box. The replay still works.
 
-What actually neutralized the replay was an IAM deny built on one condition key:
+What actually neutralized the replay was an IAM deny that compares two keys:
 
-aws:Ec2InstanceSourceVpc
+aws:Ec2InstanceSourceVpc (the VPC that issued the credential) vs aws:SourceVpc (the VPC the request came through)
 
-It ties the instance-role credentials to the VPC that issued them. Use them from anywhere outside that VPC — like an attacker's machine — and every call is denied. The stolen keys became worthless the moment they left the network.
+Use the stolen keys from anywhere outside that VPC — like an attacker's machine — and every call is denied. The stolen keys became worthless the moment they left the network.
 
 One nuance for anyone implementing this:
 
-▸ aws:SourceVpc and aws:SourceVpce only populate for VPC-endpoint traffic. If you don't run endpoints, they won't help.
+▸ aws:Ec2InstanceSourceVpc describes the CREDENTIAL. It is always present on instance credentials, and on its own it cannot tell where a call came from.
 
-▸ aws:Ec2InstanceSourceVpc is bound to the instance credentials themselves and populates no matter the network path. That's why it was the right key here.
+▸ aws:SourceVpc describes the REQUEST'S network path, and it only populates for VPC-endpoint traffic.
+
+▸ The protection is the comparison of the two, so it only works if your calls go through VPC endpoints. No endpoints, no lock.
 
 Now the question. 🤔
 
-AWS ALREADY knows which VPC issued the credential — it's right there in the request context. So why are instance-role credentials not VPC-bound by DEFAULT?
+AWS ALREADY knows which VPC issued the credential. But enforcing it means running VPC endpoints for every service you call, writing the comparison policy yourself, and planning exceptions. Most teams have never heard of these keys.
 
-Making this the default would eliminate off-box credential replay for the vast majority of workloads, with essentially zero downside. Instead it's an opt-in condition key most teams have never heard of.
-
-Why is this opt-in instead of opt-out, AWS? 👀
+Why is there no first-class way to bind instance credentials to their VPC without requiring VPC endpoints for everything? 👀
 
 Read the full write-up — attack-flow diagram, the IAM deny policy, trade-offs, and an IMDSv2-vs-condition-key comparison:
 
@@ -71,25 +71,25 @@ El consejo habitual es "aplicá IMDSv2". Lo hicimos — pero esta es la verdad i
 
 IMDSv2 solo eleva la barrera para ROBAR las credenciales (bloquea el SSRF simple). No hace nada una vez que el atacante tiene ejecución de código en la máquina, ni una vez que las credenciales ya salieron del host. La reutilización sigue funcionando.
 
-Lo que realmente neutralizó la reutilización fue un deny de IAM construido sobre una sola clave de condición:
+Lo que realmente neutralizó la reutilización fue un deny de IAM que compara dos claves:
 
-aws:Ec2InstanceSourceVpc
+aws:Ec2InstanceSourceVpc (la VPC que emitió la credencial) vs aws:SourceVpc (la VPC por la que llegó la solicitud)
 
-Ata las credenciales del rol de la instancia a la VPC que las emitió. Usalas desde cualquier lugar fuera de esa VPC — como la máquina de un atacante — y toda llamada queda denegada. Las claves robadas quedaron inútiles en el momento en que salieron de la red.
+Usá las claves robadas desde cualquier lugar fuera de esa VPC — como la máquina de un atacante — y toda llamada queda denegada. Las claves robadas quedaron inútiles en el momento en que salieron de la red.
 
 Un matiz para quien lo vaya a implementar:
 
-▸ aws:SourceVpc y aws:SourceVpce solo se completan para tráfico que pasa por VPC endpoints. Si no usás endpoints, no te sirven.
+▸ aws:Ec2InstanceSourceVpc describe la CREDENCIAL. Siempre está presente en credenciales de instancia, y por sí sola no dice de dónde vino una llamada.
 
-▸ aws:Ec2InstanceSourceVpc está ligada a las credenciales de la instancia y se completa sin importar la ruta de red. Por eso fue la clave correcta acá.
+▸ aws:SourceVpc describe la RUTA DE RED de la solicitud, y solo se completa para tráfico por VPC endpoints.
+
+▸ La protección es la comparación de ambas, así que solo funciona si tus llamadas pasan por VPC endpoints. Sin endpoints, no hay candado.
 
 Ahora la pregunta. 🤔
 
-AWS YA sabe qué VPC emitió la credencial — está ahí mismo en el contexto de la solicitud. Entonces, ¿por qué las credenciales del rol de instancia no están ligadas a la VPC por DEFECTO?
+AWS YA sabe qué VPC emitió la credencial. Pero hacerlo cumplir exige correr VPC endpoints para cada servicio que llamás, escribir vos la política de comparación y planificar excepciones. La mayoría de los equipos nunca escuchó de estas claves.
 
-Hacerlo el comportamiento por defecto eliminaría la reutilización de credenciales fuera de la máquina para la gran mayoría de las cargas de trabajo, prácticamente sin desventajas. En cambio, es una clave de condición opt-in de la que la mayoría de los equipos nunca escuchó.
-
-¿Por qué es opt-in en lugar de opt-out, AWS? 👀
+¿Por qué no hay una forma de primera clase de atar las credenciales de instancia a su VPC sin exigir VPC endpoints para todo? 👀
 
 Leé el artículo completo — diagrama del flujo de ataque, la política de deny de IAM, trade-offs y una comparación IMDSv2 vs clave de condición:
 
@@ -115,9 +115,9 @@ Claims in the post, confirmed against official sources:
 ▸ **"AWS already attaches the VPC" / auto-populated** — AWS: "You don't have to make configuration changes to activate the new condition keys… available only for use with credentials issued to an EC2 instance." Each role credential now carries these two properties automatically.
   Source: both links above.
 
-▸ **SourceVpc/SourceVpce caveat** — `aws:SourceVpc` only populates for traffic over a VPC endpoint; without endpoints it won't help. `Ec2InstanceSourceVpc` is bound to the credential and populates regardless of path. Confirmed in the Security Blog.
+▸ **SourceVpc/SourceVpce caveat** — `aws:SourceVpc` only populates for traffic over a VPC endpoint; without endpoints it won't help. `Ec2InstanceSourceVpc` is a property of the credential and is always present; the lock works by comparing it with `aws:SourceVpc`, so VPC endpoints are required. Confirmed in the Security Blog ("will deny all requests using the EC2 instance credential if the requests are not made through a VPC endpoint"). CORRECTED 2026-11-10: an earlier version said the key works regardless of network path.
 
-▸ **"Not a default" framing is correct** — these are opt-in condition keys you must add to an IAM policy / SCP / resource policy. AWS provides no automatic VPC-binding of instance credentials. (No AWS source states a default; the feature is explicitly policy-authored.)
+▸ **"Not a default" framing is correct** — these are opt-in condition keys you must add to an IAM policy / SCP / resource policy. AWS provides no automatic VPC-binding of instance credentials, and the policy needs VPC endpoints to work. (No AWS source states a default; the feature is explicitly policy-authored.)
 
 Optional supporting point you can add if challenged on "just use GuardDuty":
 ▸ GuardDuty's `InstanceCredentialExfiltration.OutsideAWS` finding can be **bypassed** if the attacker routes the stolen-credential calls through a VPC endpoint — detection alone is not sufficient, which is why the IAM deny matters.

@@ -26,7 +26,7 @@
 
   <!-- Title -->
   <text x="40" y="44" class="title" font-size="26" fill="#2C3E4A" font-weight="700">Stolen EC2 credentials, replayed off-box &#8212; and the one key that denied them</text>
-  <text x="40" y="68" class="sub" font-size="12">aws:Ec2InstanceSourceVpc binds instance-role STS credentials to the issuing VPC</text>
+  <text x="40" y="68" class="sub" font-size="12">aws:Ec2InstanceSourceVpc (credential) is compared with aws:SourceVpc (request path) &#8212; requires VPC endpoints</text>
   <line x1="40" y1="80" x2="1140" y2="80" stroke="#7A9BAE" stroke-width="1"/>
 
   <!-- ================= TRUST ZONE: VPC ================= -->
@@ -54,7 +54,7 @@
   <text x="365" y="326" text-anchor="middle" class="lbl" font-weight="bold">AWS APIs / STS</text>
   <text x="365" y="344" text-anchor="middle" class="sub">legit in-VPC calls &#10003;</text>
   <path d="M149,224 L149,330 L278,330" stroke="#5C7A52" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
-  <text x="150" y="294" text-anchor="middle" class="sub" fill="#5C7A52">ALLOWED (source VPC matches)</text>
+  <text x="150" y="294" text-anchor="middle" class="sub" fill="#5C7A52">ALLOWED (via VPC endpoint, same VPC)</text>
 
   <!-- ================= EXFIL ================= -->
   <text x="520" y="196" text-anchor="middle" class="num">(2)</text>
@@ -78,8 +78,8 @@
   <!-- ================= IAM DECISION ================= -->
   <polygon points="1020,208 1065,150 1110,208 1065,266" fill="#E7A66A" stroke="#B4763D" stroke-width="2"/>
   <text x="1065" y="196" text-anchor="middle" class="lbl" font-weight="bold" font-size="11">IAM Deny</text>
-  <text x="1065" y="212" text-anchor="middle" class="sub" font-size="10">source VPC</text>
-  <text x="1065" y="226" text-anchor="middle" class="sub" font-size="10">== issuing VPC?</text>
+  <text x="1065" y="212" text-anchor="middle" class="sub" font-size="10">aws:SourceVpc</text>
+  <text x="1065" y="226" text-anchor="middle" class="sub" font-size="10">== credential VPC?</text>
   <path d="M910,208 L1016,208" stroke="#9B2D20" stroke-width="2" fill="none" marker-end="url(#arrowDeny)"/>
 
   <!-- Denied result -->
@@ -101,10 +101,10 @@
 
   <rect x="600" y="486" width="540" height="110" rx="3" fill="rgba(231,166,106,0.18)" stroke="#B4763D" stroke-width="1.5"/>
   <text x="620" y="512" class="lbl" font-weight="bold">aws:Ec2InstanceSourceVpc &#8212; kills the REPLAY (3)</text>
-  <text x="620" y="534" class="sub">Bound to the instance credential itself; populates</text>
-  <text x="620" y="552" class="sub">on every request path (not just VPC-endpoint traffic).</text>
-  <text x="620" y="570" class="sub">Use the keys outside the issuing VPC &#8594; every call denied.</text>
-  <text x="620" y="588" class="sub" fill="#5C7A52">Auto-populated on every EC2 role credential &#183; AWS, Mar 2023 &#183; opt-in, not default.</text>
+  <text x="620" y="534" class="sub">Credential key vs request-path key: only calls</text>
+  <text x="620" y="552" class="sub">through a VPC endpoint in the issuing VPC pass.</text>
+  <text x="620" y="570" class="sub">Public endpoint or other VPC &#8594; aws:SourceVpc mismatch &#8594; denied.</text>
+  <text x="620" y="588" class="sub" fill="#5C7A52">Needs VPC endpoints &#183; AWS, Mar 2023 &#183; opt-in, not default.</text>
 
   <!-- ribbon -->
   <rect x="0" y="612" width="1180" height="28" fill="#1a1a1a"/>

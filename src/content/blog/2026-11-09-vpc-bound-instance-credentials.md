@@ -6,7 +6,7 @@ excerpt:
   en: 'An attacker stole an EC2 instance role''s temporary IAM credentials and replayed them from their own laptop. IMDSv2 did not stop the replay — one IAM condition key, aws:Ec2InstanceSourceVpc, did. Here is the incident, why IMDSv2 is not enough, the trade-offs of VPC-binding credentials, and the question I keep asking AWS: why is this opt-in instead of the default?'
   es: 'Un atacante robó las credenciales IAM temporales del rol de una instancia EC2 y las reutilizó desde su propia laptop. IMDSv2 no detuvo la reutilización — una sola clave de condición de IAM, aws:Ec2InstanceSourceVpc, sí. Acá va el incidente, por qué IMDSv2 no alcanza, los trade-offs de atar las credenciales a la VPC, y la pregunta que no dejo de hacerle a AWS: ¿por qué esto es opt-in y no el comportamiento por defecto?'
 date: 2026-11-09
-updated: 2026-11-09
+updated: 2026-11-10
 tags: ['aws', 'security', 'iam', 'imds', 'ec2', 'incident-response', 'devsecops', 'cloud-security']
 draft: false
 ---
@@ -160,23 +160,46 @@ limit is irrelevant. That gap is exactly what the next section closes.
 <a id="the-control"></a>
 ## The control that worked: aws:Ec2InstanceSourceVpc
 
-What actually neutralized the replay was an IAM deny built on one condition key:
+> **Correction (2026-11-10):** an earlier version of this section showed a deny
+> that compared the key to a hard-coded VPC ID and claimed the key describes
+> where the *request* comes from. That was wrong. The key describes the
+> *credential*, so on its own it cannot detect a replay. It only works when you
+> compare it with a key that describes the request's network path, and that path
+> key is only populated for VPC-endpoint traffic. The text below follows the
+> pattern in the AWS Security Blog.
+
+The replay was neutralized by an IAM deny that compares **two different values**:
+
+- `aws:ec2InstanceSourceVPC` — a property of the **credential**. It is the ID of
+  the VPC where the instance that was issued the credentials runs. AWS sets it
+  on every EC2 instance credential automatically, and it travels with the
+  stolen keys.
+- `aws:SourceVpc` — a property of the **request's network path**. When a call
+  reaches an AWS service through a VPC endpoint, it holds the ID of the VPC the
+  endpoint lives in. When the call goes to a public service endpoint, it is
+  **null**.
 
 ```json
 {
   "Version": "2012-10-17",
   "Statement": [
     {
-      "Sid": "DenyInstanceCredsUsedOutsideTheirVpc",
+      "Sid": "DenyInstanceCredsOutsideTheirVpc",
       "Effect": "Deny",
       "Action": "*",
       "Resource": "*",
       "Condition": {
         "StringNotEquals": {
-          "aws:Ec2InstanceSourceVpc": "vpc-0abc123456789def0"
+          "aws:ec2InstanceSourceVPC": "${aws:SourceVpc}"
         },
         "Null": {
-          "aws:Ec2InstanceSourceVpc": "false"
+          "ec2:SourceInstanceARN": "false"
+        },
+        "BoolIfExists": {
+          "aws:ViaAWSService": "false"
+        },
+        "ArnNotLike": {
+          "aws:PrincipalArn": ["arn:aws:iam::*:role/aws:ec2-infrastructure"]
         }
       }
     }
@@ -184,76 +207,77 @@ What actually neutralized the replay was an IAM deny built on one condition key:
 }
 ```
 
-Read it as: *"If these are EC2 instance credentials (the key is present) and the
-request's source VPC is not the VPC that issued them, deny everything."*
+Line by line:
 
-`aws:Ec2InstanceSourceVpc` carries the VPC ID of the VPC in which the instance
-that was issued the credentials runs. AWS populates it **automatically on every
-credential issued to an EC2 instance** — you don't configure the instance to
-emit it. When the attacker replayed the keys from outside that VPC, the source
-VPC no longer matched, the deny fired, and **every call was blocked**. The
-stolen keys became worthless the moment they left the network.
+- `StringNotEquals` — **enforcement.** Deny when the credential's VPC
+  (`aws:ec2InstanceSourceVPC`) is not the VPC the request arrived through
+  (`${aws:SourceVpc}`). The `${...}` makes the right side a variable, so the
+  comparison is credential-vs-request instead of credential-vs-constant.
+- `Null` on `ec2:SourceInstanceARN` — **scoping.** That key exists only on EC2
+  instance credentials, so IAM users, Lambda roles and other principals are not
+  caught by this deny.
+- `BoolIfExists` on `aws:ViaAWSService` — lets AWS services that act on your
+  behalf (for example Athena reading S3) through.
+- `ArnNotLike` — exempts the `aws:ec2-infrastructure` role that EC2 uses to
+  mount encrypted EBS volumes.
 
-The two `Condition` operators matter:
-
-- `StringNotEquals` — deny when the source VPC is anything other than the
-  issuing VPC.
-- `Null: "false"` — only apply this deny when the key *exists*. Without it, the
-  policy would also deny credentials that aren't EC2 instance credentials at all
-  (users, other roles), because the key would be absent and "absent ≠ my VPC"
-  evaluates true. This guard scopes the deny to instance credentials only.
+Why the attacker is stopped: they replay the stolen keys from a laptop, which
+calls a **public** endpoint. `aws:SourceVpc` is null, it cannot equal the
+credential's VPC, and AWS states that this policy denies every request made with
+the instance credential that does not go through a VPC endpoint. Even if the
+attacker used a VPC endpoint in their own VPC, `aws:SourceVpc` would be *their*
+VPC and would not match. The only requests that pass come through an endpoint in
+the VPC that issued the credential, which means from inside it.
 
 <a id="the-nuance"></a>
-## The implementation nuance that matters
+## The implementation nuance that matters: it needs VPC endpoints
 
-There are three similar-looking condition keys, and picking the wrong one
-silently does nothing:
+This is the part I got wrong the first time, and it is the most important
+constraint of the whole pattern.
 
-- `aws:SourceVpc` and `aws:SourceVpce` only populate for traffic that arrives
-  **over a VPC endpoint (PrivateLink)**. If your workload calls public AWS API
-  endpoints — which most do by default — these keys are simply absent, your
-  condition never matches the way you expect, and you get a false sense of
-  protection. They describe the *network path of this request*, not the
-  credential.
-- `aws:Ec2InstanceSourceVpc` is bound to the **instance credential itself** and
-  populates regardless of the network path. That is exactly why it was the right
-  key for an off-box replay: it does not care whether the attacker went through
-  an endpoint or the public internet — it only cares which VPC issued the keys.
+- `aws:ec2InstanceSourceVPC` and `aws:ec2InstanceSourcePrivateIPv4` are
+  **credential-relative**. They are always present on an instance credential,
+  including on a stolen copy, and they never change.
+- `aws:SourceVpc`, `aws:SourceVpce` and `aws:VpcSourceIp` are
+  **network-path-relative**. They are populated only for requests that arrive
+  over a **VPC endpoint**, and are null for public endpoints.
 
-There is a sibling key, `aws:Ec2InstanceSourcePrivateIPv4`, that carries the
-instance's primary private IP. You can layer it on to pin credentials to a
-single instance's IP, but VPC-level binding was the right blast radius for this
-incident.
+Alone, the credential key proves nothing about where the call came from. The
+protection exists only in the **comparison**, and the comparison needs the path
+key, so **every call your workload makes has to go through a VPC endpoint**. That
+means gateway endpoints for S3 and DynamoDB and interface endpoints (PrivateLink)
+for the other services. Traffic through a NAT gateway or internet gateway leaves
+`aws:SourceVpc` null and is denied, including your own legitimate calls.
+
+`aws:ec2InstanceSourcePrivateIPv4` can be compared with `${aws:VpcSourceIp}` in a
+second deny statement to pin the credential to one instance's IP. AWS advises
+using it only together with the VPC condition, because private IPs repeat across
+environments.
 
 <a id="trade-offs"></a>
 ## Trade-offs: what VPC-binding costs you
 
-This is not free, and it is not right for every workload. Honest trade-offs:
+This is not free, and it is not right for every workload:
 
-- **Legitimate off-box use breaks too.** If any real workflow uses instance
-  credentials from outside the issuing VPC — cross-VPC without PrivateLink, an
-  on-prem job assuming the instance role, a CI runner — this deny breaks it. The
-  control cannot tell "attacker off-box" from "my pipeline off-box." You must
-  inventory those paths first.
-- **Multi-VPC / multi-account needs a set, not a single value.** A fleet spread
-  across several VPCs needs the condition to allow a *list* of VPC IDs (or be
-  applied per-VPC via SCP/boundary). That list becomes config you have to keep
-  in sync as VPCs are created and retired.
-- **VPC peering and Transit Gateway don't change the issuing VPC.** The key
-  reflects the VPC that *issued* the credential, not reachability. Traffic that
-  rides a peering connection from another VPC still carries that other VPC's
-  source, so it is denied — which is usually what you want, but surprises teams
-  who think "peered = same network."
-- **It is a deny, so debugging is a cliff.** When it misfires, calls fail with
-  `AccessDenied` and no hint about *why*. Wire up CloudTrail and a dashboard for
-  the deny before you roll it out, or you'll burn an afternoon.
-- **Placement matters.** As an SCP it covers a whole OU but can't name a single
-  VPC cleanly across accounts; as a role trust/permission boundary it is precise
-  but must be attached to every role. Pick the layer deliberately.
+- **You must run VPC endpoints for everything you call.** Each interface
+  endpoint costs money (hourly per AZ plus data processing), and you have to
+  create and maintain them. Any service without an endpoint, or reached through
+  NAT, fails with `AccessDenied`.
+- **Some APIs ignore VPC endpoints.** AWS warns that, for example, the EFS
+  `ClientMount` permission does not go through the endpoint, so the policy blocks
+  mounting EFS. Plan exceptions with `NotAction` (AWS shows `iam:*`) or by role
+  tag.
+- **Legitimate off-instance use breaks too.** An on-prem job assuming the
+  instance role, a CI runner or a cross-account tool using those credentials
+  looks identical to an attacker. Inventory these paths first.
+- **It is a deny, so debugging is a cliff.** Calls fail with `AccessDenied` and
+  no hint about why. Set up CloudTrail queries and a dashboard before rollout.
+- **Placement matters.** As an SCP it covers a whole OU. As a resource policy
+  (AWS shows an S3 bucket example) it protects one resource. Choose
+  deliberately.
 
-Despite all that, for the common case — an instance role used only by the
-instance, inside its own VPC — the downside is close to zero and the upside is
-that off-box replay simply stops working.
+For workloads that already run in private subnets with endpoints for the services
+they use, the cost is small and off-instance replay stops working.
 
 <a id="comparison"></a>
 ## Comparison: IMDSv2 vs the condition key
@@ -263,8 +287,8 @@ that off-box replay simply stops working.
 | **What it protects** | How credentials are *stolen* | How stolen credentials are *used* |
 | **Stops simple SSRF** | ✅ Yes | ➖ N/A (not its job) |
 | **Stops theft after code execution (RCE/web shell)** | ❌ No | ➖ N/A |
-| **Stops off-box replay (step 3)** | ❌ No | ✅ Yes |
-| **Depends on network path** | ❌ No | ✅ No (bound to credential) |
+| **Stops off-box replay (step 3)** | ❌ No | ✅ Yes, when calls go through VPC endpoints |
+| **Depends on network path** | ❌ No | ⚠️ Yes — needs VPC endpoints (`aws:SourceVpc`) |
 | **Config effort** | Instance / launch-template setting | IAM policy / SCP authored by you |
 | **Breaks legit off-box use** | No | ⚠️ Yes — must inventory first |
 | **Default in AWS?** | Now default on new instances | ❌ Opt-in only |
@@ -277,25 +301,25 @@ not substitutes.
 ## The question: why is this opt-in, not the default?
 
 Here is what bothers me. AWS **already knows** which VPC issued the credential —
-that's the whole reason the key can exist and be auto-populated. The information
-is right there in the request context on every single call.
+that's the whole reason the key exists and is auto-populated on every instance
+credential. What it cannot tell the policy engine for free is where the request
+*came from*, unless the call arrives over a VPC endpoint.
 
-So why are instance-role credentials not VPC-bound **by default**?
+So the practical result is that off-box replay protection is opt-in and has a
+real prerequisite: you must build and pay for VPC endpoints for every service
+you call, write the comparison policy yourself, and plan exceptions. Most teams
+have never heard of the keys, launched in March 2023.
 
-Making off-box replay fail by default would eliminate the
-`InstanceCredentialExfiltration.OutsideAWS` class of attack for the vast majority
-of workloads, where the instance role is only ever used by the instance anyway.
-The downside for that majority is essentially zero. Instead it ships as an
-opt-in condition key launched in March 2023 that most teams have never heard of.
+I understand why a hard default is difficult: it would break workloads that
+legitimately use instance credentials off-instance, and it would force endpoint
+architecture on everyone. But AWS has shipped "secure by default with a
+documented opt-out" before (IMDSv2 is now the default on new instances; S3 Block
+Public Access; EBS encryption by default). So my question is narrower than
+"make it the default": **why is there no first-class way to bind instance
+credentials to their VPC that does not require running VPC endpoints for every
+service?**
 
-I understand the counter-argument — a hard default would break the minority of
-workloads that legitimately use instance credentials off-box, and AWS is
-allergic to breaking changes. But "secure by default with a documented opt-out"
-is a posture AWS has adopted before (IMDSv2 itself is now default on new
-instances; S3 Block Public Access; EBS encryption by default). Credential
-VPC-binding feels like it belongs in that same category.
-
-Why is this opt-in instead of opt-out, AWS?
+Why is this still opt-in and endpoint-dependent, AWS?
 
 <a id="resources"></a>
 ## Fact-check & resources
@@ -477,24 +501,47 @@ cierra la siguiente sección.
 <a id="el-control"></a>
 ## El control que funcionó: aws:Ec2InstanceSourceVpc
 
-Lo que realmente neutralizó la reutilización fue un deny de IAM construido sobre
-una sola clave de condición:
+> **Corrección (2026-11-10):** una versión anterior de esta sección mostraba un
+> deny que comparaba la clave con un ID de VPC fijo y afirmaba que la clave
+> describe de dónde viene la *solicitud*. Eso era incorrecto. La clave describe
+> la *credencial*, así que por sí sola no puede detectar una reutilización. Solo
+> funciona si la comparás con una clave que describa la ruta de red de la
+> solicitud, y esa clave solo se completa para tráfico por VPC endpoint. El texto
+> siguiente sigue el patrón del AWS Security Blog.
+
+La reutilización se neutralizó con un deny de IAM que compara **dos valores
+distintos**:
+
+- `aws:ec2InstanceSourceVPC` — una propiedad de la **credencial**. Es el ID de la
+  VPC donde corre la instancia a la que se emitieron las credenciales. AWS lo
+  agrega automáticamente a toda credencial de instancia EC2, y viaja con las
+  claves robadas.
+- `aws:SourceVpc` — una propiedad de la **ruta de red de la solicitud**. Cuando
+  una llamada llega a un servicio de AWS por un VPC endpoint, contiene el ID de
+  la VPC donde está el endpoint. Si la llamada va a un endpoint público del
+  servicio, es **nula**.
 
 ```json
 {
   "Version": "2012-10-17",
   "Statement": [
     {
-      "Sid": "DenyInstanceCredsUsedOutsideTheirVpc",
+      "Sid": "DenyInstanceCredsOutsideTheirVpc",
       "Effect": "Deny",
       "Action": "*",
       "Resource": "*",
       "Condition": {
         "StringNotEquals": {
-          "aws:Ec2InstanceSourceVpc": "vpc-0abc123456789def0"
+          "aws:ec2InstanceSourceVPC": "${aws:SourceVpc}"
         },
         "Null": {
-          "aws:Ec2InstanceSourceVpc": "false"
+          "ec2:SourceInstanceARN": "false"
+        },
+        "BoolIfExists": {
+          "aws:ViaAWSService": "false"
+        },
+        "ArnNotLike": {
+          "aws:PrincipalArn": ["arn:aws:iam::*:role/aws:ec2-infrastructure"]
         }
       }
     }
@@ -502,81 +549,81 @@ una sola clave de condición:
 }
 ```
 
-Se lee así: *"Si estas son credenciales de instancia EC2 (la clave está
-presente) y la VPC de origen de la solicitud no es la VPC que las emitió, denegá
-todo."*
+Línea por línea:
 
-`aws:Ec2InstanceSourceVpc` lleva el ID de la VPC en la que corre la instancia a
-la que se emitieron las credenciales. AWS lo completa **automáticamente en cada
-credencial emitida a una instancia EC2** — no configurás la instancia para que
-lo emita. Cuando el atacante reutilizó las claves desde fuera de esa VPC, la VPC
-de origen ya no coincidía, el deny se disparó, y **toda llamada quedó
-bloqueada**. Las claves robadas quedaron inútiles en el momento en que salieron
-de la red.
+- `StringNotEquals` — **aplicación.** Denegá cuando la VPC de la credencial
+  (`aws:ec2InstanceSourceVPC`) no es la VPC por la que llegó la solicitud
+  (`${aws:SourceVpc}`). El `${...}` hace que el lado derecho sea una variable, así
+  que la comparación es credencial contra solicitud y no credencial contra una
+  constante.
+- `Null` sobre `ec2:SourceInstanceARN` — **alcance.** Esa clave solo existe en
+  credenciales de instancia EC2, así que usuarios IAM, roles de Lambda y otros
+  principales no quedan atrapados por este deny.
+- `BoolIfExists` sobre `aws:ViaAWSService` — deja pasar a los servicios de AWS
+  que actúan en tu nombre (por ejemplo Athena leyendo S3).
+- `ArnNotLike` — exime al rol `aws:ec2-infrastructure` que EC2 usa para montar
+  volúmenes EBS cifrados.
 
-Los dos operadores de `Condition` importan:
-
-- `StringNotEquals` — denegá cuando la VPC de origen sea distinta a la VPC
-  emisora.
-- `Null: "false"` — aplicá este deny solo cuando la clave *exista*. Sin esto, la
-  política también denegaría credenciales que no son de instancia EC2 (usuarios,
-  otros roles), porque la clave estaría ausente y "ausente ≠ mi VPC" evalúa como
-  verdadero. Este guard limita el deny únicamente a credenciales de instancia.
+Por qué se frena al atacante: reutiliza las claves robadas desde una laptop, que
+llama a un endpoint **público**. `aws:SourceVpc` es nula, no puede ser igual a la
+VPC de la credencial, y AWS indica que esta política deniega toda solicitud hecha
+con la credencial de instancia que no pase por un VPC endpoint. Incluso si el
+atacante usara un VPC endpoint en su propia VPC, `aws:SourceVpc` sería *su* VPC y
+no coincidiría. Solo pasan las solicitudes que llegan por un endpoint de la VPC
+que emitió la credencial, es decir, desde dentro de ella.
 
 <a id="el-matiz"></a>
-## El matiz de implementación que importa
+## El matiz de implementación que importa: necesita VPC endpoints
 
-Hay tres claves de condición que se parecen, y elegir la equivocada no hace nada
-en silencio:
+Esta es la parte que expliqué mal la primera vez, y es la restricción más
+importante de todo el patrón.
 
-- `aws:SourceVpc` y `aws:SourceVpce` solo se completan para tráfico que llega
-  **a través de un VPC endpoint (PrivateLink)**. Si tu carga de trabajo llama a
-  los endpoints públicos de la API de AWS — como hacen la mayoría por defecto —
-  estas claves simplemente no están, tu condición nunca coincide como esperás, y
-  te da una falsa sensación de protección. Describen la *ruta de red de esta
-  solicitud*, no la credencial.
-- `aws:Ec2InstanceSourceVpc` está ligada a la **credencial de instancia misma**
-  y se completa sin importar la ruta de red. Por eso fue la clave correcta para
-  una reutilización fuera de la máquina: no le importa si el atacante pasó por
-  un endpoint o por la internet pública — solo le importa qué VPC emitió las
-  claves.
+- `aws:ec2InstanceSourceVPC` y `aws:ec2InstanceSourcePrivateIPv4` son
+  **relativas a la credencial**. Siempre están presentes en una credencial de
+  instancia, incluso en una copia robada, y nunca cambian.
+- `aws:SourceVpc`, `aws:SourceVpce` y `aws:VpcSourceIp` son **relativas a la ruta
+  de red**. Solo se completan para solicitudes que llegan por un **VPC
+  endpoint**, y son nulas para endpoints públicos.
 
-Existe una clave hermana, `aws:Ec2InstanceSourcePrivateIPv4`, que lleva la IP
-privada primaria de la instancia. Podés sumarla para fijar las credenciales a la
-IP de una sola instancia, pero el binding a nivel VPC fue el radio de impacto
-correcto para este incidente.
+Sola, la clave de la credencial no prueba nada sobre de dónde vino la llamada. La
+protección existe únicamente en la **comparación**, y la comparación necesita la
+clave de ruta, por lo que **toda llamada de tu carga de trabajo tiene que pasar
+por un VPC endpoint**. Eso significa gateway endpoints para S3 y DynamoDB y
+interface endpoints (PrivateLink) para los demás servicios. El tráfico por NAT
+gateway o internet gateway deja `aws:SourceVpc` nula y se deniega, incluidas tus
+propias llamadas legítimas.
+
+`aws:ec2InstanceSourcePrivateIPv4` se puede comparar con `${aws:VpcSourceIp}` en
+una segunda sentencia deny para fijar la credencial a la IP de una instancia. AWS
+recomienda usarla solo junto con la condición de VPC, porque las IPs privadas se
+repiten entre entornos.
 
 <a id="trade-offs-es"></a>
 ## Trade-offs: qué te cuesta atar a la VPC
 
-Esto no es gratis, y no es apropiado para toda carga de trabajo. Trade-offs
-honestos:
+Esto no es gratis, y no sirve para toda carga de trabajo:
 
-- **El uso legítimo fuera de la máquina también se rompe.** Si algún flujo real
-  usa credenciales de instancia desde fuera de la VPC emisora — cross-VPC sin
-  PrivateLink, un job on-prem asumiendo el rol de la instancia, un runner de CI —
-  este deny lo rompe. El control no distingue "atacante fuera de la máquina" de
-  "mi pipeline fuera de la máquina". Primero tenés que inventariar esas rutas.
-- **Multi-VPC / multi-cuenta necesita un conjunto, no un valor único.** Una
-  flota repartida en varias VPCs necesita que la condición permita una *lista*
-  de IDs de VPC (o aplicarse por VPC vía SCP/boundary). Esa lista se vuelve
-  configuración que hay que mantener sincronizada a medida que se crean y retiran
-  VPCs.
-- **VPC peering y Transit Gateway no cambian la VPC emisora.** La clave refleja
-  la VPC que *emitió* la credencial, no la alcanzabilidad. El tráfico que viaja
-  por una conexión de peering desde otra VPC sigue llevando el origen de esa
-  otra VPC, así que se deniega — que suele ser lo que querés, pero sorprende a
-  equipos que piensan "peered = misma red".
-- **Es un deny, así que debuguear es un precipicio.** Cuando falla, las llamadas
-  fallan con `AccessDenied` y sin pista del *por qué*. Conectá CloudTrail y un
-  dashboard para el deny antes de desplegarlo, o vas a quemar una tarde.
-- **La ubicación importa.** Como SCP cubre toda una OU pero no puede nombrar una
-  sola VPC limpiamente entre cuentas; como trust/boundary de rol es preciso pero
-  hay que adjuntarlo a cada rol. Elegí la capa con intención.
+- **Tenés que correr VPC endpoints para todo lo que llamás.** Cada interface
+  endpoint cuesta dinero (por hora y por AZ, más procesamiento de datos) y hay
+  que crearlos y mantenerlos. Cualquier servicio sin endpoint, o alcanzado por
+  NAT, falla con `AccessDenied`.
+- **Algunas APIs ignoran los VPC endpoints.** AWS advierte que, por ejemplo, el
+  permiso `ClientMount` de EFS no pasa por el endpoint, así que la política
+  bloquea el montaje de EFS. Planificá excepciones con `NotAction` (AWS muestra
+  `iam:*`) o por tag del rol.
+- **El uso legítimo fuera de la instancia también se rompe.** Un job on-prem que
+  asume el rol de la instancia, un runner de CI o una herramienta de otra cuenta
+  que use esas credenciales se ve igual que un atacante. Inventariá esas rutas
+  primero.
+- **Es un deny, así que debuguear es un precipicio.** Las llamadas fallan con
+  `AccessDenied` y sin pista del porqué. Preparé consultas de CloudTrail y un
+  dashboard antes del despliegue.
+- **La ubicación importa.** Como SCP cubre toda una OU. Como política de recurso
+  (AWS muestra un ejemplo de bucket S3) protege un recurso. Elegí con intención.
 
-A pesar de todo eso, para el caso común — un rol de instancia usado solo por la
-instancia, dentro de su propia VPC — la desventaja es casi cero y la ventaja es
-que la reutilización fuera de la máquina simplemente deja de funcionar.
+Para cargas que ya corren en subredes privadas con endpoints para los servicios
+que usan, el costo es pequeño y la reutilización fuera de la instancia deja de
+funcionar.
 
 <a id="comparacion"></a>
 ## Comparación: IMDSv2 vs la clave de condición
@@ -586,8 +633,8 @@ que la reutilización fuera de la máquina simplemente deja de funcionar.
 | **Qué protege** | Cómo se *roban* las credenciales | Cómo se *usan* las credenciales robadas |
 | **Frena el SSRF simple** | ✅ Sí | ➖ N/A (no es su trabajo) |
 | **Frena el robo tras ejecución de código (RCE/web shell)** | ❌ No | ➖ N/A |
-| **Frena la reutilización fuera de la máquina (paso 3)** | ❌ No | ✅ Sí |
-| **Depende de la ruta de red** | ❌ No | ✅ No (ligada a la credencial) |
+| **Frena la reutilización fuera de la máquina (paso 3)** | ❌ No | ✅ Sí, cuando las llamadas pasan por VPC endpoints |
+| **Depende de la ruta de red** | ❌ No | ⚠️ Sí — necesita VPC endpoints (`aws:SourceVpc`) |
 | **Esfuerzo de configuración** | Ajuste de instancia / launch template | Política IAM / SCP que escribís vos |
 | **Rompe el uso legítimo fuera de la máquina** | No | ⚠️ Sí — primero inventariá |
 | **¿Por defecto en AWS?** | Ahora por defecto en instancias nuevas | ❌ Solo opt-in |
@@ -600,28 +647,26 @@ No son sustitutos.
 ## La pregunta: ¿por qué es opt-in y no el comportamiento por defecto?
 
 Esto es lo que me molesta. AWS **ya sabe** qué VPC emitió la credencial — es la
-razón misma por la que la clave puede existir y completarse automáticamente. La
-información está ahí, en el contexto de la solicitud, en cada llamada.
+razón por la que la clave existe y se completa automáticamente en toda credencial
+de instancia. Lo que no le puede decir gratis al motor de políticas es de dónde
+*vino* la solicitud, salvo que la llamada llegue por un VPC endpoint.
 
-Entonces, ¿por qué las credenciales del rol de instancia no están ligadas a la
-VPC **por defecto**?
+El resultado práctico es que la protección contra reutilización fuera de la
+máquina es opt-in y tiene un prerrequisito real: tenés que construir y pagar VPC
+endpoints para cada servicio que llamás, escribir vos la política de comparación
+y planificar excepciones. La mayoría de los equipos nunca escuchó de las claves,
+lanzadas en marzo de 2023.
 
-Hacer que la reutilización fuera de la máquina falle por defecto eliminaría la
-clase de ataque `InstanceCredentialExfiltration.OutsideAWS` para la gran mayoría
-de las cargas de trabajo, donde el rol de instancia solo lo usa la instancia de
-todas formas. La desventaja para esa mayoría es prácticamente cero. En cambio se
-entrega como una clave de condición opt-in, lanzada en marzo de 2023, de la que
-la mayoría de los equipos nunca escuchó.
+Entiendo por qué un default duro es difícil: rompería cargas que legítimamente
+usan credenciales de instancia fuera de la instancia, y obligaría a todos a
+adoptar una arquitectura de endpoints. Pero AWS ya entregó antes "seguro por
+defecto con un opt-out documentado" (IMDSv2 ahora es el default en instancias
+nuevas; S3 Block Public Access; cifrado de EBS por defecto). Así que mi pregunta
+es más acotada que "hacelo el default": **¿por qué no hay una forma de primera
+clase de atar las credenciales de instancia a su VPC que no exija correr VPC
+endpoints para cada servicio?**
 
-Entiendo el contraargumento — un default duro rompería la minoría de cargas que
-legítimamente usan credenciales de instancia fuera de la máquina, y AWS le tiene
-alergia a los breaking changes. Pero "seguro por defecto con un opt-out
-documentado" es una postura que AWS ya adoptó antes (el propio IMDSv2 ahora es
-default en instancias nuevas; S3 Block Public Access; cifrado de EBS por
-defecto). El binding de credenciales a la VPC parece pertenecer a esa misma
-categoría.
-
-¿Por qué es opt-in en lugar de opt-out, AWS?
+¿Por qué sigue siendo opt-in y dependiente de endpoints, AWS?
 
 <a id="recursos"></a>
 ## Verificación y recursos

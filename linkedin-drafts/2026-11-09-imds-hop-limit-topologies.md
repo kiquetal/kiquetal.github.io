@@ -40,7 +40,7 @@ Rule of thumb:
 
 ▸ EKS → keep 1 + IRSA / Pod Identity
 
-One more thing worth saying out loud: the hop limit is a control over how credentials are STOLEN / forwarded off the node. It does nothing once the credentials are already off the box — stopping that replay is a different control (an IAM deny on aws:Ec2InstanceSourceVpc). Both, not either.
+One more thing worth saying out loud: the hop limit is a control over how credentials are STOLEN / forwarded off the node. It does nothing once the credentials are already off the box — stopping that replay is a different control (an IAM deny comparing aws:Ec2InstanceSourceVpc with aws:SourceVpc, which needs VPC endpoints). Both, not either.
 
 Full write-up — diagram above plus the IMDSv2 token handshake, the replay defense, and trade-offs:
 
@@ -79,7 +79,7 @@ Regla práctica:
 
 ▸ EKS → mantené 1 + IRSA / Pod Identity
 
-Una cosa más que vale la pena decir en voz alta: el hop limit es un control sobre cómo se ROBAN / reenvían las credenciales fuera del nodo. No hace nada una vez que las credenciales ya salieron de la máquina — frenar esa reutilización es otro control (un deny de IAM sobre aws:Ec2InstanceSourceVpc). Los dos, no uno u otro.
+Una cosa más que vale la pena decir en voz alta: el hop limit es un control sobre cómo se ROBAN / reenvían las credenciales fuera del nodo. No hace nada una vez que las credenciales ya salieron de la máquina — frenar esa reutilización es otro control (un deny de IAM que compara aws:Ec2InstanceSourceVpc con aws:SourceVpc, y que necesita VPC endpoints). Los dos, no uno u otro.
 
 Artículo completo — el diagrama de arriba más el handshake de token de IMDSv2, la defensa contra reutilización y los trade-offs:
 
