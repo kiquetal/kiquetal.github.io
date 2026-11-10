@@ -1,0 +1,45 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="CV — kiquetal" description="Curriculum vitae of Enrique M. Talavera — Staff Software Engineer / System Architect. ATS-friendly PDF in English and Spanish.">
+	<main class="flex-grow flex flex-col justify-center px-8 md:px-16 pt-32 pb-20">
+		<div class="max-w-4xl w-full mx-auto">
+			<h1 class="font-serif text-[clamp(2.5rem,8vw,6rem)] leading-[0.9] tracking-tight mb-12">
+				<span class="lang-en">Curriculum <span class="italic text-brand-accent text-glow">Vitae</span>.</span>
+				<span class="lang-es hidden">Curriculum <span class="italic text-brand-accent text-glow">Vitae</span>.</span>
+			</h1>
+
+			<p class="font-serif text-xl md:text-2xl leading-relaxed text-brand-text-main mb-4 italic">
+				<span class="lang-en">Enrique M. Talavera — Staff Software Engineer / System Architect.</span>
+				<span class="lang-es hidden">Enrique M. Talavera — Ingeniero de Software Staff / Arquitecto de Sistemas.</span>
+			</p>
+			<p class="font-serif text-lg leading-relaxed text-brand-text-muted mb-16">
+				<span class="lang-en">Plain-text, single-column PDF that applicant tracking systems can read. Available in English and Spanish.</span>
+				<span class="lang-es hidden">PDF de texto plano y una sola columna, legible por sistemas de seguimiento de candidatos. Disponible en inglés y español.</span>
+			</p>
+
+			<div class="flex flex-col md:flex-row gap-6">
+				<a href="/cv/cv-en.pdf" download class="group flex-1 border border-brand-border/60 hover:border-brand-accent/60 bg-brand-surface p-8 transition-colors">
+					<span class="block font-mono text-[10px] tracking-[0.4em] text-brand-accent uppercase font-bold mb-4">PDF · EN</span>
+					<span class="block font-serif text-2xl text-brand-text-main group-hover:text-brand-accent transition-colors">
+						<span class="lang-en">Download CV (English)</span>
+						<span class="lang-es hidden">Descargar CV (inglés)</span>
+					</span>
+				</a>
+				<a href="/cv/cv-es.pdf" download class="group flex-1 border border-brand-border/60 hover:border-brand-accent/60 bg-brand-surface p-8 transition-colors">
+					<span class="block font-mono text-[10px] tracking-[0.4em] text-brand-accent uppercase font-bold mb-4">PDF · ES</span>
+					<span class="block font-serif text-2xl text-brand-text-main group-hover:text-brand-accent transition-colors">
+						<span class="lang-en">Download CV (Spanish)</span>
+						<span class="lang-es hidden">Descargar CV (español)</span>
+					</span>
+				</a>
+			</div>
+
+			<p class="font-mono text-[10px] tracking-[0.2em] text-brand-text-muted uppercase mt-12">
+				<span class="lang-en">Contact: hi@kiquetal.dev · References available on request</span>
+				<span class="lang-es hidden">Contacto: hi@kiquetal.dev · Referencias disponibles bajo solicitud</span>
+			</p>
+		</div>
+	</main>
+</Layout>
