@@ -18,14 +18,14 @@ Website: https://kiquetal.dev
 ## Summary
 
 Staff Software Engineer and System Architect with over 15 years of experience in software
-development and research of programming languages and frameworks. Focus on Java, cloud
+development and research of programming languages and frameworks. Focus on modern Java (Java 21), Go, cloud
 security, distributed systems and API platforms. Holds four AWS certifications, Certified
 Kubernetes Application Developer (CKAD) and Oracle Java SE 7 Programmer certifications
 (OCAJP 7, OCPJP 7).
 
 ## Skills
 
-- **Languages:** Java, PHP, PL/SQL, JavaScript, Go
+- **Languages:** Java (Java 21), Go, PHP, PL/SQL, JavaScript
 - **Cloud & Infrastructure:** Amazon Web Services (AWS), Kubernetes, Docker, cloud security
 - **Backend & Integration:** Oracle ADF, SOA, BPEL, web services, Apigee (API management), Quarkus, NATS
 - **Databases:** MySQL, PostgreSQL, SQL Server, Oracle

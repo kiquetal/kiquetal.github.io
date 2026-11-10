@@ -19,13 +19,13 @@ Sitio web: https://kiquetal.dev
 
 Ingeniero de Software Staff y Arquitecto de Sistemas con más de 15 años de experiencia en
 desarrollo de software e investigación de lenguajes de programación y frameworks. Enfoque en
-Java, seguridad en la nube, sistemas distribuidos y plataformas de APIs. Cuenta con cuatro
+Java moderno (Java 21), Go, seguridad en la nube, sistemas distribuidos y plataformas de APIs. Cuenta con cuatro
 certificaciones de AWS, Certified Kubernetes Application Developer (CKAD) y certificaciones
 Oracle Java SE 7 Programmer (OCAJP 7, OCPJP 7).
 
 ## Habilidades
 
-- **Lenguajes:** Java, PHP, PL/SQL, JavaScript, Go
+- **Lenguajes:** Java (Java 21), Go, PHP, PL/SQL, JavaScript
 - **Nube e infraestructura:** Amazon Web Services (AWS), Kubernetes, Docker, seguridad en la nube
 - **Backend e integración:** Oracle ADF, SOA, BPEL, servicios web, Apigee (gestión de APIs), Quarkus, NATS
 - **Bases de datos:** MySQL, PostgreSQL, SQL Server, Oracle
