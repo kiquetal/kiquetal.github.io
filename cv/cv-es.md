@@ -1,103 +1,76 @@
 <!--
-  ESQUELETO DE CV COMPATIBLE CON ATS (ESPAÑOL)
-  --------------------------------------------
-  CÓMO USAR:
-  1. Reemplazá cada [Marcador] con tu información real.
-  2. Mantené la estructura de una sola columna, de arriba hacia abajo. NO agregues tablas ni imágenes.
-  3. Usá fechas MM/AAAA (ej. 03/2021 - Presente). Usá "Presente" para el puesto actual.
-  4. Copiá una viñeta / bloque para agregar más; borrá cualquier sección que no necesites.
-  5. Regenerar: ./build.sh es   (salida: cv-es.pdf)
-  6. Abrí el PDF e intentá seleccionar el texto. Si podés copiarlo, un ATS también puede leerlo.
-  NOTA: los comentarios HTML como este NO se muestran en el PDF.
+  CV AMIGABLE CON ATS (ESPAÑOL) - construido desde la exportación del perfil de LinkedIn.
+  Mantener una sola columna, sin tablas ni imágenes. Reconstruir: ./build.sh es  (salida: cv-es.pdf)
+  Los comentarios HTML como este NO se muestran en el PDF.
 -->
 
-# [Nombre Completo]
+# Enrique M. Talavera
 
 <p class="contact">
-[Puesto, ej. Ingeniero de Sistemas / Arquitecto Distribuido] •
-[Ciudad, País, ej. Asunción, Paraguay] •
-[correo@ejemplo.com] •
-[+000 000 000 000]<br>
-LinkedIn: [https://www.linkedin.com/in/tu-usuario] •
-GitHub: [https://github.com/tu-usuario] •
-Sitio web: [https://tu-sitio.dev]
+Ingeniero de Software Staff / Arquitecto de Sistemas •
+Asunción, Paraguay •
+hi@kiquetal.dev<br>
+LinkedIn: https://www.linkedin.com/in/kiquetal •
+GitHub: https://github.com/kiquetal •
+Sitio web: https://kiquetal.dev
 </p>
 
-## Perfil
+## Resumen
 
-[2-4 oraciones que describan quién sos, tu especialidad principal, años de experiencia y
-el tipo de puesto que buscás. Destacá al principio las palabras clave que buscan los reclutadores
-y los ATS, ej. "arquitectura nativa de la nube", "Kubernetes", "AWS", "sistemas distribuidos",
-"seguridad".]
+Ingeniero de Software Staff y Arquitecto de Sistemas con más de 15 años de experiencia en
+desarrollo de software e investigación de lenguajes de programación y frameworks. Enfoque en
+Java, seguridad en la nube, sistemas distribuidos y plataformas de APIs. Cuenta con cuatro
+certificaciones de AWS, Certified Kubernetes Application Developer (CKAD) y certificaciones
+Oracle Java SE 7 Programmer (OCAJP 7, OCPJP 7).
 
 ## Habilidades
 
-<!-- Agrupá habilidades relacionadas. Mantenelas como texto plano separado por comas (los ATS lo leen bien). -->
-
-- **Lenguajes:** [ej. Java, TypeScript, Go, Python, Bash]
-- **Nube e Infraestructura:** [ej. Amazon Web Services (AWS), Terraform, Docker, Kubernetes]
-- **Backend y Mensajería:** [ej. Quarkus, Node.js, Kafka, NATS, PostgreSQL]
-- **Seguridad y Observabilidad:** [ej. SPIFFE/SPIRE, mTLS, OpenTelemetry, Prometheus]
-- **Prácticas:** [ej. CI/CD, GitOps, Sistemas Distribuidos, Arquitectura Orientada a Eventos]
+- **Lenguajes:** Java, PHP, PL/SQL, JavaScript, Go
+- **Nube e infraestructura:** Amazon Web Services (AWS), Kubernetes, Docker, seguridad en la nube
+- **Backend e integración:** Oracle ADF, SOA, BPEL, servicios web, Apigee (gestión de APIs), Quarkus, NATS
+- **Bases de datos:** MySQL, PostgreSQL, SQL Server, Oracle
+- **Seguridad e identidad:** SPIFFE/SPIRE, mTLS, Envoy, Istio
+- **Móvil y geolocalización:** Desarrollo Android, Google Maps API
 
 ## Experiencia
 
-### [Puesto] — [Nombre de la Empresa], [Ciudad, País]
-[MM/AAAA] – [MM/AAAA o Presente]
+### Ingeniero de Software / Arquitecto de Sistemas — Edge Mobile Ideas, Paraguay
+06/2012 – Presente
 
-- [Logro con impacto medible — qué hiciste, cómo y el resultado. ej. "Reduje la latencia p99 de la API en un 40% introduciendo pooling de conexiones y caché."]
-- [Logro 2 — empezá con un verbo de acción; cuantificá cuando sea posible.]
-- [Logro 3 — tecnologías utilizadas y resultado para el negocio.]
-- [Logro 4 — opcional.]
+- Desarrollo de software para Android.
+- Mantenimiento de un framework propio basado en PHP 5.
+- Optimización de bases de datos relacionales (MySQL, PostgreSQL, SQL Server).
+- Implementación de geolocalización con la API de Google Maps.
+- Exposición y gestión de APIs con Apigee.
 
-### [Puesto] — [Nombre de la Empresa], [Ciudad, País]
-[MM/AAAA] – [MM/AAAA]
+### Programador — Konecta S.A., Paraguay
+03/2011 – 03/2012
 
-- [Logro con impacto medible.]
-- [Logro 2.]
-- [Logro 3.]
-
-### [Puesto] — [Nombre de la Empresa], [Ciudad, País]
-[MM/AAAA] – [MM/AAAA]
-
-- [Logro con impacto medible.]
-- [Logro 2.]
+- Desarrollo de sistemas con arquitectura SOA usando el framework Oracle ADF (JSF, Java, JavaScript, CSS).
+- Traducción de PL/SQL a Java para su uso con generadores de código.
+- Creación y publicación de servicios web y proyectos BPEL sobre Oracle Application Server (OAS).
 
 ## Educación
 
-### [Título, ej. Licenciatura en Informática] — [Institución]
-[Ciudad, País] • [MM/AAAA] – [MM/AAAA]
-
-- [Opcional: materias relevantes, menciones, tesis o promedio.]
+### Programación de Computadoras — Facultad Politécnica, Universidad Nacional de Asunción
+Paraguay • 2008 – 2013
 
 ## Certificaciones
 
-- [Nombre de la Certificación] — [Emisor] — [MM/AAAA] [Opcional: ID de credencial / URL de verificación]
-- [ej. AWS Certified Solutions Architect – Associate] — [Amazon Web Services] — [MM/AAAA]
-- [Nombre de la Certificación] — [Emisor] — [MM/AAAA]
-
-## Idiomas
-
-- [Idioma, ej. Español] — [Nivel, ej. Nativo]
-- [Idioma, ej. Inglés] — [Nivel, ej. Competencia profesional (C1)]
+- AWS Certified Solutions Architect – Professional — Amazon Web Services
+- AWS Certified Solutions Architect – Associate — Amazon Web Services
+- Certified Kubernetes Application Developer (CKAD) — Cloud Native Computing Foundation
+- Oracle Certified Professional, Java SE 7 Programmer (OCPJP 7) — Oracle
+- Oracle Certified Associate, Java SE 7 Programmer (OCAJP 7) — Oracle
 
 ## Proyectos
 
-<!-- Opcional. Borrá esta sección si no la necesitás. -->
+### Proteus — https://github.com/kiquetal/proteus-oss
+- Malla de servicios zero-trust sobre AWS ECS Fargate con SPIFFE/SPIRE y Envoy, con un plugin personalizado de atestación de nodos ECS que reemplaza los join tokens por atestación basada en roles IAM.
 
-### [Nombre del Proyecto] — [https://enlace-o-repo]
-- [Una línea sobre qué es, la tecnología y tu rol/impacto.]
-
-### [Nombre del Proyecto] — [https://enlace-o-repo]
-- [Una línea sobre qué es, la tecnología y tu rol/impacto.]
+### Blog técnico — https://kiquetal.dev
+- Blog de ingeniería bilingüe (inglés/español) sobre seguridad en la nube, AWS, identidad de servicios, Istio y Java.
 
 ## Referencias
 
-[Disponibles a solicitud.]
-
-<!--
-  O listalas de forma explícita (reemplazá la línea de arriba):
-
-  - [Nombre Completo del Referente] — [Cargo], [Empresa] — [correo@ejemplo.com] — [+000 000 000 000]
-  - [Nombre Completo del Referente] — [Cargo], [Empresa] — [correo@ejemplo.com] — [+000 000 000 000]
--->
+Disponibles bajo solicitud.

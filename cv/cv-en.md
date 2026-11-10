@@ -1,102 +1,76 @@
 <!--
-  ATS-FRIENDLY CV SKELETON (ENGLISH)
-  ----------------------------------
-  HOW TO USE:
-  1. Replace every [Placeholder] with your real information.
-  2. Keep the single-column, top-to-bottom structure. Do NOT add tables or images.
-  3. Use MM/YYYY dates (e.g. 03/2021 - Present). Use "Present" for current role.
-  4. Copy a bullet / entry block to add more; delete any section you don't need.
-  5. Rebuild: ./build.sh en   (output: cv-en.pdf)
-  6. Open the PDF and try to select the text. If you can copy it, an ATS can read it.
-  NOTE: HTML comments like this one are NOT rendered in the PDF.
+  ATS-FRIENDLY CV (ENGLISH) - built from the LinkedIn profile export.
+  Keep single-column, no tables/images. Rebuild: ./build.sh en  (output: cv-en.pdf)
+  HTML comments like this one are NOT rendered in the PDF.
 -->
 
-# [Full Name]
+# Enrique M. Talavera
 
 <p class="contact">
-[Professional Title, e.g. Systems Engineer / Distributed Architect] •
-[City, Country, e.g. Asunción, Paraguay] •
-[email@example.com] •
-[+000 000 000 000]<br>
-LinkedIn: [https://www.linkedin.com/in/your-handle] •
-GitHub: [https://github.com/your-handle] •
-Website: [https://your-site.dev]
+Staff Software Engineer / System Architect •
+Asunción, Paraguay •
+hi@kiquetal.dev<br>
+LinkedIn: https://www.linkedin.com/in/kiquetal •
+GitHub: https://github.com/kiquetal •
+Website: https://kiquetal.dev
 </p>
 
 ## Summary
 
-[2-4 sentences describing who you are, your core expertise, years of experience, and
-the kind of role you're targeting. Front-load the keywords recruiters and ATS search for,
-e.g. "cloud-native architecture", "Kubernetes", "AWS", "distributed systems", "security".]
+Staff Software Engineer and System Architect with over 15 years of experience in software
+development and research of programming languages and frameworks. Focus on Java, cloud
+security, distributed systems and API platforms. Holds four AWS certifications, Certified
+Kubernetes Application Developer (CKAD) and Oracle Java SE 7 Programmer certifications
+(OCAJP 7, OCPJP 7).
 
 ## Skills
 
-<!-- Group related skills. Keep them as plain comma-separated text (ATS reads this well). -->
-
-- **Languages:** [e.g. Java, TypeScript, Go, Python, Bash]
-- **Cloud & Infrastructure:** [e.g. Amazon Web Services (AWS), Terraform, Docker, Kubernetes]
-- **Backend & Messaging:** [e.g. Quarkus, Node.js, Kafka, NATS, PostgreSQL]
-- **Security & Observability:** [e.g. SPIFFE/SPIRE, mTLS, OpenTelemetry, Prometheus]
-- **Practices:** [e.g. CI/CD, GitOps, Distributed Systems, Event-Driven Architecture]
+- **Languages:** Java, PHP, PL/SQL, JavaScript, Go
+- **Cloud & Infrastructure:** Amazon Web Services (AWS), Kubernetes, Docker, cloud security
+- **Backend & Integration:** Oracle ADF, SOA, BPEL, web services, Apigee (API management), Quarkus, NATS
+- **Databases:** MySQL, PostgreSQL, SQL Server, Oracle
+- **Security & Identity:** SPIFFE/SPIRE, mTLS, Envoy, Istio
+- **Mobile & Geolocation:** Android development, Google Maps API
 
 ## Experience
 
-### [Job Title] — [Company Name], [City, Country]
-[MM/YYYY] – [MM/YYYY or Present]
+### Software Engineer / System Architect — Edge Mobile Ideas, Paraguay
+06/2012 – Present
 
-- [Achievement with measurable impact — what you did, how, and the result. e.g. "Reduced API p99 latency by 40% by introducing connection pooling and caching."]
-- [Achievement 2 — start with an action verb; quantify where possible.]
-- [Achievement 3 — technologies used and business outcome.]
-- [Achievement 4 — optional.]
+- Developed Android-based software.
+- Maintained an in-house framework based on PHP 5.
+- Optimized relational databases (MySQL, PostgreSQL, SQL Server).
+- Implemented geolocation features using the Google Maps API.
+- Exposed and managed APIs with Apigee.
 
-### [Job Title] — [Company Name], [City, Country]
-[MM/YYYY] – [MM/YYYY]
+### Programmer — Konecta S.A., Paraguay
+03/2011 – 03/2012
 
-- [Achievement with measurable impact.]
-- [Achievement 2.]
-- [Achievement 3.]
-
-### [Job Title] — [Company Name], [City, Country]
-[MM/YYYY] – [MM/YYYY]
-
-- [Achievement with measurable impact.]
-- [Achievement 2.]
+- Built systems on an SOA architecture using the Oracle ADF framework (JSF, Java, JavaScript, CSS).
+- Translated PL/SQL to Java for use with code generators.
+- Created and published web services and BPEL projects on Oracle Application Server (OAS).
 
 ## Education
 
-### [Degree, e.g. B.Sc. in Computer Science] — [Institution]
-[City, Country] • [MM/YYYY] – [MM/YYYY]
-
-- [Optional: relevant coursework, honors, thesis, or GPA.]
+### Computer Programming — Facultad Politécnica, Universidad Nacional de Asunción
+Paraguay • 2008 – 2013
 
 ## Certifications
 
-- [Certification Name] — [Issuer] — [MM/YYYY] [Optional: credential ID / verification URL]
-- [e.g. AWS Certified Solutions Architect – Associate] — [Amazon Web Services] — [MM/YYYY]
-- [Certification Name] — [Issuer] — [MM/YYYY]
-
-## Languages
-
-- [Language, e.g. Spanish] — [Proficiency, e.g. Native]
-- [Language, e.g. English] — [Proficiency, e.g. Professional working proficiency (C1)]
+- AWS Certified Solutions Architect – Professional — Amazon Web Services
+- AWS Certified Solutions Architect – Associate — Amazon Web Services
+- Certified Kubernetes Application Developer (CKAD) — Cloud Native Computing Foundation
+- Oracle Certified Professional, Java SE 7 Programmer (OCPJP 7) — Oracle
+- Oracle Certified Associate, Java SE 7 Programmer (OCAJP 7) — Oracle
 
 ## Projects
 
-<!-- Optional. Delete this section if not needed. -->
+### Proteus — https://github.com/kiquetal/proteus-oss
+- Zero-trust service mesh on AWS ECS Fargate using SPIFFE/SPIRE and Envoy, with a custom ECS node attestor plugin that replaces join tokens with IAM-role-based attestation.
 
-### [Project Name] — [https://link-or-repo]
-- [One line on what it is, the stack, and your role/impact.]
-
-### [Project Name] — [https://link-or-repo]
-- [One line on what it is, the stack, and your role/impact.]
+### Technical blog — https://kiquetal.dev
+- Bilingual (English/Spanish) engineering blog on cloud security, AWS, service identity, Istio and Java.
 
 ## References
 
-[Available upon request.]
-
-<!--
-  OR list them explicitly (replace the line above):
-
-  - [Reference Full Name] — [Title], [Company] — [email@example.com] — [+000 000 000 000]
-  - [Reference Full Name] — [Title], [Company] — [email@example.com] — [+000 000 000 000]
--->
+Available upon request.

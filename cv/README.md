@@ -3,8 +3,11 @@
 Standalone, single-column CV skeletons that generate **text-based PDFs** (selectable text,
 no images/tables) designed to pass automated **Applicant Tracking System (ATS)** screeners.
 
-> This folder is **independent of the Astro site**. Nothing here affects `npm run build`,
-> the `src/` tree, or the GitHub Pages deploy. The `*.pdf` outputs are git-ignored.
+> The Markdown sources and PDF build live here. `./build.sh` also copies the PDFs to
+> `../public/cv/`, which the site serves at `/cv/cv-en.pdf` and `/cv/cv-es.pdf`
+> (landing page: `/cv`, from `src/pages/cv.astro`). The PDFs in this folder are
+> git-ignored; the published copies in `public/cv/` are committed.
+> Public version: email-only contact, no phone, no references list.
 
 ## Files
 

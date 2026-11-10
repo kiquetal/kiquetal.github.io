@@ -29,6 +29,10 @@ build_one() {
     --metadata pagetitle="CV" \
     -o "$out"
   echo "  -> $out ($(wc -c < "$out") bytes)"
+  # Publish a copy so the site serves it at /cv/cv-<lang>.pdf
+  mkdir -p ../public/cv
+  cp "$out" "../public/cv/$out"
+  echo "  -> published ../public/cv/$out"
 }
 
 if [ "${1:-}" = "" ]; then
